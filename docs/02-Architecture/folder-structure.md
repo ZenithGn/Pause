@@ -1,193 +1,128 @@
 # Cấu trúc thư mục dự án (Folder Structure)
 
+> Cập nhật lần cuối: sau khi hoàn thành **FR-01 – Authentication & Account**.
+> Cấu trúc dưới đây phản ánh code thực tế trong repo.
+
 ## Tổng quan Monorepo
 
 ```
 Pause/
-├── 📄 agents.md                    # Cấu hình AI agents
+├── 📄 AGENTS.md                    # Hướng dẫn AI coding agents
+├── 📄 .gitignore
 ├── 📂 docs/                        # 📚 Tài liệu dự án
 │   ├── 📂 01-BA/                   # Business Analysis
-│   │   ├── 📂 SRS/                 # Software Requirements Specification
-│   │   │   ├── 00-overview.md      # Tổng quan SRS
-│   │   │   ├── 01-fr.md            # Functional Requirements
-│   │   │   └── 02-nfr.md           # Non-Functional Requirements
-│   │   ├── domain-glossary.md      # Bảng thuật ngữ nghiệp vụ
-│   │   └── production.md           # Mô tả sản phẩm
-│   ├── 📂 02-Architecture/         # Kiến trúc hệ thống
-│   │   ├── system-design.md        # Thiết kế hệ thống tổng quan
-│   │   └── folder-structure.md     # Tài liệu này
-│   ├── 📂 03-References/           # Tài liệu tham khảo
-│   │   └── db-schema.md            # Database schema
-│   └── 📂 04-Plans/                # Kế hoạch phát triển
-│       ├── 📂 active/              # Kế hoạch đang thực hiện
-│       └── 📂 completed/           # Kế hoạch đã hoàn thành
+│   │   ├── 📂 SRS/                 # 00-overview, 01-fr, 02-nfr
+│   │   ├── domain-glossary.md
+│   │   └── production.md
+│   ├── 📂 02-Architecture/         # system-design.md, folder-structure.md
+│   ├── 📂 03-References/           # db-schema.md, screen-inventory.md
+│   └── 📂 04-Plans/
+│       ├── 📂 active/              # task-breakdown.md (FR đang làm)
+│       └── 📂 completed/           # Biên bản hoàn thành từng module
 │
-└── 📂 app/                         # 💻 Source code
-    ├── 📂 mobile/                  # Android app (Kotlin)
-    │   └── (sẽ khởi tạo sau)
-    └── 📂 web/                     # Next.js web app
-        └── (sẽ khởi tạo sau)
+├── 📂 supabase/                    # 🗄️ Backend (migrations, config, email templates)
+│   ├── config.toml                 # Auth providers, email templates, rate limit
+│   ├── migrations/                 # SQL migrations (profiles, RLS, drawers, avatars)
+│   ├── templates/                  # Email xác nhận + khôi phục mật khẩu
+│   ├── tests/                      # validate_migrations.py (chạy SQL trên Postgres embedded)
+│   └── README.md                   # Hướng dẫn setup project Supabase
+│
+└── 📂 app/
+    ├── 📂 mobile/                  # 📱 Android app (Kotlin + Compose) — đã khởi tạo
+    └── 📂 web/                     # 🌐 Next.js (landing + admin) — chưa khởi tạo
 ```
+
+> **Ghi chú**: `supabase/` đặt ở root (không phải `app/web/supabase/`) vì migration
+> là backend dùng chung cho cả mobile và web, và `supabase` CLI mặc định tìm thư mục
+> này ở root repo.
 
 ---
 
-## Chi tiết cấu trúc Mobile App (Kotlin – dự kiến)
-
-> Sẽ được khởi tạo khi bắt đầu phase code.
+## Chi tiết Mobile App (Kotlin – đã triển khai FR-01)
 
 ```
 app/mobile/
-├── 📄 build.gradle.kts             # Root build config
+├── 📄 build.gradle.kts                     # Root build (plugins)
 ├── 📄 settings.gradle.kts
-├── 📂 app/
-│   ├── 📄 build.gradle.kts
-│   └── 📂 src/main/
-│       ├── 📄 AndroidManifest.xml
-│       ├── 📂 java/com/pause/app/
-│       │   │
-│       │   ├── 📂 di/              # Dependency Injection (Hilt modules)
-│       │   │   └── AppModule.kt
-│       │   │
-│       │   ├── 📂 data/            # Data Layer
-│       │   │   ├── 📂 remote/      # Supabase API calls
-│       │   │   │   ├── SupabaseClient.kt
-│       │   │   │   ├── DrawerApi.kt
-│       │   │   │   ├── PhotoApi.kt
-│       │   │   │   └── OrderApi.kt
-│       │   │   ├── 📂 local/       # Local database (Room)
-│       │   │   │   ├── AppDatabase.kt
-│       │   │   │   ├── DrawerDao.kt
-│       │   │   │   └── PhotoDao.kt
-│       │   │   ├── 📂 repository/  # Repository implementations
-│       │   │   │   ├── DrawerRepositoryImpl.kt
-│       │   │   │   ├── PhotoRepositoryImpl.kt
-│       │   │   │   └── OrderRepositoryImpl.kt
-│       │   │   └── 📂 model/       # Data models / DTOs
-│       │   │       ├── DrawerDto.kt
-│       │   │       ├── PhotoDto.kt
-│       │   │       └── OrderDto.kt
-│       │   │
-│       │   ├── 📂 domain/          # Domain Layer
-│       │   │   ├── 📂 model/       # Domain entities
-│       │   │   │   ├── Drawer.kt
-│       │   │   │   ├── Photo.kt
-│       │   │   │   ├── PhotoboothTemplate.kt
-│       │   │   │   ├── PrintOrder.kt
-│       │   │   │   └── MembershipPlan.kt
-│       │   │   ├── 📂 repository/  # Repository interfaces
-│       │   │   │   ├── DrawerRepository.kt
-│       │   │   │   ├── PhotoRepository.kt
-│       │   │   │   └── OrderRepository.kt
-│       │   │   └── 📂 usecase/     # Use cases
-│       │   │       ├── drawer/
-│       │   │       │   ├── CreateDrawerUseCase.kt
-│       │   │       │   ├── GetDrawersUseCase.kt
-│       │   │       │   ├── ShareDrawerUseCase.kt
-│       │   │       │   └── DeleteDrawerUseCase.kt
-│       │   │       ├── photo/
-│       │   │       │   ├── UploadPhotoUseCase.kt
-│       │   │       │   ├── GetPhotosUseCase.kt
-│       │   │       │   └── DeletePhotoUseCase.kt
-│       │   │       └── order/
-│       │   │           ├── CreateOrderUseCase.kt
-│       │   │           └── GetOrdersUseCase.kt
-│       │   │
-│       │   └── 📂 presentation/    # Presentation Layer (UI)
-│       │       ├── 📂 auth/        # Đăng nhập / Đăng ký
-│       │       │   ├── LoginScreen.kt
-│       │       │   ├── RegisterScreen.kt
-│       │       │   └── AuthViewModel.kt
-│       │       ├── 📂 drawer/      # Ngăn kéo kỷ niệm
-│       │       │   ├── DrawerListScreen.kt
-│       │       │   ├── DrawerDetailScreen.kt
-│       │       │   ├── CreateDrawerScreen.kt
-│       │       │   ├── ShareDrawerScreen.kt
-│       │       │   └── DrawerViewModel.kt
-│       │       ├── 📂 photo/       # Quản lý ảnh
-│       │       │   ├── PhotoGridScreen.kt
-│       │       │   ├── PhotoViewerScreen.kt
-│       │       │   └── PhotoViewModel.kt
-│       │       ├── 📂 photobooth/  # Tạo photobooth
-│       │       │   ├── TemplateListScreen.kt
-│       │       │   ├── PhotoboothBuilderScreen.kt
-│       │       │   ├── PhotoboothPreviewScreen.kt
-│       │       │   └── PhotoboothViewModel.kt
-│       │       ├── 📂 order/       # Đơn hàng
-│       │       │   ├── OrderScreen.kt
-│       │       │   ├── OrderDetailScreen.kt
-│       │       │   └── OrderViewModel.kt
-│       │       ├── 📂 membership/  # Gói hội viên
-│       │       │   ├── MembershipScreen.kt
-│       │       │   └── MembershipViewModel.kt
-│       │       ├── 📂 profile/     # Hồ sơ cá nhân
-│       │       │   ├── ProfileScreen.kt
-│       │       │   └── ProfileViewModel.kt
-│       │       ├── 📂 navigation/  # App navigation
-│       │       │   └── NavGraph.kt
-│       │       └── 📂 components/  # Shared UI components
-│       │           ├── DrawerCard.kt
-│       │           ├── PhotoThumbnail.kt
-│       │           ├── LoadingIndicator.kt
-│       │           └── ErrorDialog.kt
-│       │
-│       └── 📂 res/                 # Android resources
-│           ├── 📂 drawable/
-│           ├── 📂 values/
-│           └── 📂 font/
-│
-└── 📂 gradle/
-    └── libs.versions.toml          # Version catalog
+├── 📄 gradle.properties
+├── 📄 local.properties.example             # Mẫu cấu hình (copy → local.properties)
+├── 📄 README.md                            # Setup + build + phạm vi FR-01
+├── 📂 gradle/
+│   └── 📄 libs.versions.toml               # Version catalog (AGP, Compose, Supabase...)
+└── 📂 app/
+    ├── 📄 build.gradle.kts                 # compileSdk 34, minSdk 26, BuildConfig secrets
+    ├── 📄 proguard-rules.pro
+    └── 📂 src/
+        ├── 📂 main/
+        │   ├── 📄 AndroidManifest.xml      # Deep link pause://auth-callback
+        │   ├── 📂 java/com/pause/app/
+        │   │   ├── 📄 PauseApplication.kt  # startKoin
+        │   │   ├── 📄 MainActivity.kt      # Compose host + deep link intent
+        │   │   │
+        │   │   ├── 📂 di/
+        │   │   │   └── 📄 AppModule.kt     # Koin: SupabaseClient, repos, use cases, VMs
+        │   │   │
+        │   │   ├── 📂 domain/              # Không phụ thuộc Android
+        │   │   │   ├── 📂 model/           # User, UserProfile, AuthSession, AuthFailure
+        │   │   │   ├── 📂 repository/      # AuthRepository, ProfileRepository, LoginAttemptStore
+        │   │   │   ├── 📂 usecase/         # SignUp, SignIn, SignInWithGoogle, SignOut,
+        │   │   │   │                       # ResetPassword, UpdatePassword, Get/UpdateProfile,
+        │   │   │   │                       # UploadAvatar, Get/ObserveSession, HandleAuthDeepLink
+        │   │   │   └── 📂 validation/      # CredentialsValidator
+        │   │   │
+        │   │   ├── 📂 data/
+        │   │   │   ├── 📂 remote/dto/      # ProfileDto, ProfileUpdateDto (@Serializable)
+        │   │   │   ├── 📂 mapper/          # DTO/UserSession → domain, Throwable → AuthFailure
+        │   │   │   ├── 📂 repository/      # AuthRepositoryImpl, ProfileRepositoryImpl
+        │   │   │   └── 📂 session/         # InMemoryLoginAttemptStore (FR-01.2 lockout)
+        │   │   │
+        │   │   └── 📂 presentation/
+        │   │       ├── 📂 auth/            # AuthViewModel, AuthUiState, Login/Register/
+        │   │       │                       # ForgotPassword/ResetPassword, GoogleSignInLauncher
+        │   │       ├── 📂 profile/         # ProfileViewModel, ProfileScreen, ProfileUiState
+        │   │       ├── 📂 splash/          # SplashScreen, SplashViewModel (auto-login)
+        │   │       ├── 📂 home/            # HomeScreen (placeholder, FR-02 thay thế)
+        │   │       ├── 📂 navigation/      # PauseNavGraph, Routes
+        │   │       ├── 📂 common/          # UiText, AuthFailureMapper
+        │   │       │   └── 📂 components/  # PauseButton/TextField/AuthTopBar/BottomBar...
+        │   │       └── 📂 theme/           # PauseTheme (grayscale theo Figma)
+        │   │
+        │   └── 📂 res/
+        │       ├── 📂 values/              # strings.xml (tiếng Việt), colors, themes
+        │       ├── 📂 drawable/            # ic_launcher_foreground
+        │       └── 📂 mipmap-anydpi-v26/   # adaptive icon
+        └── 📂 test/java/com/pause/app/     # JVM unit + local integration tests
+            ├── 📂 testutil/                # FakeAuthRepository, FakeProfileRepository, MainDispatcherRule
+            ├── 📂 domain/                  # CredentialsValidatorTest, SignUp/SignInUseCaseTest
+            ├── 📂 data/session/            # InMemoryLoginAttemptStoreTest
+            └── 📂 presentation/            # AuthFlowIntegrationTest (T-01.24)
 ```
+
+Khi làm FR-02+ sẽ bổ sung các package `drawer/`, `photo/`, `photobooth/`, `order/`,
+`membership/` theo cùng pattern (domain/usecase + data/repository + presentation).
 
 ---
 
-## Chi tiết cấu trúc Web App (Next.js – dự kiến)
+## Chi tiết Web App (Next.js – dự kiến)
 
-> Sẽ được khởi tạo khi bắt đầu phase code.
+> Sẽ được khởi tạo khi bắt đầu module FR-06 (Admin).
 
 ```
 app/web/
 ├── 📄 package.json
 ├── 📄 next.config.ts
 ├── 📄 tsconfig.json
-├── 📂 public/                      # Static assets
-│   ├── images/
-│   └── fonts/
 ├── 📂 src/
-│   ├── 📂 app/                     # App Router (Next.js 14+)
-│   │   ├── layout.tsx              # Root layout
-│   │   ├── page.tsx                # Landing page (/)
-│   │   ├── 📂 about/
-│   │   │   └── page.tsx            # Giới thiệu (/about)
-│   │   ├── 📂 download/
-│   │   │   └── page.tsx            # Trang tải app (/download)
-│   │   └── 📂 admin/               # Admin dashboard
-│   │       ├── layout.tsx          # Admin layout (sidebar)
-│   │       ├── page.tsx            # Dashboard home
-│   │       ├── 📂 users/
-│   │       │   └── page.tsx        # Quản lý user
-│   │       ├── 📂 templates/
-│   │       │   └── page.tsx        # Quản lý template
-│   │       ├── 📂 orders/
-│   │       │   └── page.tsx        # Quản lý đơn hàng
-│   │       └── 📂 membership/
-│   │           └── page.tsx        # Quản lý gói hội viên
-│   ├── 📂 components/              # Shared components
-│   │   ├── ui/                     # Base UI components
-│   │   ├── layout/                 # Header, Footer, Sidebar
-│   │   └── admin/                  # Admin-specific components
-│   ├── 📂 lib/                     # Utilities & configs
-│   │   ├── supabase.ts             # Supabase client config
-│   │   └── utils.ts                # Helper functions
-│   └── 📂 styles/                  # CSS
-│       └── globals.css
-└── 📂 supabase/                    # Supabase local config
-    ├── 📄 config.toml
-    ├── 📂 migrations/              # DB migrations
-    └── 📂 functions/               # Edge Functions
-        ├── create-thumbnail/
-        ├── process-payment/
-        └── handle-order/
+│   ├── 📂 app/
+│   │   ├── layout.tsx
+│   │   ├── page.tsx                  # Landing page
+│   │   ├── about/page.tsx
+│   │   ├── download/page.tsx
+│   │   └── admin/                    # Dashboard, users, templates, orders, membership
+│   ├── 📂 components/                # ui/, layout/, admin/
+│   ├── 📂 lib/
+│   │   └── supabase.ts
+│   └── 📂 styles/globals.css
 ```
 
 ---
@@ -203,3 +138,4 @@ app/web/
 | Docs | kebab-case | `domain-glossary.md` |
 | Thư mục docs | số thứ tự + tên | `01-BA`, `02-Architecture` |
 | Database tables | snake_case | `drawer_shares`, `print_orders` |
+| SQL migrations | `YYYYMMDDHHMMSS_mô_tả.sql` | `20251112090000_profiles.sql` |

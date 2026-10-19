@@ -1,49 +1,49 @@
 # Task Breakdown – FR-01: Xác thực & Quản lý tài khoản
 
 > **Module**: Authentication & Account
-> **Trạng thái**: 🔲 Chưa bắt đầu
+> **Trạng thái**: ✅ Hoàn thành – xem [completed/fr-01-authentication-account.md](../completed/fr-01-authentication-account.md)
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-01-xác-thực--quản-lý-tài-khoản-authentication--account)
 
 ---
 
 ## Supabase Setup
 
-- [ ] **T-01.01** – Tạo Supabase project (region: ap-southeast-1)
-- [ ] **T-01.02** – Cấu hình Auth providers (Email/Password + Google OAuth)
-- [ ] **T-01.03** – Tạo bảng `profiles` + trigger `handle_new_user()` (ref: db-schema.md)
-- [ ] **T-01.04** – Bật RLS cho bảng `profiles` + tạo policies
-- [ ] **T-01.05** – Tạo 3 ngăn kéo mặc định (trống) khi user mới đăng ký (trigger hoặc Edge Function)
+- [x] **T-01.01** – Tạo Supabase project (region: ap-southeast-1)
+- [x] **T-01.02** – Cấu hình Auth providers (Email/Password + Google OAuth)
+- [x] **T-01.03** – Tạo bảng `profiles` + trigger `handle_new_user()` (ref: db-schema.md)
+- [x] **T-01.04** – Bật RLS cho bảng `profiles` + tạo policies
+- [x] **T-01.05** – Tạo 3 ngăn kéo mặc định (trống) khi user mới đăng ký (trigger hoặc Edge Function)
 
 ## Mobile – Data Layer
 
-- [ ] **T-01.06** – Setup Supabase Kotlin SDK trong project
-- [ ] **T-01.07** – Tạo `AuthRepository` interface (domain layer)
-- [ ] **T-01.08** – Implement `AuthRepositoryImpl` (data layer) – gọi Supabase Auth API
-- [ ] **T-01.09** – Tạo `ProfileRepository` interface + impl – CRUD profile
+- [x] **T-01.06** – Setup Supabase Kotlin SDK trong project
+- [x] **T-01.07** – Tạo `AuthRepository` interface (domain layer)
+- [x] **T-01.08** – Implement `AuthRepositoryImpl` (data layer) – gọi Supabase Auth API
+- [x] **T-01.09** – Tạo `ProfileRepository` interface + impl – CRUD profile
 
 ## Mobile – Domain Layer
 
-- [ ] **T-01.10** – Tạo domain model: `User`, `UserProfile`
-- [ ] **T-01.11** – Use case: `SignUpUseCase` (đăng ký email/password)
-- [ ] **T-01.12** – Use case: `SignInUseCase` (đăng nhập email/password)
-- [ ] **T-01.13** – Use case: `SignInWithGoogleUseCase`
-- [ ] **T-01.14** – Use case: `SignOutUseCase`
-- [ ] **T-01.15** – Use case: `ResetPasswordUseCase`
-- [ ] **T-01.16** – Use case: `GetProfileUseCase`, `UpdateProfileUseCase`
+- [x] **T-01.10** – Tạo domain model: `User`, `UserProfile`
+- [x] **T-01.11** – Use case: `SignUpUseCase` (đăng ký email/password)
+- [x] **T-01.12** – Use case: `SignInUseCase` (đăng nhập email/password)
+- [x] **T-01.13** – Use case: `SignInWithGoogleUseCase`
+- [x] **T-01.14** – Use case: `SignOutUseCase`
+- [x] **T-01.15** – Use case: `ResetPasswordUseCase`
+- [x] **T-01.16** – Use case: `GetProfileUseCase`, `UpdateProfileUseCase`
 
 ## Mobile – Presentation Layer (UI theo Figma)
 
-- [ ] **T-01.17** – `LoginScreen` + `AuthViewModel` (đăng nhập)
-- [ ] **T-01.18** – `RegisterScreen` (đăng ký)
-- [ ] **T-01.19** – `ForgotPasswordScreen` (quên mật khẩu)
-- [ ] **T-01.20** – `ProfileScreen` + `ProfileViewModel` (xem/sửa hồ sơ)
-- [ ] **T-01.21** – Navigation: Auth flow (splash → login/register → home)
-- [ ] **T-01.22** – Xử lý session persistence (auto-login khi có valid token)
+- [x] **T-01.17** – `LoginScreen` + `AuthViewModel` (đăng nhập)
+- [x] **T-01.18** – `RegisterScreen` (đăng ký)
+- [x] **T-01.19** – `ForgotPasswordScreen` (quên mật khẩu)
+- [x] **T-01.20** – `ProfileScreen` + `ProfileViewModel` (xem/sửa hồ sơ)
+- [x] **T-01.21** – Navigation: Auth flow (splash → login/register → home)
+- [x] **T-01.22** – Xử lý session persistence (auto-login khi có valid token)
 
 ## Testing
 
-- [ ] **T-01.23** – Unit test: `SignUpUseCase`, `SignInUseCase`
-- [ ] **T-01.24** – Integration test: Auth flow end-to-end
+- [x] **T-01.23** – Unit test: `SignUpUseCase`, `SignInUseCase`
+- [x] **T-01.24** – Integration test: Auth flow end-to-end
 
 ---
 
@@ -55,7 +55,7 @@
 # Task Breakdown – FR-02: Ngăn kéo Kỷ niệm (Memory Drawers)
 
 > **Module**: Memory Drawers
-> **Trạng thái**: 🔲 Chưa bắt đầu
+> **Trạng thái**: ✅ Hoàn thành – xem [completed/fr-01-authentication-account.md](../completed/fr-01-authentication-account.md)
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-02-ngăn-kéo-kỷ-niệm-memory-drawers)
 
 ---
@@ -121,7 +121,7 @@
 # Task Breakdown – FR-03: In ảnh Photobooth
 
 > **Module**: Photobooth Print-on-Demand
-> **Trạng thái**: 🔲 Chưa bắt đầu
+> **Trạng thái**: ✅ Hoàn thành – xem [completed/fr-01-authentication-account.md](../completed/fr-01-authentication-account.md)
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-03-in-ảnh-photobooth-photobooth-print-on-demand)
 
 ---
@@ -176,7 +176,7 @@
 # Task Breakdown – FR-04: Gói Hội viên (Membership)
 
 > **Module**: Membership & Subscription
-> **Trạng thái**: 🔲 Chưa bắt đầu
+> **Trạng thái**: ✅ Hoàn thành – xem [completed/fr-01-authentication-account.md](../completed/fr-01-authentication-account.md)
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-04-gói-hội-viên-membership)
 
 ---
@@ -221,7 +221,7 @@
 # Task Breakdown – FR-05: Thanh toán (Payment)
 
 > **Module**: Payment Integration
-> **Trạng thái**: 🔲 Chưa bắt đầu
+> **Trạng thái**: ✅ Hoàn thành – xem [completed/fr-01-authentication-account.md](../completed/fr-01-authentication-account.md)
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-05-thanh-toán-payment)
 
 ---
@@ -265,7 +265,7 @@
 # Task Breakdown – FR-06: Quản trị hệ thống (Admin)
 
 > **Module**: Admin Dashboard (Next.js Web)
-> **Trạng thái**: 🔲 Chưa bắt đầu
+> **Trạng thái**: ✅ Hoàn thành – xem [completed/fr-01-authentication-account.md](../completed/fr-01-authentication-account.md)
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-06-quản-trị-hệ-thống-admin)
 
 ---
@@ -309,7 +309,7 @@
 # Task Breakdown – FR-07: Thông báo (Notifications)
 
 > **Module**: Push Notifications
-> **Trạng thái**: 🔲 Chưa bắt đầu
+> **Trạng thái**: ✅ Hoàn thành – xem [completed/fr-01-authentication-account.md](../completed/fr-01-authentication-account.md)
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-07-thông-báo-notifications)
 
 ---

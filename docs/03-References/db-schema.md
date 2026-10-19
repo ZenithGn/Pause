@@ -191,6 +191,17 @@ CREATE POLICY "Users can update own profile"
     ON profiles FOR UPDATE USING (auth.uid() = id);
 ```
 
+> **Đã triển khai (FR-01)** – xem `supabase/migrations/`:
+> - `profiles` chỉ cấp `SELECT/UPDATE` cho role `authenticated`; `INSERT/DELETE`
+>   do trigger `handle_new_user()` (SECURITY DEFINER) và `ON DELETE CASCADE` xử lý.
+> - Trigger `protect_profiles_columns()` chặn user tự đổi `max_drawers`
+>   (chỉ `service_role` được đổi – dùng cho gói hội viên/mua lẻ).
+> - Trigger `on_profile_created_create_default_drawers` tạo ngay 3 ngăn kéo trống
+>   cho user mới (FR-01.5 post-condition), đọc theo `max_drawers`.
+> - Trigger `enforce_drawer_quota()` chặn tạo ngăn kéo vượt `max_drawers` ở tầng DB.
+> - Trigger `handle_user_metadata_update()` đồng bộ `display_name` từ metadata
+>   Google/OAuth cho user chưa đặt tên.
+
 ---
 
 ### 2. `drawers` (Ngăn kéo kỷ niệm)
@@ -499,6 +510,12 @@ CREATE INDEX idx_transactions_status ON transactions(status);
 -- Bucket 4: photobooth-previews (private)
 -- Path: /{user_id}/{photobooth_item_id}.png
 -- Access: qua signed URL
+
+-- Bucket 5: avatars (private) – FR-01.5
+-- Path: /{user_id}/avatar.{jpg|png|webp}
+-- Access: qua signed URL (expiry 1h), RLS theo folder = auth.uid()
+-- Giới hạn: 5 MB, chỉ image/jpeg, image/png, image/webp
+-- Cột profiles.avatar_url lưu OBJECT PATH (không lưu public URL)
 ```
 
 ---

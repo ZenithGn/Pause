@@ -1,0 +1,32 @@
+# Android / Gradle
+*.iml
+.gradle/
+build/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Kotlin / Java
+*.hprof
+*.class
+
+# IDE
+.idea/
+*.iws
+*.ipr
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+
+# Logs
+*.log

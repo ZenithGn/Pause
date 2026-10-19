@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <body style="margin:0;padding:32px;background:#f5f5f5;font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#111">
+    <div style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:16px;padding:32px">
+      <h1 style="margin:0 0 8px;font-size:28px;letter-spacing:6px">PAUSE</h1>
+      <p style="margin:0 0 24px;color:#666;font-size:14px">Dừng lại, lưu giữ, hiện thực hóa kỷ niệm</p>
+
+      <h2 style="margin:0 0 12px;font-size:18px">Xác nhận tài khoản của bạn</h2>
+      <p style="margin:0 0 20px;font-size:14px;line-height:1.6">
+        Chào {{ .Email }}, cảm ơn bạn đã đăng ký Pause. Bấm vào nút bên dưới để kích hoạt tài khoản.
+      </p>
+
+      <a href="{{ .ConfirmationURL }}"
+         style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:14px 24px;border-radius:999px;font-size:14px">
+        Kích hoạt tài khoản
+      </a>
+
+      <p style="margin:24px 0 8px;font-size:13px;color:#666">
+        Hoặc nhập mã xác nhận sau trong ứng dụng:
+      </p>
+      <p style="margin:0 0 24px;font-size:28px;font-weight:700;letter-spacing:8px">{{ .Token }}</p>
+
+      <p style="margin:0;font-size:12px;color:#999">
+        Nếu bạn không đăng ký Pause, hãy bỏ qua email này.
+      </p>
+    </div>
+  </body>
+</html>

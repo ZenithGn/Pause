@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">Pause</string>
+    <string name="app_tagline">Dừng lại, lưu giữ, hiện thực hóa kỷ niệm</string>
+
+    <!-- Common -->
+    <string name="loading">Đang xử lý…</string>
+    <string name="retry">Thử lại</string>
+    <string name="back">Quay lại</string>
+    <string name="close">Đóng</string>
+    <string name="save">Lưu thay đổi</string>
+    <string name="cancel">Hủy</string>
+    <string name="continue_label">Tiếp tục</string>
+    <string name="or_continue_with">Hoặc tiếp tục với</string>
+    <string name="show_password">Hiện mật khẩu</string>
+    <string name="hide_password">Ẩn mật khẩu</string>
+
+    <!-- Auth – Login (FR-01.2) -->
+    <string name="login_welcome_back">Welcome back</string>
+    <string name="login_title">Đăng nhập</string>
+    <string name="login_email_label">Email</string>
+    <string name="login_email_placeholder">ban@example.com</string>
+    <string name="login_password_label">Mật khẩu</string>
+    <string name="login_password_placeholder">Nhập mật khẩu</string>
+    <string name="login_forgot_password">Quên mật khẩu?</string>
+    <string name="login_cta">Đăng nhập</string>
+    <string name="login_no_account">Chưa có tài khoản? Đăng ký ngay</string>
+    <string name="login_with_google">Đăng nhập với Google</string>
+    <string name="login_with_apple">Đăng nhập với Apple</string>
+    <string name="login_apple_coming_soon">Đăng nhập Apple sẽ sớm ra mắt</string>
+
+    <!-- Auth – Register (FR-01.1) -->
+    <string name="register_title">Tạo tài khoản mới</string>
+    <string name="register_name_label">Họ và tên</string>
+    <string name="register_name_placeholder">Nguyễn Văn A</string>
+    <string name="register_email_label">Email</string>
+    <string name="register_password_label">Mật khẩu</string>
+    <string name="register_confirm_password_label">Xác nhận mật khẩu</string>
+    <string name="register_terms">Tôi đồng ý với Điều khoản sử dụng</string>
+    <string name="register_cta">Đăng ký</string>
+    <string name="register_have_account">Đã có tài khoản? Đăng nhập</string>
+    <string name="register_password_hint">Tối thiểu 8 ký tự, gồm chữ và số</string>
+    <string name="register_success_title">Kiểm tra email của bạn</string>
+    <string name="register_success_message">Chúng tôi đã gửi link xác nhận tới %1$s. Xác nhận email rồi quay lại đăng nhập nhé.</string>
+    <string name="register_resend_email">Gửi lại email xác nhận</string>
+    <string name="register_resend_success">Đã gửi lại email xác nhận</string>
+
+    <!-- Auth – Forgot password (FR-01.4) -->
+    <string name="forgot_title">Quên mật khẩu</string>
+    <string name="forgot_instruction">Nhập email của bạn để nhận hướng dẫn khôi phục mật khẩu</string>
+    <string name="forgot_cta">Gửi link khôi phục</string>
+    <string name="forgot_sent_title">Đã gửi email khôi phục</string>
+    <string name="forgot_sent_message">Mở email và bấm vào link để đặt mật khẩu mới. Nếu không thấy, hãy kiểm tra hộp thư rác.</string>
+
+    <!-- Auth – Reset password -->
+    <string name="reset_title">Đặt mật khẩu mới</string>
+    <string name="reset_new_password_label">Mật khẩu mới</string>
+    <string name="reset_cta">Cập nhật mật khẩu</string>
+    <string name="reset_success">Đã cập nhật mật khẩu. Vui lòng đăng nhập lại.</string>
+
+    <!-- Validation messages -->
+    <string name="error_email_required">Vui lòng nhập email</string>
+    <string name="error_email_invalid">Email không hợp lệ</string>
+    <string name="error_password_required">Vui lòng nhập mật khẩu</string>
+    <string name="error_password_too_short">Mật khẩu phải có ít nhất 8 ký tự</string>
+    <string name="error_password_weak">Mật khẩu phải gồm cả chữ và số</string>
+    <string name="error_password_mismatch">Mật khẩu xác nhận không khớp</string>
+    <string name="error_name_required">Vui lòng nhập họ tên</string>
+    <string name="error_name_too_short">Họ tên phải có ít nhất 2 ký tự</string>
+    <string name="error_terms_required">Bạn cần đồng ý Điều khoản sử dụng</string>
+    <string name="error_phone_invalid">Số điện thoại không hợp lệ</string>
+
+    <!-- Auth failures -->
+    <string name="error_invalid_credentials">Email hoặc mật khẩu không đúng</string>
+    <string name="error_email_not_confirmed">Email chưa được xác nhận. Vui lòng kiểm tra hộp thư.</string>
+    <string name="error_email_already_registered">Email này đã được đăng ký</string>
+    <string name="error_too_many_attempts">Bạn đã thử quá nhiều lần. Vui lòng thử lại sau %1$d phút.</string>
+    <string name="error_weak_password">Mật khẩu quá yếu, vui lòng chọn mật khẩu khác</string>
+    <string name="error_network">Không thể kết nối. Kiểm tra mạng rồi thử lại.</string>
+    <string name="error_session_expired">Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại</string>
+    <string name="error_google_cancelled">Bạn đã hủy đăng nhập Google</string>
+    <string name="error_unknown">Đã có lỗi xảy ra. Vui lòng thử lại.</string>
+
+    <!-- Profile (FR-01.5) -->
+    <string name="profile_title">Tài khoản của tôi</string>
+    <string name="profile_member_free">Thành viên Free</string>
+    <string name="profile_member_premium">Thành viên Premium</string>
+    <string name="profile_edit">Chỉnh sửa hồ sơ</string>
+    <string name="profile_change_avatar">Đổi ảnh đại diện</string>
+    <string name="profile_name_label">Tên hiển thị</string>
+    <string name="profile_phone_label">Số điện thoại</string>
+    <string name="profile_email_label">Email</string>
+    <string name="profile_drawers_label">Số ngăn kéo tối đa: %1$d</string>
+    <string name="profile_orders">Quản lý đơn hàng</string>
+    <string name="profile_upgrade">Nâng cấp gói</string>
+    <string name="profile_settings">Cài đặt</string>
+    <string name="profile_support">Hỗ trợ</string>
+    <string name="profile_logout">Đăng xuất</string>
+    <string name="profile_logout_confirm_title">Đăng xuất?</string>
+    <string name="profile_logout_confirm_message">Bạn sẽ cần đăng nhập lại để xem ngăn kéo kỷ niệm.</string>
+    <string name="profile_updated">Đã cập nhật hồ sơ</string>
+    <string name="profile_coming_soon">Tính năng sẽ có ở module tiếp theo</string>
+
+    <!-- Home placeholder -->
+    <string name="home_greeting">Xin chào, %1$s</string>
+    <string name="home_greeting_anonymous">Xin chào</string>
+    <string name="home_recent_memories">Kỷ niệm gần đây</string>
+    <string name="home_drawers_section">Tủ kỷ niệm (Memory Drawers)</string>
+    <string name="home_create_drawer">Tạo tủ mới</string>
+    <string name="home_quick_photobooth">Photobooth nhanh</string>
+    <string name="home_drawers_placeholder">Ngăn kéo kỷ niệm sẽ xuất hiện ở đây (FR-02)</string>
+
+    <!-- Bottom navigation -->
+    <string name="tab_home">Home</string>
+    <string name="tab_explore">Explore</string>
+    <string name="tab_memories">Memories</string>
+    <string name="tab_profile">Profile</string>
+</resources>

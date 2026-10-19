@@ -1,0 +1,15 @@
+# Supabase / Android local configuration
+# Copy to `local.properties` (git-ignored) and fill in real values.
+#
+# Do NOT commit `local.properties`.
+
+# Android SDK location
+sdk.dir=C\:\\Users\\<you>\\AppData\\Local\\Android\\Sdk
+
+# Supabase (Dashboard -> Project Settings -> API)
+# Local stack: SUPABASE_URL=http://10.0.2.2:54321 (emulator -> host machine)
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+
+# Google OAuth "Web application" client ID (used as serverClientId for Credential Manager)
+GOOGLE_WEB_CLIENT_ID=your-web-client-id.apps.googleusercontent.com

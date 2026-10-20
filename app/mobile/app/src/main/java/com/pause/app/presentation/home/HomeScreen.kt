@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -46,6 +47,8 @@ fun HomeScreen(
     displayName: String?,
     recentDrawers: List<Drawer>,
     hasError: Boolean,
+    pendingInvitationCount: Int,
+    onOpenInvitations: () -> Unit,
     onCreateDrawer: () -> Unit,
     onOpenDrawer: (Drawer) -> Unit,
     onNavigate: (PauseTab) -> Unit,
@@ -94,6 +97,33 @@ fun HomeScreen(
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White.copy(alpha = 0.7f),
                     )
+                }
+            }
+
+            if (pendingInvitationCount > 0) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Surface(
+                    shape = RoundedCornerShape(18.dp),
+                    color = PauseColors.Surface,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = stringResource(
+                                R.string.home_invitations_banner,
+                                pendingInvitationCount,
+                            ),
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = PauseColors.Ink,
+                        )
+                        TextButton(onClick = onOpenInvitations) {
+                            Text(text = stringResource(R.string.home_invitations_action))
+                        }
+                    }
                 }
             }
 

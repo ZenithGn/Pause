@@ -75,7 +75,7 @@ fun ProfileScreen(
     onAvatarPicked: (ByteArray, String) -> Unit,
     onSignOut: () -> Unit,
     onConsumeMessage: () -> Unit,
-    onOpenHome: () -> Unit,
+    onNavigate: (PauseTab) -> Unit,
 ) {
     val context = LocalContext.current
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -100,7 +100,7 @@ fun ProfileScreen(
         bottomBar = {
             PauseBottomBar(
                 selected = PauseTab.PROFILE,
-                onSelect = { if (it == PauseTab.HOME) onOpenHome() },
+                onSelect = onNavigate,
             )
         },
     ) { innerPadding ->

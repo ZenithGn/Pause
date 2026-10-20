@@ -208,6 +208,8 @@
     <string name="invitation_subtitle">%1$s mời bạn xem “%2$s”</string>
     <string name="invitation_accept">Chấp nhận</string>
     <string name="invitation_reject">Từ chối</string>
+    <string name="home_invitations_banner">Bạn có %1$d lời mời chia sẻ ngăn kéo</string>
+    <string name="home_invitations_action">Xem lời mời</string>
     <string name="invitation_accepted">Đã chấp nhận lời mời</string>
     <string name="invitation_rejected">Đã từ chối lời mời</string>
     <string name="share_status_pending">Đang chờ</string>

@@ -57,10 +57,6 @@ fun DrawerListScreen(
     state: DrawerListUiState,
     onDrawerClick: (Drawer) -> Unit,
     onCreateClick: () -> Unit,
-    onDismissCreate: () -> Unit,
-    onNameChange: (String) -> Unit,
-    onDescriptionChange: (String) -> Unit,
-    onCreateSubmit: () -> Unit,
     onDismissQuota: () -> Unit,
     onRetry: () -> Unit,
     onNavigate: (PauseTab) -> Unit,
@@ -245,16 +241,6 @@ fun DrawerListScreen(
         toast?.let {
             PauseToast(message = it.asString())
         }
-    }
-
-    if (state.isCreateSheetOpen) {
-        CreateDrawerSheet(
-            state = state,
-            onDismiss = onDismissCreate,
-            onNameChange = onNameChange,
-            onDescriptionChange = onDescriptionChange,
-            onSubmit = onCreateSubmit,
-        )
     }
 
     state.quotaReachedMaxDrawers?.let { maxDrawers ->

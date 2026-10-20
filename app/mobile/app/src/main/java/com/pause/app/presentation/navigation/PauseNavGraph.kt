@@ -28,6 +28,7 @@ import com.pause.app.presentation.auth.ResetPasswordScreen
 import com.pause.app.presentation.common.UiText
 import com.pause.app.presentation.common.components.PauseTab
 import com.pause.app.presentation.common.components.PauseToast
+import com.pause.app.presentation.drawer.CreateDrawerSheet
 import com.pause.app.presentation.drawer.DrawerDetailScreen
 import com.pause.app.presentation.drawer.DrawerDetailViewModel
 import com.pause.app.presentation.drawer.DrawerListScreen
@@ -193,6 +194,8 @@ fun PauseNavGraph(
                         ?: authState.session?.user?.email?.substringBefore('@'),
                     recentDrawers = drawerState.recent,
                     hasError = drawerState.error != null,
+                    pendingInvitationCount = drawerState.pendingInvitationCount,
+                    onOpenInvitations = { onTabSelected(PauseTab.MEMORIES) },
                     onCreateDrawer = drawerListViewModel::openCreateSheet,
                     onOpenDrawer = { drawer ->
                         navController.navigate(Routes.drawerDetail(drawer.id))
@@ -207,10 +210,6 @@ fun PauseNavGraph(
                     state = drawerState,
                     onDrawerClick = { drawer -> navController.navigate(Routes.drawerDetail(drawer.id)) },
                     onCreateClick = drawerListViewModel::openCreateSheet,
-                    onDismissCreate = drawerListViewModel::closeCreateSheet,
-                    onNameChange = drawerListViewModel::onNameChange,
-                    onDescriptionChange = drawerListViewModel::onDescriptionChange,
-                    onCreateSubmit = drawerListViewModel::createDrawer,
                     onDismissQuota = drawerListViewModel::dismissQuotaDialog,
                     onRetry = drawerListViewModel::load,
                     onNavigate = ::onTabSelected,
@@ -289,9 +288,19 @@ fun PauseNavGraph(
                         navController.navigateClearingBackStack(Routes.LOGIN)
                     },
                     onConsumeMessage = profileViewModel::consumeMessage,
-                    onOpenHome = { navController.navigate(Routes.HOME) },
+                    onNavigate = ::onTabSelected,
                 )
             }
+        }
+
+        if (drawerState.isCreateSheetOpen) {
+            CreateDrawerSheet(
+                state = drawerState,
+                onDismiss = drawerListViewModel::closeCreateSheet,
+                onNameChange = drawerListViewModel::onNameChange,
+                onDescriptionChange = drawerListViewModel::onDescriptionChange,
+                onSubmit = drawerListViewModel::createDrawer,
+            )
         }
 
         AnimatedVisibility(

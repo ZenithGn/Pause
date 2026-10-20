@@ -37,13 +37,25 @@ supabase db push
 
 ### Cách 2: không cài CLI — dán SQL trong Dashboard
 
-1. Supabase Dashboard → **SQL Editor** → New query.
-2. Dán nội dung `supabase/migrations/20251114090000_fr02_repair.sql` → **Run**.
-   File này đã bao gồm: bỏ trigger tạo placeholder, thêm `status` lời mời, policy
-   accepted-only, và tạo lại toàn bộ RPC FR-02 (kể cả `find_share_recipient`).
-3. Nếu nghi ngờ bucket/policy chưa có, dán thêm
-   `20251113090300_photo_storage_buckets.sql` → Run (idempotent).
-4. Kiểm chứng: dán `supabase/tests/diagnose_fr02.sql` để xem còn thiếu gì.
+**Trường hợp project đã có dữ liệu test cũ (khuyến nghị reset sạch):**
+
+1. Dashboard → **SQL Editor** → New query, chạy:
+
+   ```sql
+   drop schema public cascade;
+   create schema public;
+   grant usage on schema public to anon, authenticated, service_role;
+   ```
+
+2. Mở file `supabase/migrations/20251115090000_init_schema.sql`, copy toàn bộ nội dung,
+   dán vào SQL Editor → **Run**.
+3. Kiểm chứng: chạy `supabase/tests/diagnose_fr02.sql` — phải thấy đủ bảng, RPC,
+   bucket và policy.
+
+**Trường hợp muốn giữ dữ liệu:** file baseline là idempotent nên có thể chạy trực tiếp
+(create table if not exists / drop-create policy / drop-create function). Tuy nhiên
+các policy/trigger cũ không còn trong file sẽ không tự bị xoá — nếu nghi ngờ, nên
+reset sạch như trên (dữ liệu hiện tại chỉ là test).
 
 ## 1. Cấu trúc
 
@@ -51,22 +63,29 @@ supabase db push
 supabase/
 ├── config.toml                     # Cấu hình local stack (auth, storage, email templates)
 ├── migrations/
-│   ├── 20251112090000_profiles.sql          # T-01.03 profiles + handle_new_user()
-│   ├── 20251112090100_profiles_rls.sql      # T-01.04 RLS + column guard
-│   ├── 20251112090200_drawers_defaults.sql  # T-01.05 3 ngăn kéo mặc định + quota
-│   ├── 20251112090300_avatars_bucket.sql    # FR-01.5 bucket avatars (private)
-│   ├── 20251113090000_drawer_shares.sql     # FR-02 shares + invitation status
-│   ├── 20251113090100_photos.sql            # FR-02 photos + RLS
-│   ├── 20251113090200_drawer_storage.sql    # FR-02 quota 256 MB + accounting triggers
-│   ├── 20251113090300_photo_storage_buckets.sql # FR-02 photos/thumbnails buckets
-│   ├── 20251113090400_drawer_rpcs.sql       # FR-02 RPCs (list/share/invitations)
-│   └── 20251114090000_fr02_repair.sql       # Repair: quota, invitation status, RPCs
-└── templates/
-    ├── confirmation.html           # Email xác nhận (link + OTP)
-    └── recovery.html               # Email khôi phục mật khẩu (link + OTP)
+│   └── 20251115090000_init_schema.sql   # ⭐ TOÀN BỘ schema trong 1 file duy nhất
+├── templates/
+│   ├── confirmation.html           # Email xác nhận (link + OTP)
+│   └── recovery.html               # Email khôi phục mật khẩu (link + OTP)
+├── functions/
+│   └── create-thumbnail/index.ts   # (tuỳ chọn) backfill thumbnail phía server
+├── tests/
+│   ├── validate_migrations.py      # chạy schema trên PostgreSQL embedded (không cần Docker)
+│   └── diagnose_fr02.sql           # chẩn đoán nhanh trên project thật
+└── README.md
 ```
 
----
+> **Một file baseline duy nhất** thay cho 10 migration trước đây. File bao gồm:
+> profiles/auth triggers + RLS (FR-01); drawers/photos/drawer_shares + quota 256 MB +
+> accounting triggers + 7 RPC (FR-02); photobooth templates/items/photos (FR-03);
+> membership_plans/memberships + seed 3 gói (FR-04); print_orders/transactions (FR-05);
+> `profiles.role`, admin policies + `admin_dashboard_stats()` (FR-06);
+> notifications/device_tokens + trigger thông báo khi có lời mời chia sẻ (FR-07);
+> toàn bộ indexes, storage buckets (avatars/photos/thumbnails/templates/previews)
+> và storage policies.
+>
+> File **idempotent** (chạy lại nhiều lần không lỗi) — đã có test riêng trong
+> `tests/validate_migrations.py`.
 
 ## 2. Tạo project trên Supabase Cloud (T-01.01)
 
@@ -174,7 +193,7 @@ select * from public.profiles;
 | `security definer set search_path = ''` | Best practice trong tài liệu Supabase nói trên (đã áp dụng cho cả 4 function) |
 | Storage bucket private + policy theo `auth.uid()` | Theo [Storage Access Control](https://supabase.com/docs/guides/storage/security/access-control) |
 | Key trong `config.toml` | Đối chiếu `toml:` tag trong source `supabase/cli` (`apps/cli-go/pkg/config/auth.go`, `storage.go`) và [CLI config docs](https://supabase.com/docs/guides/local-development/cli/config) |
-| **SQL đã được chạy thật chưa?** | ✅ **Rồi** — chạy trên PostgreSQL thật (embedded, không cần Docker) bằng `tests/validate_migrations.py`: apply đủ 10 migration + **57/57 check** (FR-01 + FR-02: trigger, quota 256 MB, RLS, invitation flow, bucket). Chưa chạy trên **Supabase stack thật** (GoTrue/PostgREST/Storage thật) |
+| **SQL đã được chạy thật chưa?** | ✅ **Rồi** — chạy trên PostgreSQL thật (embedded, không cần Docker) bằng `tests/validate_migrations.py`: apply file baseline + **58/58 check** (FR-01 + FR-02: trigger, quota 256 MB, RLS, invitation flow, bucket). Chưa chạy trên **Supabase stack thật** (GoTrue/PostgREST/Storage thật) |
 
 ### Chạy lại kiểm chứng SQL (không cần Docker)
 

@@ -476,33 +476,24 @@ def check_fr02(conn) -> None:
         "select count(*) from pg_policies where schemaname='storage' and tablename='objects'"
     ).fetchone()[0]
     check(
-        "FR-02 8 storage policies (avatars + photos + thumbnails)",
-        object_policies == 8,
+        "storage policies cover avatars + photos + thumbnails + previews + templates",
+        object_policies == 12,
         object_policies,
     )
 
+    templates_bucket = conn.execute(
+        "select public from storage.buckets where id='templates'"
+    ).fetchone()
+    check("templates bucket is public read", templates_bucket is not None and templates_bucket[0] is True, templates_bucket)
 
-def check_repair(conn, repair_sql: str) -> None:
-    """Re-applies the repair migration and asserts placeholder cleanup."""
-    dave = create_user(conn, "dave@pause.app", "Dave")
+    plans = conn.execute("select count(*) from public.membership_plans").fetchone()[0]
+    check("membership plans are seeded", plans >= 3, plans)
 
-    placeholder = conn.execute(
-        "insert into public.drawers (owner_id, name) values (%s, 'Ngăn kéo kỷ niệm 1') returning id",
-        (dave,),
+    notification = conn.execute(
+        "select count(*) from public.notifications where user_id=%s and type='drawer_share'",
+        (bob,),
     ).fetchone()[0]
-    kept = conn.execute(
-        "insert into public.drawers (owner_id, name) values (%s, 'Đà Lạt 2025') returning id",
-        (dave,),
-    ).fetchone()[0]
-
-    conn.execute(repair_sql)
-
-    remaining = conn.execute(
-        "select id from public.drawers where id in (%s, %s)", (placeholder, kept)
-    ).fetchall()
-    ids = {row[0] for row in remaining}
-    check("FR-02 repair deletes untouched auto placeholder drawers", placeholder not in ids, ids)
-    check("FR-02 repair keeps user-named drawers", kept in ids, ids)
+    check("FR-07 drawer share creates a notification for the recipient", notification >= 1, notification)
 
 
 def main() -> int:
@@ -526,13 +517,8 @@ def main() -> int:
             traceback.print_exc()
             return 1
 
-    repair_sql = (REPO_ROOT / "supabase" / "migrations" / "20251114090000_fr02_repair.sql").read_text(
-        encoding="utf-8"
-    )
-
     check_fr01(conn)
     check_fr02(conn)
-    check_repair(conn, repair_sql)
 
     # ------------------------------------------------------------------
     # Re-apply every migration in order: this is what `supabase db push` does on

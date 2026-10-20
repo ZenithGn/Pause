@@ -23,7 +23,8 @@ join pg_namespace n on n.oid = p.pronamespace
 where n.nspname = 'public'
   and p.proname in (
       'list_drawers', 'get_drawer', 'share_drawer', 'respond_share_invitation',
-      'list_share_invitations', 'list_drawer_shares', 'find_share_recipient'
+      'list_share_invitations', 'list_drawer_shares', 'find_share_recipient',
+      'my_active_membership', 'admin_dashboard_stats'
   )
 order by p.proname;
 
@@ -54,6 +55,12 @@ where trigger_schema = 'public'
   and event_object_table in ('drawers', 'photos', 'drawer_shares')
 order by table_name, trigger_name;
 
+-- 7b) Tables expected by the single baseline (FR-01 -> FR-07)
+select table_name
+from information_schema.tables
+where table_schema = 'public'
+order by table_name;
+
 -- 8) Sanity snapshot of the current data
 select
     (select count(*) from public.profiles) as profiles,
@@ -62,3 +69,7 @@ select
     (select count(*) from public.drawer_shares) as shares;
 
 select status, count(*) from public.drawer_shares group by status;
+
+select count(*) as membership_plans from public.membership_plans;
+select count(*) as notifications from public.notifications;
+select count(*) as device_tokens from public.device_tokens;

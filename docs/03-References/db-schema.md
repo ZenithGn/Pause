@@ -66,7 +66,9 @@ erDiagram
         uuid owner_id FK
         uuid shared_with_id FK
         string permission
+        string status
         timestamp created_at
+        timestamp responded_at
     }
 
     PHOTOBOOTH_TEMPLATES {
@@ -214,7 +216,7 @@ CREATE TABLE public.drawers (
     description TEXT,
     cover_photo_url TEXT,
     storage_used_bytes BIGINT NOT NULL DEFAULT 0,
-    storage_limit_bytes BIGINT NOT NULL DEFAULT 1073741824,  -- 1 GB = 1024^3
+    storage_limit_bytes BIGINT NOT NULL DEFAULT 268435456,  -- 256 MB (free tier)
     is_purchased BOOLEAN NOT NULL DEFAULT FALSE,  -- true nếu mua lẻ
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -232,13 +234,13 @@ CREATE POLICY "Owners can view own drawers"
     ON drawers FOR SELECT
     USING (owner_id = auth.uid());
 
--- Người được chia sẻ xem ngăn kéo
+-- Người được chia sẻ xem ngăn kéo (chỉ khi đã chấp nhận lời mời)
 CREATE POLICY "Shared users can view drawers"
     ON drawers FOR SELECT
     USING (
         id IN (
             SELECT drawer_id FROM drawer_shares
-            WHERE shared_with_id = auth.uid()
+            WHERE shared_with_id = auth.uid() AND status = 'accepted'
         )
     );
 
@@ -247,6 +249,7 @@ CREATE POLICY "Owners can insert drawers"
     ON drawers FOR INSERT
     WITH CHECK (owner_id = auth.uid());
 
+-- Owner CRUD
 CREATE POLICY "Owners can update own drawers"
     ON drawers FOR UPDATE
     USING (owner_id = auth.uid());
@@ -283,18 +286,19 @@ CREATE INDEX idx_photos_uploaded_by ON photos(uploaded_by);
 ```sql
 ALTER TABLE public.photos ENABLE ROW LEVEL SECURITY;
 
--- Xem ảnh: owner ngăn kéo hoặc người được chia sẻ
+-- Xem ảnh: owner ngăn kéo hoặc người được chia sẻ đã chấp nhận lời mời
 CREATE POLICY "Can view photos in accessible drawers"
     ON photos FOR SELECT
     USING (
         drawer_id IN (
             SELECT id FROM drawers WHERE owner_id = auth.uid()
             UNION
-            SELECT drawer_id FROM drawer_shares WHERE shared_with_id = auth.uid()
+            SELECT drawer_id FROM drawer_shares
+            WHERE shared_with_id = auth.uid() AND status = 'accepted'
         )
     );
 
--- Upload ảnh: owner hoặc người có quyền Edit
+-- Upload ảnh: owner hoặc người có quyền Edit đã chấp nhận lời mời
 CREATE POLICY "Can insert photos with edit permission"
     ON photos FOR INSERT
     WITH CHECK (
@@ -302,7 +306,7 @@ CREATE POLICY "Can insert photos with edit permission"
             SELECT id FROM drawers WHERE owner_id = auth.uid()
             UNION
             SELECT drawer_id FROM drawer_shares
-            WHERE shared_with_id = auth.uid() AND permission = 'edit'
+            WHERE shared_with_id = auth.uid() AND permission = 'edit' AND status = 'accepted'
         )
     );
 
@@ -326,13 +330,47 @@ CREATE TABLE public.drawer_shares (
     owner_id UUID NOT NULL REFERENCES public.profiles(id),
     shared_with_id UUID NOT NULL REFERENCES public.profiles(id),
     permission TEXT NOT NULL CHECK (permission IN ('view', 'edit')),
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    responded_at TIMESTAMPTZ,
 
-    UNIQUE(drawer_id, shared_with_id)  -- Mỗi user chỉ được share 1 lần / ngăn kéo
+    UNIQUE(drawer_id, shared_with_id)  -- Mỗi user chỉ được mời 1 lần / ngăn kéo
 );
 
 CREATE INDEX idx_shares_shared_with ON drawer_shares(shared_with_id);
 CREATE INDEX idx_shares_drawer ON drawer_shares(drawer_id);
+CREATE INDEX idx_shares_status ON drawer_shares(shared_with_id, status);
+```
+
+**RLS Policies:**
+```sql
+ALTER TABLE public.drawer_shares ENABLE ROW LEVEL SECURITY;
+
+-- Owner xem danh sách chia sẻ của ngăn kéo mình
+CREATE POLICY "Owners can view shares of own drawers"
+    ON drawer_shares FOR SELECT
+    USING (owner_id = auth.uid());
+
+-- Người nhận xem các lời mời gửi đến mình
+CREATE POLICY "Shared users can view received shares"
+    ON drawer_shares FOR SELECT
+    USING (shared_with_id = auth.uid());
+
+-- Owner gửi lời mời chia sẻ (mặc định pending)
+CREATE POLICY "Owners can insert shares"
+    ON drawer_shares FOR INSERT
+    WITH CHECK (owner_id = auth.uid());
+
+-- Người nhận phản hồi lời mời (Chấp nhận / Từ chối)
+CREATE POLICY "Shared users can respond to invitations"
+    ON drawer_shares FOR UPDATE
+    USING (shared_with_id = auth.uid())
+    WITH CHECK (shared_with_id = auth.uid());
+
+-- Owner thu hồi lời mời/quyền chia sẻ, hoặc người nhận tự rời ngăn kéo
+CREATE POLICY "Owners or shared users can delete shares"
+    ON drawer_shares FOR DELETE
+    USING (owner_id = auth.uid() OR shared_with_id = auth.uid());
 ```
 
 ---
@@ -537,3 +575,64 @@ CREATE INDEX idx_orders_status_date ON print_orders(status, created_at DESC);
 -- Kiểm tra membership active của user
 CREATE INDEX idx_memberships_active ON memberships(user_id, status) WHERE status = 'active';
 ```
+
+---
+
+## Ghi chú triển khai FR-02 (Memory Drawers)
+
+> Chi tiết migration: `supabase/migrations/20251113090000_drawer_shares.sql` →
+> `20251113090400_drawer_rpcs.sql`. Quota: [storage-strategy.md](storage-strategy.md).
+
+### `photos`
+
+- `original_url` / `thumbnail_url` lưu **object path** trong bucket private
+  (không phải public URL):
+  - `photos/{drawer_id}/{photo_id}.jpg`
+  - `thumbnails/{drawer_id}/{photo_id}_thumb.jpg`
+- Path theo `drawer_id` (không theo `user_id` như bản nháp đầu) để người được
+  chia sẻ quyền `edit` cũng upload được; quyền truy cập bucket kiểm tra qua
+  `drawer_shares.status = 'accepted'`.
+- `file_size_bytes` là kích thước **sau nén**; trigger chặn > 5 MB và là cơ sở
+  tính dung lượng ngăn kéo.
+
+### `drawer_shares`
+
+- Có thêm cột `status` (`pending`/`accepted`/`rejected`) + `responded_at`:
+  chia sẻ là **lời mời**, người nhận phải chấp nhận thì ngăn kéo mới xuất hiện
+  (`list_drawers()` chỉ trả về share `accepted`).
+- RLS: owner tạo lời mời; **chỉ người nhận** được đổi `status` (policy
+  `Recipients can respond to invitations`); owner/người nhận được xoá (thu hồi).
+
+### Triggers & quota (FR-02)
+
+| Trigger | Tác dụng |
+|---|---|
+| `enforce_photo_quota` (BEFORE INSERT `photos`) | khoá row drawer, chặn nếu vượt `storage_limit_bytes`, cộng `storage_used_bytes` |
+| `release_photo_storage` (AFTER DELETE) | hoàn lại dung lượng |
+| `reset_drawer_cover_after_photo_delete` | xoá `cover_photo_url` nếu ảnh bìa bị xoá |
+| `validate_photo_size` | chặn file > 5 MB hoặc thiếu `original_url` |
+| `protect_drawer_columns` | chặn đổi `id`, `owner_id` |
+| `validate_drawer_share` | đảm bảo `owner_id` khớp drawer, không tự share |
+
+Quyền cột: `authenticated` chỉ được UPDATE `drawers(name, description,
+cover_photo_url)`; `storage_used_bytes`, `storage_limit_bytes`, `is_purchased`,
+`owner_id` chỉ trigger SECURITY DEFINER / `service_role` ghi được.
+
+### RPC (gọi từ mobile)
+
+| RPC | Dùng cho |
+|---|---|
+| `list_drawers()` | danh sách owned + shared accepted (kèm owner name, photo_count, permission) |
+| `get_drawer(uuid)` | chi tiết 1 ngăn kéo |
+| `share_drawer(uuid, text, text)` | owner mời qua email (tạo `pending`) |
+| `respond_share_invitation(uuid, boolean)` | người nhận chấp nhận/từ chối |
+| `list_share_invitations()` | lời mời đang chờ của user |
+| `list_drawer_shares(uuid)` | owner xem danh sách chia sẻ + status |
+| `find_share_recipient(text)` | tra email chính xác → profile (không liệt kê user) |
+
+### Storage buckets mới
+
+- `photos` (private, 15 MB/file, jpeg/png/webp)
+- `thumbnails` (private, 1 MB/file, jpeg/png/webp)
+- Policy: đọc = owner hoặc share `accepted`; ghi/xoá = owner hoặc share
+  `accepted` + `edit`.

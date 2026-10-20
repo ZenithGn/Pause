@@ -148,18 +148,15 @@ template   →   từ ngăn kéo  →   preview local  →
                                               thông báo user
 ```
 
-### 3.3 Chia sẻ ngăn kéo
+### 3.3 Chia sẻ ngăn kéo (Mô hình lời mời Pending / Accepted)
 
 ```
-Owner chọn      Nhập email/       Tạo record         Người nhận
-"Chia sẻ"  →   username +    →   drawer_shares  →   thấy ngăn kéo
-               chọn quyền        trong DB            trong list
-               (View/Edit)                           (với badge
-                                                     "Được chia sẻ")
-                                  ↓
-                            RLS policy tự động
-                            cho phép truy cập
-                            theo quyền
+Owner chọn      Nhập email        Tạo record         Người nhận         Chấp nhận
+"Chia sẻ"  →   chọn quyền    →   drawer_shares  →   nhận thông báo →   (Accepted)
+                (View/Edit)       (status:           (xem lời mời       ↓
+                                  'pending')         trong app)        Thấy ngăn kéo
+                                                                       trong danh sách
+                                                                       + RLS mở quyền
 ```
 
 ---
@@ -179,7 +176,7 @@ CREATE POLICY "Users can view shared drawers"
   USING (
     id IN (
       SELECT drawer_id FROM drawer_shares
-      WHERE shared_with_id = auth.uid()
+      WHERE shared_with_id = auth.uid() AND status = 'accepted'
     )
   );
 ```

@@ -8,7 +8,7 @@
 
 | Thuật ngữ (VN) | Thuật ngữ (EN) | Định nghĩa |
 |---|---|---|
-| **Ngăn kéo Kỷ niệm** | Memory Drawer | Đơn vị lưu trữ ảnh chính trong hệ thống. Mỗi ngăn kéo chứa các ảnh kỷ niệm liên quan đến một chủ đề/dịp cụ thể. Giới hạn dung lượng 1 GB. |
+| **Ngăn kéo Kỷ niệm** | Memory Drawer | Đơn vị lưu trữ ảnh chính trong hệ thống. Mỗi ngăn kéo chứa các ảnh kỷ niệm liên quan đến một chủ đề/dịp cụ thể. Giới hạn dung lượng 256 MB (free tier) / 1 GB (hội viên). |
 | **Ảnh kỷ niệm** | Memory Photo | Một bức ảnh được user upload vào ngăn kéo. Bao gồm ảnh gốc + thumbnail + metadata. |
 | **Template Photobooth** | Photobooth Template | Mẫu thiết kế photobooth có sẵn, bao gồm bố cục (layout), khung (frame), và các slot để fill ảnh. User không thể chỉnh sửa layout. |
 | **Slot ảnh** | Photo Slot | Vị trí trong template photobooth nơi user fill ảnh vào. Mỗi template có số slot cố định. |
@@ -22,7 +22,7 @@
 |---|---|---|
 | **Gói Hội viên** | Membership Plan | Gói đăng ký trả phí theo tháng/năm, mở khóa quyền lợi mở rộng (thêm ngăn kéo, template premium, dung lượng thêm). |
 | **Hội viên** | Member | Người dùng đã đăng ký và đang sử dụng gói hội viên có hiệu lực. |
-| **Free tier** | Free Tier | Cấp sử dụng miễn phí mặc định: 3 ngăn kéo, 1 GB/ngăn kéo, chỉ template miễn phí. |
+| **Free tier** | Free Tier | Cấp sử dụng miễn phí mặc định: 3 ngăn kéo, 256 MB/ngăn kéo (~768 MB tổng), chỉ template miễn phí. |
 | **Mua lẻ** | One-time Purchase | Mua thêm ngăn kéo riêng lẻ mà không cần đăng ký gói hội viên. Ngăn kéo mua lẻ là vĩnh viễn. |
 | **Đơn hàng in** | Print Order | Yêu cầu in photobooth thành sản phẩm vật lý. Bao gồm thông tin template, ảnh, số lượng, địa chỉ giao hàng. |
 | **Template Premium** | Premium Template | Template photobooth chỉ dành cho hội viên hoặc mua riêng. |

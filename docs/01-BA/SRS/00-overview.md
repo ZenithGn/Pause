@@ -68,7 +68,7 @@ Trong thời đại số, ảnh chụp bị phân tán trên nhiều nền tản
 │ • Upload ảnh        │   ngăn kéo         │ • Tăng dung lượng│
 │ • Phân quyền        │ • Preview & đặt in │                  │
 │   chia sẻ           │ • Theo dõi đơn hàng│                  │
-│ • Giới hạn 1GB/     │                    │                  │
+│ • Giới hạn 256MB/   │                    │                  │
 │   ngăn kéo          │                    │                  │
 │ • Mặc định 3        │                    │                  │
 │   ngăn kéo/user     │                    │                  │
@@ -89,7 +89,7 @@ Trong thời đại số, ảnh chụp bị phân tán trên nhiều nền tản
 
 - Mobile app chỉ hỗ trợ **Android** trong MVP
 - Backend sử dụng **Supabase** (managed service) để giảm chi phí vận hành
-- Giới hạn dung lượng lưu trữ: **1 GB / ngăn kéo**, **3 ngăn kéo / user** (free tier)
+- Giới hạn dung lượng lưu trữ: **256 MB / ngăn kéo** (free tier, tổng ~768 MB), **3 ngăn kéo / user**
 
 ### 3.3 Ràng buộc pháp lý
 

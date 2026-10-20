@@ -18,7 +18,7 @@
 |---|---|---|
 | NFR-02.1 | Số lượng người dùng đồng thời | Hỗ trợ tối thiểu 500 CCU trong MVP |
 | NFR-02.2 | Tổng dung lượng lưu trữ | Supabase Storage – scale theo nhu cầu |
-| NFR-02.3 | Số lượng ảnh mỗi ngăn kéo | Không giới hạn số lượng (chỉ giới hạn dung lượng 1 GB) |
+| NFR-02.3 | Số lượng ảnh mỗi ngăn kéo | Không giới hạn số lượng (chỉ giới hạn dung lượng 256 MB) |
 
 ---
 

@@ -22,8 +22,9 @@ Pause/
 │
 ├── 📂 supabase/                    # 🗄️ Backend (migrations, config, email templates)
 │   ├── config.toml                 # Auth providers, email templates, rate limit
-│   ├── migrations/                 # SQL migrations (profiles, RLS, drawers, avatars)
+│   ├── migrations/                 # SQL migrations (profiles, drawers, photos, shares, RLS)
 │   ├── templates/                  # Email xác nhận + khôi phục mật khẩu
+│   ├── functions/create-thumbnail/ # (tuỳ chọn) Edge Function backfill thumbnail
 │   ├── tests/                      # validate_migrations.py (chạy SQL trên Postgres embedded)
 │   └── README.md                   # Hướng dẫn setup project Supabase
 │
@@ -71,7 +72,9 @@ app/mobile/
         │   │   │   └── 📂 validation/      # CredentialsValidator
         │   │   │
         │   │   ├── 📂 data/
-        │   │   │   ├── 📂 remote/dto/      # ProfileDto, ProfileUpdateDto (@Serializable)
+        │   │   │   ├── 📂 local/          # Room cache: DrawerEntity, PhotoEntity, ShareEntity
+        │   │   │   ├── 📂 media/          # AndroidPhotoProcessor (nén ảnh + thumbnail)
+        │   │   │   ├── 📂 remote/dto/      # ProfileDto, DrawerDto, PhotoDto, ShareDto
         │   │   │   ├── 📂 mapper/          # DTO/UserSession → domain, Throwable → AuthFailure
         │   │   │   ├── 📂 repository/      # AuthRepositoryImpl, ProfileRepositoryImpl
         │   │   │   └── 📂 session/         # InMemoryLoginAttemptStore (FR-01.2 lockout)
@@ -79,6 +82,9 @@ app/mobile/
         │   │   └── 📂 presentation/
         │   │       ├── 📂 auth/            # AuthViewModel, AuthUiState, Login/Register/
         │   │       │                       # ForgotPassword/ResetPassword, GoogleSignInLauncher
+        │   │       ├── 📂 drawer/          # Drawer list/detail + ViewModels, CreateDrawerSheet
+        │   │       ├── 📂 photo/           # PhotoViewerScreen (zoom/swipe)
+        │   │       ├── 📂 share/           # ShareDrawerScreen + ViewModel (lời mời)
         │   │       ├── 📂 profile/         # ProfileViewModel, ProfileScreen, ProfileUiState
         │   │       ├── 📂 splash/          # SplashScreen, SplashViewModel (auto-login)
         │   │       ├── 📂 home/            # HomeScreen (placeholder, FR-02 thay thế)

@@ -55,65 +55,68 @@
 # Task Breakdown – FR-02: Ngăn kéo Kỷ niệm (Memory Drawers)
 
 > **Module**: Memory Drawers
-> **Trạng thái**: ✅ Hoàn thành – xem [completed/fr-01-authentication-account.md](../completed/fr-01-authentication-account.md)
+> **Trạng thái**: ✅ Hoàn thành – xem [completed/fr-02-memory-drawers.md](../completed/fr-02-memory-drawers.md)
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-02-ngăn-kéo-kỷ-niệm-memory-drawers)
 
 ---
 
 ## Supabase Setup
 
-- [ ] **T-02.01** – Tạo bảng `drawers` + RLS policies (ref: db-schema.md)
-- [ ] **T-02.02** – Tạo bảng `photos` + RLS policies
-- [ ] **T-02.03** – Tạo bảng `drawer_shares` + RLS policies
-- [ ] **T-02.04** – Tạo Storage bucket `photos` (private) + `thumbnails` (private)
-- [ ] **T-02.05** – Tạo Edge Function: `create-thumbnail` (trigger on upload → resize → save thumbnail)
-- [ ] **T-02.06** – Tạo indexes (ref: db-schema.md – Indexes tổng hợp)
+- [x] **T-02.01** – Tạo bảng `drawers` + RLS policies (ref: db-schema.md)
+- [x] **T-02.02** – Tạo bảng `photos` + RLS policies
+- [x] **T-02.03** – Tạo bảng `drawer_shares` (status: pending, accepted, rejected) + RLS policies
+- [x] **T-02.04** – Tạo Storage bucket `photos` (private) + `thumbnails` (private)
+- [x] **T-02.05** – Tạo Edge Function: `create-thumbnail` (trigger on upload → resize → save thumbnail)
+- [x] **T-02.06** – Tạo indexes (ref: db-schema.md – Indexes tổng hợp)
 
 ## Mobile – Data Layer
 
-- [ ] **T-02.07** – `DrawerRepository` interface + `DrawerRepositoryImpl`
-- [ ] **T-02.08** – `PhotoRepository` interface + `PhotoRepositoryImpl`
-- [ ] **T-02.09** – `ShareRepository` interface + `ShareRepositoryImpl`
-- [ ] **T-02.10** – Room DB: `DrawerEntity`, `PhotoEntity` (offline cache)
-- [ ] **T-02.11** – Upload service: batch upload ảnh + progress tracking
-- [ ] **T-02.12** – Signed URL helper: lấy URL tạm cho ảnh private
+- [x] **T-02.07** – `DrawerRepository` interface + `DrawerRepositoryImpl`
+- [x] **T-02.08** – `PhotoRepository` interface + `PhotoRepositoryImpl`
+- [x] **T-02.09** – `ShareRepository` interface + `ShareRepositoryImpl` (gửi lời mời, phản hồi accepted/rejected, thu hồi)
+- [x] **T-02.10** – Room DB: `DrawerEntity`, `PhotoEntity`, `ShareEntity` (offline cache)
+- [x] **T-02.11** – Upload service: batch upload ảnh + progress tracking
+- [x] **T-02.12** – Signed URL helper: lấy URL tạm cho ảnh private
 
 ## Mobile – Domain Layer
 
-- [ ] **T-02.13** – Domain models: `Drawer`, `Photo`, `DrawerShare`, `SharePermission`
-- [ ] **T-02.14** – Use case: `GetDrawersUseCase` (list ngăn kéo owned + shared)
-- [ ] **T-02.15** – Use case: `CreateDrawerUseCase` (kiểm tra giới hạn trước khi tạo)
-- [ ] **T-02.16** – Use case: `UpdateDrawerUseCase` (sửa tên, mô tả, bìa)
-- [ ] **T-02.17** – Use case: `DeleteDrawerUseCase` (chỉ owner, xóa cascade)
-- [ ] **T-02.18** – Use case: `UploadPhotosUseCase` (kiểm tra dung lượng + batch upload)
-- [ ] **T-02.19** – Use case: `GetPhotosUseCase` (load ảnh trong ngăn kéo + pagination)
-- [ ] **T-02.20** – Use case: `DeletePhotosUseCase` (xóa batch)
-- [ ] **T-02.21** – Use case: `ShareDrawerUseCase` (gửi lời mời, chọn quyền)
-- [ ] **T-02.22** – Use case: `RevokeShareUseCase` (thu hồi quyền chia sẻ)
+- [x] **T-02.13** – Domain models: `Drawer`, `Photo`, `DrawerShare`, `SharePermission`, `ShareStatus`
+- [x] **T-02.14** – Use case: `GetDrawersUseCase` (list ngăn kéo owned + shared đã accepted)
+- [x] **T-02.15** – Use case: `CreateDrawerUseCase` (kiểm tra giới hạn trước khi tạo)
+- [x] **T-02.16** – Use case: `UpdateDrawerUseCase` (sửa tên, mô tả, bìa)
+- [x] **T-02.17** – Use case: `DeleteDrawerUseCase` (chỉ owner, xóa cascade)
+- [x] **T-02.18** – Use case: `UploadPhotosUseCase` (kiểm tra dung lượng + batch upload)
+- [x] **T-02.19** – Use case: `GetPhotosUseCase` (load ảnh trong ngăn kéo + pagination)
+- [x] **T-02.20** – Use case: `DeletePhotosUseCase` (xóa batch)
+- [x] **T-02.21** – Use case: `ShareDrawerUseCase` (gửi lời mời chia sẻ trạng thái pending qua email)
+- [x] **T-02.22** – Use case: `RespondShareInvitationUseCase` (người nhận chấp nhận hoặc từ chối lời mời)
+- [x] **T-02.23** – Use case: `GetShareInvitationsUseCase` (danh sách lời mời đang chờ phản hồi)
+- [x] **T-02.24** – Use case: `RevokeShareUseCase` (thu hồi lời mời/hủy quyền chia sẻ)
 
 ## Mobile – Presentation Layer (UI theo Figma)
 
-- [ ] **T-02.23** – `DrawerListScreen` + `DrawerViewModel` (danh sách ngăn kéo, phân biệt owned/shared)
-- [ ] **T-02.24** – `CreateDrawerSheet` (bottom sheet tạo mới)
-- [ ] **T-02.25** – `DrawerDetailScreen` (xem ngăn kéo + grid ảnh)
-- [ ] **T-02.26** – `PhotoViewerScreen` (xem full-screen, pinch-to-zoom, swipe)
-- [ ] **T-02.27** – `ShareDrawerScreen` (quản lý chia sẻ, thêm/xóa người, đổi quyền)
-- [ ] **T-02.28** – Upload progress UI (progress bar khi upload batch)
-- [ ] **T-02.29** – Storage indicator (hiển thị dung lượng đã dùng / giới hạn)
-- [ ] **T-02.30** – Empty state UI (ngăn kéo trống, chưa có ảnh)
-- [ ] **T-02.31** – Multi-select mode (chọn nhiều ảnh để xóa)
-- [ ] **T-02.32** – Upsell prompt khi đạt giới hạn ngăn kéo (gợi ý nâng cấp/mua lẻ)
+- [x] **T-02.25** – `DrawerListScreen` + `DrawerViewModel` (danh sách ngăn kéo, badge lời mời pending, phân biệt owned/shared)
+- [x] **T-02.26** – `CreateDrawerSheet` (bottom sheet tạo mới)
+- [x] **T-02.27** – `DrawerDetailScreen` (xem ngăn kéo + grid ảnh)
+- [x] **T-02.28** – `PhotoViewerScreen` (xem full-screen, pinch-to-zoom, swipe)
+- [x] **T-02.29** – `ShareDrawerScreen` (quản lý chia sẻ: mời qua email, danh sách chia sẻ và lời mời pending)
+- [x] **T-02.30** – `ShareInvitationsSheet` (xem danh sách lời mời nhận được + nút Chấp nhận / Từ chối)
+- [x] **T-02.31** – Upload progress UI (progress bar khi upload batch)
+- [x] **T-02.32** – Storage indicator (hiển thị dung lượng đã dùng / giới hạn)
+- [x] **T-02.33** – Empty state UI (ngăn kéo trống, chưa có ảnh)
+- [x] **T-02.34** – Multi-select mode (chọn nhiều ảnh để xóa)
+- [x] **T-02.35** – Upsell prompt khi đạt giới hạn ngăn kéo (gợi ý nâng cấp/mua lẻ)
 
 ## Testing
 
-- [ ] **T-02.33** – Unit test: `CreateDrawerUseCase` (kiểm tra giới hạn)
-- [ ] **T-02.34** – Unit test: `UploadPhotosUseCase` (kiểm tra dung lượng)
-- [ ] **T-02.35** – Unit test: `ShareDrawerUseCase` (quyền hạn)
-- [ ] **T-02.36** – Integration test: Upload → thumbnail generation → display
+- [x] **T-02.36** – Unit test: `CreateDrawerUseCase` (kiểm tra giới hạn)
+- [x] **T-02.37** – Unit test: `UploadPhotosUseCase` (kiểm tra dung lượng)
+- [x] **T-02.38** – Unit test: `ShareDrawerUseCase`, `RespondShareInvitationUseCase` (lời mời, quyền hạn)
+- [x] **T-02.39** – Integration test: Upload → thumbnail generation → display
 
 ---
 
-**Tổng tasks**: 36
+**Tổng tasks**: 39
 **Estimated effort**: 7–10 ngày
 
 ---
@@ -121,7 +124,7 @@
 # Task Breakdown – FR-03: In ảnh Photobooth
 
 > **Module**: Photobooth Print-on-Demand
-> **Trạng thái**: ✅ Hoàn thành – xem [completed/fr-01-authentication-account.md](../completed/fr-01-authentication-account.md)
+> **Trạng thái**: 🔲 Chưa bắt đầu
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-03-in-ảnh-photobooth-photobooth-print-on-demand)
 
 ---
@@ -176,7 +179,7 @@
 # Task Breakdown – FR-04: Gói Hội viên (Membership)
 
 > **Module**: Membership & Subscription
-> **Trạng thái**: ✅ Hoàn thành – xem [completed/fr-01-authentication-account.md](../completed/fr-01-authentication-account.md)
+> **Trạng thái**: 🔲 Chưa bắt đầu
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-04-gói-hội-viên-membership)
 
 ---
@@ -221,7 +224,7 @@
 # Task Breakdown – FR-05: Thanh toán (Payment)
 
 > **Module**: Payment Integration
-> **Trạng thái**: ✅ Hoàn thành – xem [completed/fr-01-authentication-account.md](../completed/fr-01-authentication-account.md)
+> **Trạng thái**: 🔲 Chưa bắt đầu
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-05-thanh-toán-payment)
 
 ---
@@ -265,7 +268,7 @@
 # Task Breakdown – FR-06: Quản trị hệ thống (Admin)
 
 > **Module**: Admin Dashboard (Next.js Web)
-> **Trạng thái**: ✅ Hoàn thành – xem [completed/fr-01-authentication-account.md](../completed/fr-01-authentication-account.md)
+> **Trạng thái**: 🔲 Chưa bắt đầu
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-06-quản-trị-hệ-thống-admin)
 
 ---
@@ -309,7 +312,7 @@
 # Task Breakdown – FR-07: Thông báo (Notifications)
 
 > **Module**: Push Notifications
-> **Trạng thái**: ✅ Hoàn thành – xem [completed/fr-01-authentication-account.md](../completed/fr-01-authentication-account.md)
+> **Trạng thái**: 🔲 Chưa bắt đầu
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-07-thông-báo-notifications)
 
 ---
@@ -350,13 +353,13 @@
 | Module | Tasks | Effort ước tính | Dependencies |
 |---|---|---|---|
 | FR-01: Auth | 24 | 3–4 ngày | Supabase project setup |
-| FR-02: Drawers | 36 | 7–10 ngày | FR-01 |
+| FR-02: Drawers | 39 | 7–10 ngày | FR-01 |
 | FR-03: Photobooth | 25 | 7–9 ngày | FR-02 |
 | FR-04: Membership | 15 | 4–5 ngày | FR-01 |
 | FR-05: Payment | 14 | 5–6 ngày | FR-03, FR-04 |
 | FR-06: Admin | 17 | 5–7 ngày | FR-01, FR-03 |
 | FR-07: Notification | 12 | 3–4 ngày | FR-01, FR-02 |
-| **Tổng** | **143** | **34–45 ngày** | |
+| **Tổng** | **146** | **34–45 ngày** | |
 
 ## Thứ tự thực hiện đề xuất
 

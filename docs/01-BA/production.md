@@ -48,7 +48,7 @@ Pause là ứng dụng mobile giúp người dùng **lưu trữ ảnh kỷ niệ
 - Quy trình 3 bước: Chọn mẫu → Chọn ảnh → Đặt in
 
 ### Gói Hội viên linh hoạt
-- Free: 3 ngăn kéo × 1 GB – đủ dùng cơ bản
+- Free: 3 ngăn kéo × 256 MB (~768 MB) – đủ dùng cơ bản
 - Hội viên: Thêm ngăn kéo, template premium, dung lượng lớn hơn
 - Mua lẻ: Chỉ cần thêm 1 ngăn kéo? Mua riêng, giữ vĩnh viễn
 

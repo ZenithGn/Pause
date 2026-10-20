@@ -6,7 +6,8 @@ import com.pause.app.domain.model.Photo
 import com.pause.app.domain.model.SharePermission
 import com.pause.app.domain.model.ShareStatus
 
-fun Drawer.toEntity(): DrawerEntity = DrawerEntity(
+fun Drawer.toEntity(userId: String): DrawerEntity = DrawerEntity(
+    userId = userId,
     id = id,
     ownerId = ownerId,
     ownerName = ownerName,
@@ -38,7 +39,8 @@ fun DrawerEntity.toDomain(): Drawer = Drawer(
     updatedAt = if (updatedAtMillis > 0) java.time.Instant.ofEpochMilli(updatedAtMillis) else null,
 )
 
-fun Photo.toEntity(): PhotoEntity = PhotoEntity(
+fun Photo.toEntity(userId: String): PhotoEntity = PhotoEntity(
+    userId = userId,
     id = id,
     drawerId = drawerId,
     uploadedBy = uploadedBy,
@@ -64,7 +66,8 @@ fun PhotoEntity.toDomain(): Photo = Photo(
     uploadedAt = if (uploadedAtMillis > 0) java.time.Instant.ofEpochMilli(uploadedAtMillis) else null,
 )
 
-fun DrawerShare.toEntity(drawerId: String): ShareEntity = ShareEntity(
+fun DrawerShare.toEntity(userId: String, drawerId: String): ShareEntity = ShareEntity(
+    userId = userId,
     id = id,
     drawerId = drawerId,
     sharedWithId = sharedWithId,

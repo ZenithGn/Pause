@@ -17,6 +17,7 @@ import com.pause.app.domain.model.Drawer
 import com.pause.app.domain.model.DrawerFailure
 import com.pause.app.domain.repository.DrawerRepository
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.rpc
@@ -35,25 +36,30 @@ class DrawerRepositoryImpl(
 ) : DrawerRepository {
 
     override suspend fun listDrawers(): List<Drawer> = withContext(ioDispatcher) {
+        val userId = currentUserId()
         try {
             val remote = client.postgrest.rpc("list_drawers")
                 .decodeList<DrawerDto>()
                 .map { it.toDomain() }
-            drawerDao.clear()
-            drawerDao.upsertAll(remote.map(Drawer::toEntity))
+            if (userId != null) {
+                drawerDao.clear(userId)
+                drawerDao.upsertAll(remote.map { it.toEntity(userId) })
+            }
             remote
         } catch (error: Exception) {
-            // Offline fallback (T-02.10).
-            val cached = drawerDao.getAll().map { it.toDomain() }
+            // Offline fallback, scoped to the signed-in user only (no cross-account leak).
+            val cached = userId?.let { id -> drawerDao.getAll(id).map { it.toDomain() } }.orEmpty()
             if (cached.isEmpty()) throw error.toDrawerFailure() else cached
         }
     }
 
     override suspend fun getDrawer(drawerId: String): Drawer = withContext(ioDispatcher) {
+        val userId = currentUserId()
         try {
             fetchDrawer(drawerId)
         } catch (error: Exception) {
-            drawerDao.getById(drawerId)?.toDomain() ?: throw error.toDrawerFailure()
+            val cached = userId?.let { id -> drawerDao.getById(id, drawerId)?.toDomain() }
+            cached ?: throw error.toDrawerFailure()
         }
     }
 
@@ -117,7 +123,7 @@ class DrawerRepositoryImpl(
             }
 
             client.from(TABLE).delete { filter { eq("id", drawerId) } }
-            drawerDao.deleteById(drawerId)
+            currentUserId()?.let { userId -> drawerDao.deleteById(userId, drawerId) }
         }
     }
 
@@ -138,9 +144,11 @@ class DrawerRepositoryImpl(
             .firstOrNull()
             ?.toDomain()
             ?: throw DrawerFailure.NotFound
-        drawerDao.upsertAll(listOf(drawer.toEntity()))
+        currentUserId()?.let { userId -> drawerDao.upsertAll(listOf(drawer.toEntity(userId))) }
         return drawer
     }
+
+    private fun currentUserId(): String? = client.auth.currentSessionOrNull()?.user?.id
 
     private suspend inline fun <T> call(block: () -> T): T = try {
         block()

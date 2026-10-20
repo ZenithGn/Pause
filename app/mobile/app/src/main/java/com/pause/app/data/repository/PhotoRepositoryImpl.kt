@@ -52,13 +52,19 @@ class PhotoRepositoryImpl(
                     .decodeList<PhotoDto>()
                     .map { it.toDomain() }
                 if (offset == 0) {
-                    photoDao.deleteByDrawer(drawerId)
-                    photoDao.upsertAll(page.map(Photo::toEntity))
+                    val userId = client.auth.currentSessionOrNull()?.user?.id
+                    if (userId != null) {
+                        photoDao.deleteByDrawer(userId, drawerId)
+                        photoDao.upsertAll(page.map { it.toEntity(userId) })
+                    }
                 }
                 page
             } catch (error: Exception) {
                 // Offline fallback (T-02.10): cached snapshot with local pagination.
-                val cached = photoDao.getByDrawer(drawerId).map { it.toDomain() }
+                val userId = client.auth.currentSessionOrNull()?.user?.id
+                val cached = userId?.let { id -> photoDao.getByDrawer(id, drawerId) }
+                    .orEmpty()
+                    .map { it.toDomain() }
                 if (cached.isEmpty()) throw error.toDrawerFailure() else cached.drop(offset).take(limit)
             }
         }
@@ -103,7 +109,7 @@ class PhotoRepositoryImpl(
                 )
                 .decodeSingle<PhotoDto>()
                 .toDomain()
-            photoDao.upsertAll(listOf(inserted.toEntity()))
+            photoDao.upsertAll(listOf(inserted.toEntity(uploaderId)))
             inserted
         }
     }
@@ -112,7 +118,9 @@ class PhotoRepositoryImpl(
         call {
             // Row first (quota is released by a DB trigger), then best-effort objects.
             client.from(TABLE).delete { filter { eq("id", photo.id) } }
-            photoDao.deleteById(photo.id)
+            client.auth.currentSessionOrNull()?.user?.id?.let { userId ->
+                photoDao.deleteById(userId, photo.id)
+            }
             runCatching {
                 client.storage.from(PHOTOS_BUCKET).delete(listOf(photo.originalPath))
                 photo.thumbnailPath?.let { path ->

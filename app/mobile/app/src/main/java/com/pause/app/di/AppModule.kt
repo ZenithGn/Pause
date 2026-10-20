@@ -102,7 +102,16 @@ val databaseModule = module {
 
 val repositoryModule = module {
     single<AuthRepository> {
-        AuthRepositoryImpl(client = get(), redirectUrl = BuildConfig.AUTH_REDIRECT_URL)
+        AuthRepositoryImpl(
+            client = get(),
+            redirectUrl = BuildConfig.AUTH_REDIRECT_URL,
+            clearLocalCache = {
+                val database = get<PauseDatabase>()
+                database.drawerDao().clearAll()
+                database.photoDao().clearAll()
+                database.shareDao().clearAll()
+            },
+        )
     }
     single<ProfileRepository> { ProfileRepositoryImpl(client = get()) }
     single<LoginAttemptStore> { InMemoryLoginAttemptStore() }

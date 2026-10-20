@@ -31,6 +31,8 @@ import kotlinx.serialization.json.put
 class AuthRepositoryImpl(
     private val client: SupabaseClient,
     private val redirectUrl: String,
+    /** Clears the offline cache so the next account cannot see the previous one. */
+    private val clearLocalCache: suspend () -> Unit = {},
 ) : AuthRepository {
 
     override val sessionChanges: Flow<AuthSession?> = client.auth.sessionStatus
@@ -88,6 +90,7 @@ class AuthRepositoryImpl(
 
     override suspend fun signOut() {
         runCatching { client.auth.signOut(SignOutScope.GLOBAL) }
+        runCatching { clearLocalCache() }
     }
 
     override suspend fun resetPassword(email: String) = authCall {

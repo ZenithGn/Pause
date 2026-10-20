@@ -377,6 +377,19 @@ fun DrawerDetailScreen(
                                         .fillMaxSize()
                                         .background(PauseColors.Surface, RoundedCornerShape(8.dp)),
                                 )
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(PauseColors.Paper, RoundedCornerShape(8.dp)),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.photo_url_missing),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = PauseColors.Muted,
+                                    )
+                                }
                             }
                             if (state.isSelectionMode) {
                                 Box(

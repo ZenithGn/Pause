@@ -132,9 +132,18 @@ class DrawerDetailViewModel(
             }
                 .onSuccess { result ->
                     val urls = getPhotoUrlsUseCase(result.uploaded).getOrNull().orEmpty()
+                    // Surface the first concrete failure (bucket/permission/size) so the
+                    // user sees *why* a photo was skipped instead of an empty grid.
+                    val firstFailure = result.failures.firstOrNull()?.failure
+                    val urlsMissing = result.uploaded.isNotEmpty() && urls.isEmpty()
                     _state.update { current ->
                         current.copy(
                             isUploading = false,
+                            error = when {
+                                firstFailure != null -> DrawerFailureMapper.toUiText(firstFailure)
+                                urlsMissing -> UiText.Resource(R.string.error_photo_url)
+                                else -> current.error
+                            },
                             photos = result.uploaded + current.photos,
                             thumbnailUrls = current.thumbnailUrls + urls
                                 .associate { it.photoId to it.thumbnailUrl.orEmpty() }

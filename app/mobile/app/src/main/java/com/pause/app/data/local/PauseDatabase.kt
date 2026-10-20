@@ -12,13 +12,14 @@ import androidx.room.RoomDatabase
 /**
  * T-02.10 – Room offline cache for the Memory Drawers module.
  *
- * The cache is a read-through fallback: repositories write the latest server
- * snapshot and serve it when the device is offline (photos are shown through
- * Coil's disk cache + the signed URLs stored here until they expire).
+ * IMPORTANT: every row is scoped by `userId` (the signed-in Supabase user).
+ * The cache is never shared between accounts — otherwise signing in with another
+ * account on the same device would leak the previous user's drawers/photos.
  */
-@Entity(tableName = "cached_drawers")
+@Entity(tableName = "cached_drawers", primaryKeys = ["userId", "id"])
 data class DrawerEntity(
-    @PrimaryKey val id: String,
+    val userId: String,
+    val id: String,
     val ownerId: String,
     val ownerName: String,
     val name: String,
@@ -33,9 +34,10 @@ data class DrawerEntity(
     val updatedAtMillis: Long,
 )
 
-@Entity(tableName = "cached_photos")
+@Entity(tableName = "cached_photos", primaryKeys = ["userId", "id"])
 data class PhotoEntity(
-    @PrimaryKey val id: String,
+    val userId: String,
+    val id: String,
     val drawerId: String,
     val uploadedBy: String,
     val originalPath: String,
@@ -47,9 +49,10 @@ data class PhotoEntity(
     val uploadedAtMillis: Long,
 )
 
-@Entity(tableName = "cached_shares")
+@Entity(tableName = "cached_shares", primaryKeys = ["userId", "id"])
 data class ShareEntity(
-    @PrimaryKey val id: String,
+    val userId: String,
+    val id: String,
     val drawerId: String,
     val sharedWithId: String,
     val email: String,
@@ -62,54 +65,63 @@ data class ShareEntity(
 @Dao
 interface DrawerDao {
 
-    @Query("SELECT * FROM cached_drawers ORDER BY updatedAtMillis DESC")
-    suspend fun getAll(): List<DrawerEntity>
+    @Query("SELECT * FROM cached_drawers WHERE userId = :userId ORDER BY updatedAtMillis DESC")
+    suspend fun getAll(userId: String): List<DrawerEntity>
 
-    @Query("SELECT * FROM cached_drawers WHERE id = :id LIMIT 1")
-    suspend fun getById(id: String): DrawerEntity?
+    @Query("SELECT * FROM cached_drawers WHERE userId = :userId AND id = :id LIMIT 1")
+    suspend fun getById(userId: String, id: String): DrawerEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(items: List<DrawerEntity>)
 
-    @Query("DELETE FROM cached_drawers")
-    suspend fun clear()
+    @Query("DELETE FROM cached_drawers WHERE userId = :userId")
+    suspend fun clear(userId: String)
 
-    @Query("DELETE FROM cached_drawers WHERE id = :id")
-    suspend fun deleteById(id: String)
+    @Query("DELETE FROM cached_drawers WHERE userId = :userId AND id = :id")
+    suspend fun deleteById(userId: String, id: String)
+
+    @Query("DELETE FROM cached_drawers")
+    suspend fun clearAll()
 }
 
 @Dao
 interface PhotoDao {
 
-    @Query("SELECT * FROM cached_photos WHERE drawerId = :drawerId ORDER BY uploadedAtMillis DESC")
-    suspend fun getByDrawer(drawerId: String): List<PhotoEntity>
+    @Query("SELECT * FROM cached_photos WHERE userId = :userId AND drawerId = :drawerId ORDER BY uploadedAtMillis DESC")
+    suspend fun getByDrawer(userId: String, drawerId: String): List<PhotoEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(items: List<PhotoEntity>)
 
-    @Query("DELETE FROM cached_photos WHERE drawerId = :drawerId")
-    suspend fun deleteByDrawer(drawerId: String)
+    @Query("DELETE FROM cached_photos WHERE userId = :userId AND drawerId = :drawerId")
+    suspend fun deleteByDrawer(userId: String, drawerId: String)
 
-    @Query("DELETE FROM cached_photos WHERE id = :id")
-    suspend fun deleteById(id: String)
+    @Query("DELETE FROM cached_photos WHERE userId = :userId AND id = :id")
+    suspend fun deleteById(userId: String, id: String)
+
+    @Query("DELETE FROM cached_photos")
+    suspend fun clearAll()
 }
 
 @Dao
 interface ShareDao {
 
-    @Query("SELECT * FROM cached_shares WHERE drawerId = :drawerId")
-    suspend fun getByDrawer(drawerId: String): List<ShareEntity>
+    @Query("SELECT * FROM cached_shares WHERE userId = :userId AND drawerId = :drawerId")
+    suspend fun getByDrawer(userId: String, drawerId: String): List<ShareEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(items: List<ShareEntity>)
 
-    @Query("DELETE FROM cached_shares WHERE drawerId = :drawerId")
-    suspend fun deleteByDrawer(drawerId: String)
+    @Query("DELETE FROM cached_shares WHERE userId = :userId AND drawerId = :drawerId")
+    suspend fun deleteByDrawer(userId: String, drawerId: String)
+
+    @Query("DELETE FROM cached_shares")
+    suspend fun clearAll()
 }
 
 @Database(
     entities = [DrawerEntity::class, PhotoEntity::class, ShareEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false,
 )
 abstract class PauseDatabase : RoomDatabase() {

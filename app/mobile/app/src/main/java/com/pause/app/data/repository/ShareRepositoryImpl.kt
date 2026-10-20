@@ -14,6 +14,7 @@ import com.pause.app.domain.model.SharePermission
 import com.pause.app.domain.model.ShareRecipient
 import com.pause.app.domain.repository.ShareRepository
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.rpc
@@ -31,16 +32,20 @@ class ShareRepositoryImpl(
 ) : ShareRepository {
 
     override suspend fun getShares(drawerId: String): List<DrawerShare> = withContext(ioDispatcher) {
+        val userId = client.auth.currentSessionOrNull()?.user?.id
         try {
             val parameters = buildJsonObject { put("p_drawer_id", drawerId) }
             val remote = client.postgrest.rpc("list_drawer_shares", parameters)
                 .decodeList<DrawerShareDto>()
                 .map { it.toDomain() }
-            shareDao.deleteByDrawer(drawerId)
-            shareDao.upsertAll(remote.map { it.toEntity(drawerId) })
+            if (userId != null) {
+                shareDao.deleteByDrawer(userId, drawerId)
+                shareDao.upsertAll(remote.map { it.toEntity(userId, drawerId) })
+            }
             remote
         } catch (error: Exception) {
-            val cached = shareDao.getByDrawer(drawerId).map { it.toDomain() }
+            val cached = userId?.let { id -> shareDao.getByDrawer(id, drawerId) }.orEmpty()
+                .map { it.toDomain() }
             if (cached.isEmpty()) throw error.toDrawerFailure() else cached
         }
     }

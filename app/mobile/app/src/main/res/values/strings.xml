@@ -198,6 +198,8 @@
     <string name="error_drawer_storage_full">Ngăn kéo đã đầy dung lượng. Xoá bớt ảnh hoặc nâng cấp gói.</string>
     <string name="error_photo_format">Định dạng ảnh không hỗ trợ</string>
     <string name="error_photo_too_large">Ảnh quá lớn sau khi nén (tối đa 5 MB)</string>
+    <string name="error_photo_url">Đã lưu ảnh nhưng không tạo được link xem ảnh. Kiểm tra bucket/policy của Storage (photos, thumbnails).</string>
+    <string name="photo_url_missing">Không tải được</string>
     <string name="error_drawer_name_required">Vui lòng nhập tên ngăn kéo</string>
     <string name="error_drawer_name_too_long">Tên ngăn kéo tối đa 60 ký tự</string>
     <string name="error_drawer_description_too_long">Mô tả tối đa 300 ký tự</string>

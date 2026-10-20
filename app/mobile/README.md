@@ -99,7 +99,7 @@ domain chỉ trả về `ValidationError` / `AuthFailure`.
 | FR-02.5 | Upload batch: nén 2048px/q82, thumbnail 480px, progress | `UploadPhotosUseCase`, `AndroidPhotoProcessor`, `PhotoRepositoryImpl` |
 | FR-02.6 | Grid ảnh, viewer pinch-to-zoom, multi-select xoá, phân trang | `DrawerDetailScreen`, `PhotoViewerScreen`, `GetPhotosUseCase` |
 | FR-02.7 | Chia sẻ qua email: lời mời pending → accepted/rejected, thu hồi | `ShareDrawerUseCase`, `ShareInvitationUseCases`, `ShareDrawerScreen` |
-| — | Offline cache (Room) cho drawers/photos/shares | `data/local/PauseDatabase.kt` |
+| — | Offline cache (Room) cho drawers/photos/shares — **scope theo userId**, xoá khi đăng xuất | `data/local/PauseDatabase.kt` |
 | — | Quota & storage indicator, empty state, upsell | `StorageIndicator`, `DrawerEmptyState`, quota dialog |
 
 ## 6. Phạm vi FR-01 (đã implement)

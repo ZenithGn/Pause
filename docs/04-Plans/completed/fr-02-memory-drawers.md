@@ -198,10 +198,15 @@ RLS ảnh theo quyền, bucket private, 8 storage policy.
 | 1 | Tạo ngăn kéo ở tài khoản A nhưng **mọi tài khoản khác đều thấy** | **Room cache không scope theo user**: `DrawerEntity/PhotoEntity/ShareEntity` chỉ khoá theo `id`, nên khi RPC lỗi (DB chưa migrate đủ / mạng lỗi) repo fallback về cache và trả dữ liệu của tài khoản đăng nhập trước trên cùng thiết bị. Kèm theo: `list_drawers()` bản cũ (DB chưa repair) không lọc `status='accepted'` | (a) Thêm `userId` vào **primary key** của cả 3 bảng cache + mọi query DAO đều filter `userId`; bump DB version 2 (Room destructive migration tự xoá cache cũ). (b) Cache **chỉ ghi/đọc khi có session**, không có session thì trả lỗi mạng thay vì cache. (c) Xoá toàn bộ cache khi `signOut()` (DI truyền `clearLocalCache`). (d) Repair migration dùng `drop function if exists …` + `create function` thay `create or replace` để chắc chắn thay được RPC cũ (kể cả khi đổi return type), và thêm guard `auth.uid() is not null` trong `list_drawers`/`get_drawer` |
 | 2 | Upload ảnh: nút/progress chạy nhưng **không thấy ảnh** | Upload thất bại (bucket/policy/DB chưa đủ) chỉ hiện toast "N ảnh bị bỏ qua", không nêu lý do; và nếu upload thành công nhưng **tạo signed URL thất bại** thì grid hiện ô trống | (a) Hiện **error banner** với lý do cụ thể của ảnh lỗi đầu tiên (bucket thiếu, quyền, >5 MB, định dạng). (b) Nếu lưu ảnh thành công nhưng không tạo được signed URL → báo "không tạo được link xem ảnh, kiểm tra bucket/policy". (c) Ô ảnh không có URL hiển thị "Không tải được" thay vì ô trống |
 
+**Migration an toàn khi chạy lại**: các RPC FR-02 giờ dùng `drop function if exists` +
+`create function` (không còn `create or replace`), nên `supabase db push` trên project
+đã dán SQL tay (history trống) vẫn chạy được toàn bộ 10 file và hội tụ đúng schema —
+đã có check riêng trong validation.
+
 **Thêm công cụ chẩn đoán**: `supabase/tests/diagnose_fr02.sql` — chạy trong SQL Editor để
 liệt kê migration đã áp, cột `status`, RPC, policy, bucket, trigger và snapshot dữ liệu.
 Dùng file này nếu vẫn thấy hành vi sai để biết chính xác DB đang thiếu gì.
 
-**Verify lại**: SQL validation **54/54** (thêm check "drawer private to owner" qua RPC,
+**Verify lại**: SQL validation **57/57** (thêm check "drawer private to owner" qua RPC,
 `drawers` RLS ẩn row của user khác, `photos` RLS ẩn ảnh của user khác) · 59 unit/integration
 test pass · APK build OK.

@@ -284,6 +284,22 @@ as $$
     order by s.created_at desc;
 $$;
 
+drop function if exists public.find_share_recipient(text);
+create function public.find_share_recipient(p_email text)
+returns table (id uuid, display_name text, email text)
+language sql
+security definer
+set search_path = ''
+stable
+as $$
+    select p.id, p.display_name, u.email::text
+    from public.profiles p
+    join auth.users u on u.id = p.id
+    where lower(u.email) = lower(trim(p_email))
+      and p.id <> auth.uid()
+    limit 1;
+$$;
+
 drop function if exists public.list_drawer_shares(uuid);
 create function public.list_drawer_shares(p_drawer_id uuid)
 returns table (
@@ -312,6 +328,7 @@ revoke all on function public.get_drawer(uuid) from public;
 revoke all on function public.share_drawer(uuid, text, text) from public;
 revoke all on function public.respond_share_invitation(uuid, boolean) from public;
 revoke all on function public.list_share_invitations() from public;
+revoke all on function public.find_share_recipient(text) from public;
 revoke all on function public.list_drawer_shares(uuid) from public;
 
 grant execute on function public.list_drawers() to authenticated;
@@ -319,4 +336,5 @@ grant execute on function public.get_drawer(uuid) to authenticated;
 grant execute on function public.share_drawer(uuid, text, text) to authenticated;
 grant execute on function public.respond_share_invitation(uuid, boolean) to authenticated;
 grant execute on function public.list_share_invitations() to authenticated;
+grant execute on function public.find_share_recipient(text) to authenticated;
 grant execute on function public.list_drawer_shares(uuid) to authenticated;

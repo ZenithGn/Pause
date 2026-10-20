@@ -534,6 +534,34 @@ def main() -> int:
     check_fr02(conn)
     check_repair(conn, repair_sql)
 
+    # ------------------------------------------------------------------
+    # Re-apply every migration in order: this is what `supabase db push` does on
+    # a project whose schema was applied manually (no migration history), so it
+    # must be safe and converge to the same state.
+    # ------------------------------------------------------------------
+    reapplied = True
+    try:
+        for migration in MIGRATIONS:
+            conn.execute(migration.read_text(encoding="utf-8"))
+    except Exception as error:  # noqa: BLE001
+        reapplied = False
+        print(f"FAIL  re-apply failed: {error}")
+    check("Migrations are safe to re-apply (manual/db-push convergence)", reapplied)
+
+    placeholder_trigger = conn.execute(
+        "select count(*) from pg_trigger where tgname = 'on_profile_created_create_default_drawers'"
+    ).fetchone()[0]
+    check("Re-apply still leaves the placeholder trigger dropped", placeholder_trigger == 0, placeholder_trigger)
+
+    list_drawers_body = conn.execute(
+        "select prosrc from pg_proc where proname = 'list_drawers' limit 1"
+    ).fetchone()[0]
+    check(
+        "Re-apply keeps list_drawers filtering accepted shares only",
+        "status = 'accepted'" in list_drawers_body,
+        list_drawers_body[:120],
+    )
+
     rls = {
         name: conn.execute(
             "select relrowsecurity from pg_class c join pg_namespace n on n.oid=c.relnamespace "

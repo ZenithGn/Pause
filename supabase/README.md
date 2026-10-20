@@ -5,6 +5,46 @@ Xem [AGENTS.md](../AGENTS.md) và [db-schema.md](../docs/03-References/db-schema
 
 ---
 
+## 0. Áp migration lên project — chạy ở đâu?
+
+`supabase db push` phải chạy ở **thư mục gốc repo** (nơi có folder `supabase/`),
+ví dụ: `C:\Users\lehan\Desktop\FPT\EXE\Pause`. Không cần Docker cho `db push`
+(Docker chỉ cần khi `supabase start` để chạy local stack).
+
+```powershell
+# 1) Cài CLI (chọn 1 cách; npm có sẵn vì máy đã có Node.js)
+npm install -g supabase
+# hoặc: winget install Supabase.CLI  /  scoop install supabase
+
+# 2) Đăng nhập (mở browser, chỉ làm 1 lần)
+supabase login
+
+# 3) Link project (chỉ làm 1 lần). Project Ref: Dashboard → Settings → General
+cd C:\Users\lehan\Desktop\FPT\EXE\Pause
+supabase link --project-ref <project-ref>     # sẽ hỏi Database password
+
+# 4) Xem migration nào còn pending rồi push
+supabase migration list
+supabase db push
+```
+
+- Migration đã áp sẽ được ghi vào `supabase_migrations.schema_migrations`; `db push`
+  chỉ chạy file còn thiếu.
+- Nếu DB trước đó được dán SQL tay qua Dashboard (bảng history trống), `db push` sẽ
+  chạy **toàn bộ** file. Bộ migration này đã được kiểm tra **an toàn khi chạy lại**
+  (check "Migrations are safe to re-apply" trong `tests/validate_migrations.py`), nên
+  vẫn hội tụ về đúng schema.
+
+### Cách 2: không cài CLI — dán SQL trong Dashboard
+
+1. Supabase Dashboard → **SQL Editor** → New query.
+2. Dán nội dung `supabase/migrations/20251114090000_fr02_repair.sql` → **Run**.
+   File này đã bao gồm: bỏ trigger tạo placeholder, thêm `status` lời mời, policy
+   accepted-only, và tạo lại toàn bộ RPC FR-02 (kể cả `find_share_recipient`).
+3. Nếu nghi ngờ bucket/policy chưa có, dán thêm
+   `20251113090300_photo_storage_buckets.sql` → Run (idempotent).
+4. Kiểm chứng: dán `supabase/tests/diagnose_fr02.sql` để xem còn thiếu gì.
+
 ## 1. Cấu trúc
 
 ```
@@ -134,7 +174,7 @@ select * from public.profiles;
 | `security definer set search_path = ''` | Best practice trong tài liệu Supabase nói trên (đã áp dụng cho cả 4 function) |
 | Storage bucket private + policy theo `auth.uid()` | Theo [Storage Access Control](https://supabase.com/docs/guides/storage/security/access-control) |
 | Key trong `config.toml` | Đối chiếu `toml:` tag trong source `supabase/cli` (`apps/cli-go/pkg/config/auth.go`, `storage.go`) và [CLI config docs](https://supabase.com/docs/guides/local-development/cli/config) |
-| **SQL đã được chạy thật chưa?** | ✅ **Rồi** — chạy trên PostgreSQL thật (embedded, không cần Docker) bằng `tests/validate_migrations.py`: apply đủ 10 migration + **54/54 check** (FR-01 + FR-02: trigger, quota 256 MB, RLS, invitation flow, bucket). Chưa chạy trên **Supabase stack thật** (GoTrue/PostgREST/Storage thật) |
+| **SQL đã được chạy thật chưa?** | ✅ **Rồi** — chạy trên PostgreSQL thật (embedded, không cần Docker) bằng `tests/validate_migrations.py`: apply đủ 10 migration + **57/57 check** (FR-01 + FR-02: trigger, quota 256 MB, RLS, invitation flow, bucket). Chưa chạy trên **Supabase stack thật** (GoTrue/PostgREST/Storage thật) |
 
 ### Chạy lại kiểm chứng SQL (không cần Docker)
 

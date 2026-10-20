@@ -17,7 +17,8 @@
 -- -----------------------------------------------------------------------------
 -- list_drawers
 -- -----------------------------------------------------------------------------
-create or replace function public.list_drawers()
+drop function if exists public.list_drawers();
+create function public.list_drawers()
 returns table (
     id uuid,
     owner_id uuid,
@@ -82,7 +83,8 @@ comment on function public.list_drawers() is
 -- -----------------------------------------------------------------------------
 -- get_drawer
 -- -----------------------------------------------------------------------------
-create or replace function public.get_drawer(p_drawer_id uuid)
+drop function if exists public.get_drawer(uuid);
+create function public.get_drawer(p_drawer_id uuid)
 returns table (
     id uuid,
     owner_id uuid,
@@ -149,7 +151,8 @@ comment on function public.get_drawer(uuid) is
 -- -----------------------------------------------------------------------------
 -- find_share_recipient
 -- -----------------------------------------------------------------------------
-create or replace function public.find_share_recipient(p_email text)
+drop function if exists public.find_share_recipient(text);
+create function public.find_share_recipient(p_email text)
 returns table (id uuid, display_name text, email text)
 language sql
 security definer
@@ -170,7 +173,8 @@ comment on function public.find_share_recipient(text) is
 -- -----------------------------------------------------------------------------
 -- share_drawer – creates a pending invitation (T-02.21)
 -- -----------------------------------------------------------------------------
-create or replace function public.share_drawer(
+drop function if exists public.share_drawer(uuid, text, text);
+create function public.share_drawer(
     p_drawer_id uuid,
     p_email text,
     p_permission text
@@ -239,7 +243,8 @@ comment on function public.share_drawer(uuid, text, text) is
 -- -----------------------------------------------------------------------------
 -- respond_share_invitation (T-02.22)
 -- -----------------------------------------------------------------------------
-create or replace function public.respond_share_invitation(
+drop function if exists public.respond_share_invitation(uuid, boolean);
+create function public.respond_share_invitation(
     p_share_id uuid,
     p_accept boolean
 )
@@ -281,7 +286,8 @@ comment on function public.respond_share_invitation(uuid, boolean) is
 -- -----------------------------------------------------------------------------
 -- list_share_invitations (T-02.23)
 -- -----------------------------------------------------------------------------
-create or replace function public.list_share_invitations()
+drop function if exists public.list_share_invitations();
+create function public.list_share_invitations()
 returns table (
     id uuid,
     drawer_id uuid,
@@ -318,7 +324,8 @@ comment on function public.list_share_invitations() is
 -- -----------------------------------------------------------------------------
 -- list_drawer_shares
 -- -----------------------------------------------------------------------------
-create or replace function public.list_drawer_shares(p_drawer_id uuid)
+drop function if exists public.list_drawer_shares(uuid);
+create function public.list_drawer_shares(p_drawer_id uuid)
 returns table (
     id uuid,
     shared_with_id uuid,

@@ -70,9 +70,21 @@ create index if not exists idx_shares_pending
     on public.drawer_shares (shared_with_id) where status = 'pending';
 
 -- -----------------------------------------------------------------------------
--- 3) Drop the legacy docs policy that ignored invitation status
+-- 3) Replace the legacy docs policy (it ignored invitation status) with a
+--    status-aware version. Idempotent: recreates the correct policy either way.
 -- -----------------------------------------------------------------------------
 drop policy if exists "Shared users can view drawers" on public.drawers;
+create policy "Shared users can view drawers"
+    on public.drawers
+    for select
+    to authenticated
+    using (
+        id in (
+            select s.drawer_id from public.drawer_shares s
+            where s.shared_with_id = (select auth.uid())
+              and s.status = 'accepted'
+        )
+    );
 
 -- -----------------------------------------------------------------------------
 -- 4) Re-create the FR-02 RPCs so a partially migrated database converges to the

@@ -198,8 +198,10 @@ CREATE POLICY "Users can update own profile"
 >   do trigger `handle_new_user()` (SECURITY DEFINER) và `ON DELETE CASCADE` xử lý.
 > - Trigger `protect_profiles_columns()` chặn user tự đổi `max_drawers`
 >   (chỉ `service_role` được đổi – dùng cho gói hội viên/mua lẻ).
-> - Trigger `on_profile_created_create_default_drawers` tạo ngay 3 ngăn kéo trống
->   cho user mới (FR-01.5 post-condition), đọc theo `max_drawers`.
+> - **Đã bỏ** trigger `on_profile_created_create_default_drawers` (migration
+>   `20251114090000_fr02_repair.sql`): trước đây nó tạo sẵn 3 ngăn kéo trống và
+>   chiếm hết quota free tier khiến tài khoản mới không tạo thêm được ngăn kéo.
+>   Hiện `max_drawers` chỉ là hạn mức, ngăn kéo được tạo theo nhu cầu.
 > - Trigger `enforce_drawer_quota()` chặn tạo ngăn kéo vượt `max_drawers` ở tầng DB.
 > - Trigger `handle_user_metadata_update()` đồng bộ `display_name` từ metadata
 >   Google/OAuth cho user chưa đặt tên.
@@ -617,6 +619,17 @@ CREATE INDEX idx_memberships_active ON memberships(user_id, status) WHERE status
 Quyền cột: `authenticated` chỉ được UPDATE `drawers(name, description,
 cover_photo_url)`; `storage_used_bytes`, `storage_limit_bytes`, `is_purchased`,
 `owner_id` chỉ trigger SECURITY DEFINER / `service_role` ghi được.
+
+### Repair migration `20251114090000_fr02_repair.sql`
+
+- Bỏ trigger tạo placeholder + xoá các placeholder rỗng còn sót (chỉ xoá drawer
+  `is_purchased = false`, `storage_used_bytes = 0`, tên đúng mẫu
+  `Ngăn kéo kỷ niệm N`, chưa có ảnh) để trả lại quota cho tài khoản cũ.
+- Thêm cột `drawer_shares.status` nếu DB được migrate từ bản nháp đầu
+  (share cũ chuyển thành `pending`, người nhận phải xác nhận).
+- Xoá policy cũ `"Shared users can view drawers"` (policy này bỏ qua status).
+- `create or replace` toàn bộ RPC FR-02 để DB đang ở trạng thái dở dang cũng
+  hội tụ về hành vi chỉ-hiển-thị-khi-accepted.
 
 ### RPC (gọi từ mobile)
 

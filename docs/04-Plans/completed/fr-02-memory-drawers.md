@@ -174,3 +174,19 @@ RLS ảnh theo quyền, bucket private, 8 storage policy.
 - [db-schema.md](../03-References/db-schema.md#ghi-chú-triển-khai-fr-02-memory-drawers)
 - [storage-strategy.md](../03-References/storage-strategy.md)
 - [task-breakdown FR-03](../active/task-breakdown.md#task-breakdown--fr-03-in-ảnh-photobooth)
+
+---
+
+## 10. Phụ lục – sửa lỗi sau khi test trên máy thật
+
+| # | Lỗi | Nguyên nhân | Cách sửa |
+|---|---|---|---|
+| 1 | Tài khoản tạo **sau** FR-02 không tạo được ngăn kéo (báo quá số lượng); tài khoản cũ thì tạo được | Trigger `create_default_drawers` tạo sẵn 3 ngăn kéo trống ngay khi đăng ký → quota `max_drawers = 3` bị dùng hết. Tài khoản cũ (tạo trước khi có trigger) không có placeholder nên còn quota | Migration `20251114090000_fr02_repair.sql`: bỏ trigger, xoá placeholder rỗng còn sót (chỉ drawer mặc định, chưa có ảnh), giữ `max_drawers = 3` là hạn mức tạo-theo-nhu-cầu. Sửa lại FR-01.1 + T-01.05 |
+| 2 | Share ngăn kéo → **mọi tài khoản đều thấy**; không có bước xác nhận cho email được chỉ định | DB đang ở bản nháp FR-02 đầu tiên: `drawer_shares` chưa có cột `status` và `list_drawers()` chưa lọc `accepted`; policy cũ `"Shared users can view drawers"` cũng bỏ qua trạng thái | Repair migration: thêm cột `status`/`responded_at` nếu thiếu (share cũ → `pending`), drop policy cũ, `create or replace` toàn bộ RPC để chỉ trả về share `accepted`; UI hiển thị mục "Lời mời chia sẻ" (Chấp nhận/Từ chối) + banner trên Home |
+| 3 | Nút **"Tạo ngăn kéo" ở Home** không hoạt động | `CreateDrawerSheet` chỉ được compose trong `DrawerListScreen` (tab Memories); Home chỉ bật state nên không có gì hiện ra | Chuyển render `CreateDrawerSheet` lên `PauseNavGraph` (dùng chung cho Home + Memories) |
+| 4 | Ở **Profile** chỉ bấm được tab Home, không sang Memories/Explore | `PauseBottomBar` của Profile chỉ xử lý `PauseTab.HOME`, các tab khác bị bỏ qua | `ProfileScreen` nhận `onNavigate: (PauseTab) -> Unit` và forward toàn bộ tab như các màn khác |
+
+**Đã verify lại**: `51/51` SQL check (bao gồm "signup không tạo placeholder", "repair xoá placeholder rỗng nhưng giữ drawer do user đặt tên", pending không lộ drawer, accepted mới lộ) · 59 unit/integration test · APK build OK.
+
+> Sau khi pull code: chạy `supabase db push` (áp migration repair) rồi **build lại APK**
+> — nếu chỉ cài APK cũ thì lỗi 2/3/4 vẫn còn.

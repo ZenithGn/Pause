@@ -134,7 +134,7 @@ select * from public.profiles;
 | `security definer set search_path = ''` | Best practice trong tài liệu Supabase nói trên (đã áp dụng cho cả 4 function) |
 | Storage bucket private + policy theo `auth.uid()` | Theo [Storage Access Control](https://supabase.com/docs/guides/storage/security/access-control) |
 | Key trong `config.toml` | Đối chiếu `toml:` tag trong source `supabase/cli` (`apps/cli-go/pkg/config/auth.go`, `storage.go`) và [CLI config docs](https://supabase.com/docs/guides/local-development/cli/config) |
-| **SQL đã được chạy thật chưa?** | ✅ **Rồi** — chạy trên PostgreSQL thật (embedded, không cần Docker) bằng `tests/validate_migrations.py`: apply đủ 10 migration + **51/51 check** (FR-01 + FR-02: trigger, quota 256 MB, RLS, invitation flow, bucket). Chưa chạy trên **Supabase stack thật** (GoTrue/PostgREST/Storage thật) |
+| **SQL đã được chạy thật chưa?** | ✅ **Rồi** — chạy trên PostgreSQL thật (embedded, không cần Docker) bằng `tests/validate_migrations.py`: apply đủ 10 migration + **54/54 check** (FR-01 + FR-02: trigger, quota 256 MB, RLS, invitation flow, bucket). Chưa chạy trên **Supabase stack thật** (GoTrue/PostgREST/Storage thật) |
 
 ### Chạy lại kiểm chứng SQL (không cần Docker)
 
@@ -142,6 +142,9 @@ select * from public.profiles;
 pip install pgserver "psycopg[binary]"
 python supabase/tests/validate_migrations.py
 ```
+
+Nếu app vẫn hiển thị/sao lưu sai, chạy `supabase/tests/diagnose_fr02.sql` trong SQL
+Editor để xem migration/cột/RPC/policy/bucket nào còn thiếu.
 
 Script sẽ dựng PostgreSQL tạm, tạo stub cho `auth.users`, `auth.uid()`,
 `storage.*` (giống Supabase), apply toàn bộ migration rồi assert hành vi FR-01.

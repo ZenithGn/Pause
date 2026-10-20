@@ -261,7 +261,18 @@ def check_fr02(conn) -> None:
     ).fetchall()
     check("FR-02 owner can rename a drawer", len(renamed) == 1, renamed)
 
+    # --- privacy: a drawer is invisible to every other account -------------
+    as_user(conn, bob)
+    bob_drawers = conn.execute("select * from public.list_drawers()").fetchall()
+    check("FR-02 drawers are private to their owner (RPC)", len(bob_drawers) == 0, bob_drawers)
+    bob_direct = conn.execute("select count(*) from public.drawers").fetchone()[0]
+    check("FR-02 drawers table RLS hides other users' rows", bob_direct == 0, bob_direct)
+    bob_photos = conn.execute("select count(*) from public.photos").fetchone()[0]
+    check("FR-02 photos table RLS hides other users' rows", bob_photos == 0, bob_photos)
+    as_superuser(conn)
+
     # --- FR-02.7 / T-02.21: invitation is pending until accepted -----------
+    as_user(conn, alice)
     share_id = conn.execute(
         "select public.share_drawer(%s, %s, %s)", (str(drawer), "bob@pause.app", "view")
     ).fetchone()[0]

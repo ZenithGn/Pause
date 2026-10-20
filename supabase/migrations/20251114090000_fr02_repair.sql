@@ -90,7 +90,8 @@ create policy "Shared users can view drawers"
 -- 4) Re-create the FR-02 RPCs so a partially migrated database converges to the
 --    accepted-only behaviour (create or replace is idempotent).
 -- -----------------------------------------------------------------------------
-create or replace function public.list_drawers()
+drop function if exists public.list_drawers();
+create function public.list_drawers()
 returns table (
     id uuid, owner_id uuid, owner_name text, name text, description text,
     cover_photo_url text, storage_used_bytes bigint, storage_limit_bytes bigint,
@@ -119,16 +120,18 @@ as $$
         end as permission
     from public.drawers d
     join public.profiles p on p.id = d.owner_id
-    where d.owner_id = auth.uid()
+    where auth.uid() is not null
+      and (d.owner_id = auth.uid()
        or exists (
             select 1 from public.drawer_shares s
             where s.drawer_id = d.id and s.shared_with_id = auth.uid()
               and s.status = 'accepted'
-       )
+       ))
     order by d.updated_at desc;
 $$;
 
-create or replace function public.get_drawer(p_drawer_id uuid)
+drop function if exists public.get_drawer(uuid);
+create function public.get_drawer(p_drawer_id uuid)
 returns table (
     id uuid, owner_id uuid, owner_name text, name text, description text,
     cover_photo_url text, storage_used_bytes bigint, storage_limit_bytes bigint,
@@ -158,6 +161,7 @@ as $$
     from public.drawers d
     join public.profiles p on p.id = d.owner_id
     where d.id = p_drawer_id
+      and auth.uid() is not null
       and (
           d.owner_id = auth.uid()
           or exists (
@@ -168,7 +172,8 @@ as $$
       );
 $$;
 
-create or replace function public.share_drawer(
+drop function if exists public.share_drawer(uuid, text, text);
+create function public.share_drawer(
     p_drawer_id uuid,
     p_email text,
     p_permission text
@@ -226,7 +231,8 @@ begin
 end;
 $$;
 
-create or replace function public.respond_share_invitation(
+drop function if exists public.respond_share_invitation(uuid, boolean);
+create function public.respond_share_invitation(
     p_share_id uuid,
     p_accept boolean
 )
@@ -257,7 +263,8 @@ begin
 end;
 $$;
 
-create or replace function public.list_share_invitations()
+drop function if exists public.list_share_invitations();
+create function public.list_share_invitations()
 returns table (
     id uuid, drawer_id uuid, drawer_name text, owner_name text,
     permission text, status text, created_at timestamptz
@@ -277,7 +284,8 @@ as $$
     order by s.created_at desc;
 $$;
 
-create or replace function public.list_drawer_shares(p_drawer_id uuid)
+drop function if exists public.list_drawer_shares(uuid);
+create function public.list_drawer_shares(p_drawer_id uuid)
 returns table (
     id uuid, shared_with_id uuid, email text, display_name text,
     permission text, status text, created_at timestamptz

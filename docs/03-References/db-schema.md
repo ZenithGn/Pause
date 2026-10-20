@@ -193,7 +193,8 @@ CREATE POLICY "Users can update own profile"
     ON profiles FOR UPDATE USING (auth.uid() = id);
 ```
 
-> **Đã triển khai (FR-01)** – xem `supabase/migrations/`:
+> **Đã triển khai** – toàn bộ schema nằm trong một file baseline duy nhất:
+> `supabase/migrations/20251115090000_init_schema.sql`.
 > - `profiles` chỉ cấp `SELECT/UPDATE` cho role `authenticated`; `INSERT/DELETE`
 >   do trigger `handle_new_user()` (SECURITY DEFINER) và `ON DELETE CASCADE` xử lý.
 > - Trigger `protect_profiles_columns()` chặn user tự đổi `max_drawers`
@@ -582,8 +583,8 @@ CREATE INDEX idx_memberships_active ON memberships(user_id, status) WHERE status
 
 ## Ghi chú triển khai FR-02 (Memory Drawers)
 
-> Chi tiết migration: `supabase/migrations/20251113090000_drawer_shares.sql` →
-> `20251113090400_drawer_rpcs.sql`. Quota: [storage-strategy.md](storage-strategy.md).
+> Chi tiết: `supabase/migrations/20251115090000_init_schema.sql` (một file duy nhất).
+> Quota: [storage-strategy.md](storage-strategy.md).
 
 ### `photos`
 
@@ -620,7 +621,7 @@ Quyền cột: `authenticated` chỉ được UPDATE `drawers(name, description,
 cover_photo_url)`; `storage_used_bytes`, `storage_limit_bytes`, `is_purchased`,
 `owner_id` chỉ trigger SECURITY DEFINER / `service_role` ghi được.
 
-### Repair migration `20251114090000_fr02_repair.sql`
+### (Lịch sử) Repair migration — nay đã gộp vào baseline
 
 - Bỏ trigger tạo placeholder + xoá các placeholder rỗng còn sót (chỉ xoá drawer
   `is_purchased = false`, `storage_used_bytes = 0`, tên đúng mẫu

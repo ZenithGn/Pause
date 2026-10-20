@@ -8,6 +8,11 @@
 
 ---
 
+> **Cập nhật (consolidation)**: toàn bộ migration của FR-01 + FR-02 (và schema nền
+> của FR-03 → FR-07) đã được gộp vào **một file baseline duy nhất**
+> `supabase/migrations/20251115090000_init_schema.sql`. Các tên file migration cũ
+> trong biên bản chỉ mang tính lịch sử; xem `supabase/README.md` để biết cách áp.
+
 ## 1. Tóm tắt
 
 FR-01 được triển khai end-to-end, gồm 3 phần:

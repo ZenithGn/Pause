@@ -12,7 +12,7 @@
 - [x] **T-01.02** – Cấu hình Auth providers (Email/Password + Google OAuth)
 - [x] **T-01.03** – Tạo bảng `profiles` + trigger `handle_new_user()` (ref: db-schema.md)
 - [x] **T-01.04** – Bật RLS cho bảng `profiles` + tạo policies
-- [x] **T-01.05** – ~~Tạo 3 ngăn kéo mặc định (trống) khi đăng ký~~ → **sửa sau test**: chỉ cấp quota 3 ngăn kéo, ngăn kéo tạo theo nhu cầu (xem `20251114090000_fr02_repair.sql`)
+- [x] **T-01.05** – ~~Tạo 3 ngăn kéo mặc định (trống) khi đăng ký~~ → **sửa sau test**: chỉ cấp quota 3 ngăn kéo, ngăn kéo tạo theo nhu cầu (xem file baseline `20251115090000_init_schema.sql`)
 
 ## Mobile – Data Layer
 

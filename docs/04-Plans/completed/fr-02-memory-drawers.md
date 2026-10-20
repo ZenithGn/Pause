@@ -5,9 +5,14 @@
 > **Kế hoạch gốc**: [task-breakdown.md – FR-02](../active/task-breakdown.md#task-breakdown--fr-02-ngăn-kéo-kỷ-niệm-memory-drawers)
 > **Yêu cầu**: [FR-02](../01-BA/SRS/01-fr.md#fr-02-ngăn-kéo-kỷ-niệm-memory-drawers)
 > **Quota**: [storage-strategy.md](../03-References/storage-strategy.md)
-> **Tasks**: 39/39 · **Tests**: 59 passed / 0 failed (toàn app) · **SQL checks**: 49/49 · **APK**: build OK
+> **Tasks**: 39/39 · **Tests**: 59 passed / 0 failed (toàn app) · **SQL checks**: 58/58 · **APK**: build OK
 
 ---
+
+> **Cập nhật (consolidation)**: toàn bộ migration của FR-01 + FR-02 (và schema nền
+> của FR-03 → FR-07) đã được gộp vào **một file baseline duy nhất**
+> `supabase/migrations/20251115090000_init_schema.sql`. Các tên file migration cũ
+> trong biên bản chỉ mang tính lịch sử; xem `supabase/README.md` để biết cách áp.
 
 ## 1. Tóm tắt
 
@@ -107,7 +112,7 @@ cd app/mobile
 gradle :app:testDebugUnitTest      # 59 tests, 0 failed
 gradle :app:assembleDebug          # APK OK (Room + KSP)
 cd ../..
-python supabase/tests/validate_migrations.py   # 49/49 checks, ALL SQL CHECKS PASSED
+python supabase/tests/validate_migrations.py   # 58/58 checks, ALL SQL CHECKS PASSED
 ```
 
 | Test class | Số test | Nội dung |
@@ -207,6 +212,6 @@ RLS ảnh theo quyền, bucket private, 8 storage policy.
 liệt kê migration đã áp, cột `status`, RPC, policy, bucket, trigger và snapshot dữ liệu.
 Dùng file này nếu vẫn thấy hành vi sai để biết chính xác DB đang thiếu gì.
 
-**Verify lại**: SQL validation **57/57** (thêm check "drawer private to owner" qua RPC,
+**Verify lại**: SQL validation **58/58** (thêm check "drawer private to owner" qua RPC,
 `drawers` RLS ẩn row của user khác, `photos` RLS ẩn ảnh của user khác) · 59 unit/integration
 test pass · APK build OK.

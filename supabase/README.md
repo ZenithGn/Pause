@@ -14,7 +14,12 @@ supabase/
 │   ├── 20251112090000_profiles.sql          # T-01.03 profiles + handle_new_user()
 │   ├── 20251112090100_profiles_rls.sql      # T-01.04 RLS + column guard
 │   ├── 20251112090200_drawers_defaults.sql  # T-01.05 3 ngăn kéo mặc định + quota
-│   └── 20251112090300_avatars_bucket.sql    # FR-01.5 bucket avatars (private)
+│   ├── 20251112090300_avatars_bucket.sql    # FR-01.5 bucket avatars (private)
+│   ├── 20251113090000_drawer_shares.sql     # FR-02 shares + invitation status
+│   ├── 20251113090100_photos.sql            # FR-02 photos + RLS
+│   ├── 20251113090200_drawer_storage.sql    # FR-02 quota 256 MB + accounting triggers
+│   ├── 20251113090300_photo_storage_buckets.sql # FR-02 photos/thumbnails buckets
+│   └── 20251113090400_drawer_rpcs.sql       # FR-02 RPCs (list/share/invitations)
 └── templates/
     ├── confirmation.html           # Email xác nhận (link + OTP)
     └── recovery.html               # Email khôi phục mật khẩu (link + OTP)
@@ -128,7 +133,7 @@ select * from public.profiles;
 | `security definer set search_path = ''` | Best practice trong tài liệu Supabase nói trên (đã áp dụng cho cả 4 function) |
 | Storage bucket private + policy theo `auth.uid()` | Theo [Storage Access Control](https://supabase.com/docs/guides/storage/security/access-control) |
 | Key trong `config.toml` | Đối chiếu `toml:` tag trong source `supabase/cli` (`apps/cli-go/pkg/config/auth.go`, `storage.go`) và [CLI config docs](https://supabase.com/docs/guides/local-development/cli/config) |
-| **SQL đã được chạy thật chưa?** | ✅ **Rồi** — chạy trên PostgreSQL thật (embedded, không cần Docker) bằng `tests/validate_migrations.py`: apply đủ 4 migration + **19/19 check** (trigger, quota, RLS, bucket). Chưa chạy trên **Supabase stack thật** (GoTrue/PostgREST/Storage thật) |
+| **SQL đã được chạy thật chưa?** | ✅ **Rồi** — chạy trên PostgreSQL thật (embedded, không cần Docker) bằng `tests/validate_migrations.py`: apply đủ 9 migration + **49/49 check** (FR-01 + FR-02: trigger, quota 256 MB, RLS, invitation flow, bucket). Chưa chạy trên **Supabase stack thật** (GoTrue/PostgREST/Storage thật) |
 
 ### Chạy lại kiểm chứng SQL (không cần Docker)
 

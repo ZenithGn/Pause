@@ -88,7 +88,21 @@ domain chỉ trả về `ValidationError` / `AuthFailure`.
 
 ---
 
-## 5. Phạm vi FR-01 (đã implement)
+## 5. Phạm vi FR-02 (đã implement)
+
+| FR | Nội dung | Điểm vào |
+|---|---|---|
+| FR-02.1 | Danh sách ngăn kéo owned/shared + lời mời pending | `DrawerListScreen`, `DrawerListViewModel`, `list_drawers()` |
+| FR-02.2 | Tạo ngăn kéo (validate + quota 3 ngăn kéo) | `CreateDrawerUseCase`, `CreateDrawerSheet` |
+| FR-02.3 | Sửa tên/mô tả/ảnh bìa | `UpdateDrawerUseCase`, dialog trong `DrawerDetailScreen` |
+| FR-02.4 | Xoá ngăn kéo (owner, cascade + dọn Storage) | `DeleteDrawerUseCase` |
+| FR-02.5 | Upload batch: nén 2048px/q82, thumbnail 480px, progress | `UploadPhotosUseCase`, `AndroidPhotoProcessor`, `PhotoRepositoryImpl` |
+| FR-02.6 | Grid ảnh, viewer pinch-to-zoom, multi-select xoá, phân trang | `DrawerDetailScreen`, `PhotoViewerScreen`, `GetPhotosUseCase` |
+| FR-02.7 | Chia sẻ qua email: lời mời pending → accepted/rejected, thu hồi | `ShareDrawerUseCase`, `ShareInvitationUseCases`, `ShareDrawerScreen` |
+| — | Offline cache (Room) cho drawers/photos/shares | `data/local/PauseDatabase.kt` |
+| — | Quota & storage indicator, empty state, upsell | `StorageIndicator`, `DrawerEmptyState`, quota dialog |
+
+## 6. Phạm vi FR-01 (đã implement)
 
 | FR | Nội dung | Điểm vào |
 |---|---|---|
@@ -106,7 +120,7 @@ cho Supabase (`signInWith(IDToken)`), không cần Google SDK riêng.
 
 ---
 
-## 6. Việc còn lại (manual / ngoài scope code)
+## 7. Việc còn lại (manual / ngoài scope code)
 
 - Tạo Supabase project + cấu hình providers: xem `../supabase/README.md`.
 - Điền Google OAuth client ID (web) + thêm SHA-1/SHA-256 của signing key vào

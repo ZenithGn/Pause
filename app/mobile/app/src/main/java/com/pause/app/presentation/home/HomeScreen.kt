@@ -1,15 +1,18 @@
 package com.pause.app.presentation.home
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -27,28 +30,30 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.pause.app.R
+import com.pause.app.domain.model.Drawer
+import com.pause.app.presentation.common.components.DrawerCard
+import com.pause.app.presentation.common.components.DrawerEmptyState
 import com.pause.app.presentation.common.components.PauseBottomBar
 import com.pause.app.presentation.common.components.PauseTab
 import com.pause.app.presentation.theme.PauseColors
 
 /**
- * Placeholder for the Home Page (Figma screen 4).
- *
- * The real drawer carousel belongs to FR-02; this screen only proves the
- * post-login navigation target and hosts the bottom tab bar.
+ * Figma Home Page (screen 4): greeting, recent drawers carousel, quick actions,
+ * bottom tabs. FR-02 data now comes from `list_drawers()`.
  */
 @Composable
 fun HomeScreen(
     displayName: String?,
-    onOpenProfile: () -> Unit,
+    recentDrawers: List<Drawer>,
+    hasError: Boolean,
+    onCreateDrawer: () -> Unit,
+    onOpenDrawer: (Drawer) -> Unit,
+    onNavigate: (PauseTab) -> Unit,
 ) {
     Scaffold(
         containerColor = PauseColors.Paper,
         bottomBar = {
-            PauseBottomBar(
-                selected = PauseTab.HOME,
-                onSelect = { tab -> if (tab == PauseTab.PROFILE) onOpenProfile() },
-            )
+            PauseBottomBar(selected = PauseTab.HOME, onSelect = onNavigate)
         },
     ) { innerPadding ->
         Column(
@@ -60,6 +65,7 @@ fun HomeScreen(
         ) {
             val greeting = displayName?.let { stringResource(R.string.home_greeting, it) }
                 ?: stringResource(R.string.home_greeting_anonymous)
+
             Text(
                 text = greeting,
                 style = MaterialTheme.typography.headlineMedium,
@@ -80,7 +86,11 @@ fun HomeScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = stringResource(R.string.home_drawers_placeholder),
+                        text = if (recentDrawers.isEmpty()) {
+                            stringResource(R.string.drawers_empty_message)
+                        } else {
+                            stringResource(R.string.drawers_photo_count, recentDrawers.size)
+                        },
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White.copy(alpha = 0.7f),
                     )
@@ -95,17 +105,31 @@ fun HomeScreen(
             )
             Spacer(modifier = Modifier.height(12.dp))
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(160.dp)
-                    .background(PauseColors.Surface, RoundedCornerShape(18.dp)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = stringResource(R.string.profile_coming_soon),
+            when {
+                recentDrawers.isNotEmpty() -> LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(vertical = 4.dp),
+                ) {
+                    items(recentDrawers, key = { it.id }) { drawer ->
+                        Box(modifier = Modifier.width(280.dp)) {
+                            DrawerCard(
+                                drawer = drawer,
+                                thumbnailUrl = null,
+                                onClick = { onOpenDrawer(drawer) },
+                            )
+                        }
+                    }
+                }
+
+                hasError -> Text(
+                    text = stringResource(R.string.error_network),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = PauseColors.Muted,
+                    color = PauseColors.Error,
+                )
+
+                else -> DrawerEmptyState(
+                    title = stringResource(R.string.drawers_empty_title),
+                    message = stringResource(R.string.drawers_empty_message),
                 )
             }
 
@@ -115,7 +139,7 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Button(
-                    onClick = {},
+                    onClick = onCreateDrawer,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(999.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -132,6 +156,38 @@ fun HomeScreen(
                 ) {
                     Text(text = stringResource(R.string.home_quick_photobooth))
                 }
+            }
+        }
+    }
+}
+
+/** Explore tab placeholder until the discover feed is specified. */
+@Composable
+fun ExploreScreen(onNavigate: (PauseTab) -> Unit) {
+    Scaffold(
+        containerColor = PauseColors.Paper,
+        bottomBar = {
+            PauseBottomBar(selected = PauseTab.EXPLORE, onSelect = onNavigate)
+        },
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentAlignment = Alignment.Center,
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = stringResource(R.string.tab_explore),
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = PauseColors.Ink,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.profile_coming_soon),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = PauseColors.Muted,
+                )
             }
         }
     }

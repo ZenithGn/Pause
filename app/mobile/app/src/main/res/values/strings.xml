@@ -116,4 +116,101 @@
     <string name="tab_explore">Explore</string>
     <string name="tab_memories">Memories</string>
     <string name="tab_profile">Profile</string>
+
+    <!-- Drawers (FR-02) -->
+    <string name="drawers_title">Tủ kỷ niệm</string>
+    <string name="drawers_owned_section">Của tôi</string>
+    <string name="drawers_shared_section">Được chia sẻ</string>
+    <string name="drawers_empty_title">Chưa có ngăn kéo nào</string>
+    <string name="drawers_empty_message">Tạo ngăn kéo đầu tiên để bắt đầu lưu giữ kỷ niệm.</string>
+    <string name="drawers_create">Tạo ngăn kéo</string>
+    <string name="drawers_shared_badge">Được chia sẻ</string>
+    <string name="drawers_view_only_badge">Chỉ xem</string>
+    <string name="drawers_purchased_badge">Đã mua</string>
+    <string name="drawers_photo_count">%1$d ảnh</string>
+    <string name="drawers_owner_label">của %1$s</string>
+    <string name="drawers_storage_usage">%1$s / %2$s</string>
+    <string name="drawers_storage_remaining">Còn %1$s</string>
+    <string name="drawers_quota_title">Đã đạt giới hạn ngăn kéo</string>
+    <string name="drawers_quota_message">Bạn đã dùng hết %1$d ngăn kéo miễn phí. Nâng cấp hội viên hoặc mua lẻ để mở thêm.</string>
+    <string name="drawers_quota_action">Nâng cấp gói</string>
+    <string name="drawers_retry">Thử lại</string>
+
+    <!-- Create / edit drawer -->
+    <string name="drawer_create_title">Ngăn kéo mới</string>
+    <string name="drawer_edit_title">Chỉnh sửa ngăn kéo</string>
+    <string name="drawer_name_label">Tên ngăn kéo</string>
+    <string name="drawer_name_placeholder">Du lịch Đà Lạt 2026</string>
+    <string name="drawer_description_label">Mô tả (tuỳ chọn)</string>
+    <string name="drawer_description_placeholder">Kỷ niệm chuyến đi cùng nhau…</string>
+    <string name="drawer_create_submit">Tạo ngăn kéo</string>
+    <string name="drawer_save_submit">Lưu thay đổi</string>
+    <string name="drawer_created">Đã tạo ngăn kéo</string>
+    <string name="drawer_updated">Đã cập nhật ngăn kéo</string>
+    <string name="drawer_deleted">Đã xoá ngăn kéo</string>
+
+    <!-- Drawer detail / photos -->
+    <string name="drawer_detail_photos_section">Ảnh kỷ niệm</string>
+    <string name="drawer_detail_empty_title">Ngăn kéo còn trống</string>
+    <string name="drawer_detail_empty_message">Thêm ảnh đầu tiên từ thư viện hoặc camera.</string>
+    <string name="drawer_add_photos">Thêm ảnh</string>
+    <string name="drawer_uploading">Đang tải %1$d/%2$d ảnh…</string>
+    <string name="drawer_upload_done">Đã tải %1$d ảnh</string>
+    <string name="drawer_upload_partial">Tải lên %1$d ảnh, %2$d ảnh bị bỏ qua</string>
+    <string name="drawer_select_mode">Chọn ảnh</string>
+    <string name="drawer_selected_count">Đã chọn %1$d</string>
+    <string name="drawer_delete_selected">Xoá ảnh</string>
+    <string name="drawer_delete_photos_confirm_title">Xoá ảnh đã chọn?</string>
+    <string name="drawer_delete_photos_confirm_message">Ảnh sẽ bị xoá khỏi ngăn kéo và không thể khôi phục.</string>
+    <string name="drawer_photos_deleted">Đã xoá %1$d ảnh</string>
+    <string name="drawer_delete_title">Xoá ngăn kéo?</string>
+    <string name="drawer_delete_message">Toàn bộ ảnh bên trong sẽ bị xoá vĩnh viễn và không thể khôi phục.</string>
+    <string name="drawer_delete_confirm">Xoá ngăn kéo</string>
+    <string name="drawer_share_action">Chia sẻ</string>
+    <string name="drawer_edit_action">Chỉnh sửa</string>
+    <string name="drawer_menu_more">Tuỳ chọn khác</string>
+    <string name="drawer_photo_open">Xem ảnh</string>
+
+    <!-- Photo viewer -->
+    <string name="photo_viewer_title">%1$d / %2$d</string>
+    <string name="photo_viewer_close">Đóng</string>
+
+    <!-- Share (FR-02.7) -->
+    <string name="share_title">Chia sẻ ngăn kéo</string>
+    <string name="share_email_label">Email người nhận</string>
+    <string name="share_email_placeholder">ban@example.com</string>
+    <string name="share_permission_label">Quyền truy cập</string>
+    <string name="share_permission_view">Xem</string>
+    <string name="share_permission_edit">Chỉnh sửa</string>
+    <string name="share_submit">Gửi lời mời</string>
+    <string name="share_success">Đã chia sẻ ngăn kéo</string>
+    <string name="share_revoked">Đã thu hồi quyền truy cập</string>
+    <string name="share_revoke">Thu hồi</string>
+    <string name="share_list_empty">Chưa chia sẻ với ai</string>
+    <string name="share_owner_only">Chỉ chủ sở hữu mới có thể chia sẻ ngăn kéo này.</string>
+    <string name="share_people_section">Người được chia sẻ</string>
+
+    <!-- Drawer errors -->
+    <string name="error_drawer_not_found">Không tìm thấy ngăn kéo</string>
+    <string name="error_drawer_not_owner">Chỉ chủ sở hữu mới được làm việc này</string>
+    <string name="error_drawer_read_only">Bạn chỉ có quyền xem ngăn kéo này</string>
+    <string name="error_drawer_quota_reached">Bạn đã đạt giới hạn %1$d ngăn kéo</string>
+    <string name="error_drawer_storage_full">Ngăn kéo đã đầy dung lượng. Xoá bớt ảnh hoặc nâng cấp gói.</string>
+    <string name="error_photo_format">Định dạng ảnh không hỗ trợ</string>
+    <string name="error_photo_too_large">Ảnh quá lớn sau khi nén (tối đa 5 MB)</string>
+    <string name="error_drawer_name_required">Vui lòng nhập tên ngăn kéo</string>
+    <string name="error_drawer_name_too_long">Tên ngăn kéo tối đa 60 ký tự</string>
+    <string name="error_drawer_description_too_long">Mô tả tối đa 300 ký tự</string>
+    <string name="error_share_with_self">Không thể chia sẻ cho chính mình</string>
+    <string name="error_share_recipient_not_found">Không tìm thấy người dùng Pause với email này</string>
+    <!-- Share invitations (T-02.22 / T-02.30) -->
+    <string name="invitations_title">Lời mời chia sẻ</string>
+    <string name="invitation_subtitle">%1$s mời bạn xem “%2$s”</string>
+    <string name="invitation_accept">Chấp nhận</string>
+    <string name="invitation_reject">Từ chối</string>
+    <string name="invitation_accepted">Đã chấp nhận lời mời</string>
+    <string name="invitation_rejected">Đã từ chối lời mời</string>
+    <string name="share_status_pending">Đang chờ</string>
+    <string name="share_status_accepted">Đã chấp nhận</string>
+    <string name="share_status_rejected">Đã từ chối</string>
 </resources>

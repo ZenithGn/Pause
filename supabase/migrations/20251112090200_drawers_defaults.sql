@@ -60,6 +60,8 @@ create policy "Owners can delete own drawers"
     to authenticated
     using (owner_id = (select auth.uid()));
 
+grant select, insert, update, delete on public.drawers to authenticated;
+
 -- -----------------------------------------------------------------------------
 -- T-01.05 – seed 3 empty drawers right after the profile is created
 -- (FR-01.1 post-condition: "user nhận 3 ngăn kéo mặc định (trống)")

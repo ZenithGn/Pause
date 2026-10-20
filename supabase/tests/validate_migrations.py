@@ -142,18 +142,21 @@ def check_fr01(conn) -> None:
     drawers = conn.execute(
         "select count(*) from public.drawers where owner_id=%s", (user_a,)
     ).fetchone()[0]
-    check("FR-01 3 default drawers", drawers == 3, drawers)
+    check("FR-02 repair: signup no longer pre-creates placeholder drawers", drawers == 0, drawers)
 
     max_drawers = conn.execute(
         "select max_drawers from public.profiles where id=%s", (user_a,)
     ).fetchone()[0]
     check("FR-01 free tier max_drawers = 3", max_drawers == 3, max_drawers)
 
-    limit = conn.execute(
-        "select distinct storage_limit_bytes from public.drawers where owner_id=%s", (user_a,)
+    created = conn.execute(
+        f"insert into public.drawers (owner_id, name) values ('{user_a}', 'Du lịch') "
+        "returning storage_limit_bytes"
     ).fetchone()[0]
-    check("FR-02 drawer quota = 256 MB", limit == FREE_DRAWER_LIMIT, limit)
+    check("FR-02 new drawer quota = 256 MB", created == FREE_DRAWER_LIMIT, created)
 
+    conn.execute(f"insert into public.drawers (owner_id, name) values ('{user_a}', 'Sinh nhật')")
+    conn.execute(f"insert into public.drawers (owner_id, name) values ('{user_a}', 'Gia đình')")
     expect_error(
         "FR-01 quota trigger blocks the 4th drawer",
         conn,
@@ -204,7 +207,8 @@ def check_fr02(conn) -> None:
     carol = create_user(conn, "carol@pause.app", "Carol")
 
     drawer = conn.execute(
-        "select id from public.drawers where owner_id=%s order by created_at limit 1", (alice,)
+        "insert into public.drawers (owner_id, name) values (%s, 'Đà Lạt 2026') returning id",
+        (alice,),
     ).fetchone()[0]
 
     # Supabase grants ALL on public tables to the API roles by default.
@@ -467,6 +471,29 @@ def check_fr02(conn) -> None:
     )
 
 
+def check_repair(conn, repair_sql: str) -> None:
+    """Re-applies the repair migration and asserts placeholder cleanup."""
+    dave = create_user(conn, "dave@pause.app", "Dave")
+
+    placeholder = conn.execute(
+        "insert into public.drawers (owner_id, name) values (%s, 'Ngăn kéo kỷ niệm 1') returning id",
+        (dave,),
+    ).fetchone()[0]
+    kept = conn.execute(
+        "insert into public.drawers (owner_id, name) values (%s, 'Đà Lạt 2025') returning id",
+        (dave,),
+    ).fetchone()[0]
+
+    conn.execute(repair_sql)
+
+    remaining = conn.execute(
+        "select id from public.drawers where id in (%s, %s)", (placeholder, kept)
+    ).fetchall()
+    ids = {row[0] for row in remaining}
+    check("FR-02 repair deletes untouched auto placeholder drawers", placeholder not in ids, ids)
+    check("FR-02 repair keeps user-named drawers", kept in ids, ids)
+
+
 def main() -> int:
     if not MIGRATIONS:
         sys.exit(f"No migrations found under {REPO_ROOT / 'supabase' / 'migrations'}")
@@ -488,8 +515,13 @@ def main() -> int:
             traceback.print_exc()
             return 1
 
+    repair_sql = (REPO_ROOT / "supabase" / "migrations" / "20251114090000_fr02_repair.sql").read_text(
+        encoding="utf-8"
+    )
+
     check_fr01(conn)
     check_fr02(conn)
+    check_repair(conn, repair_sql)
 
     rls = {
         name: conn.execute(

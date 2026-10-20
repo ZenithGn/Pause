@@ -121,3 +121,18 @@ drop trigger if exists validate_drawer_share_before_write on public.drawer_share
 create trigger validate_drawer_share_before_write
     before insert or update on public.drawer_shares
     for each row execute function public.validate_drawer_share();
+
+-- -----------------------------------------------------------------------------
+-- Allow recipients of accepted shares to view the drawer in public.drawers
+-- -----------------------------------------------------------------------------
+drop policy if exists "Shared users can view drawers" on public.drawers;
+create policy "Shared users can view drawers"
+    on public.drawers
+    for select
+    to authenticated
+    using (
+        id in (
+            select s.drawer_id from public.drawer_shares s
+            where s.shared_with_id = (select auth.uid()) and s.status = 'accepted'
+        )
+    );

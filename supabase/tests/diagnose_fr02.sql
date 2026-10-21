@@ -23,7 +23,7 @@ join pg_namespace n on n.oid = p.pronamespace
 where n.nspname = 'public'
   and p.proname in (
       'list_drawers', 'get_drawer', 'share_drawer', 'respond_share_invitation',
-      'list_share_invitations', 'list_drawer_shares', 'find_share_recipient',
+      'list_drawers', 'create_drawer', 'get_drawer', 'share_drawer', 'respond_share_invitation',
       'my_active_membership', 'admin_dashboard_stats'
   )
 order by p.proname;

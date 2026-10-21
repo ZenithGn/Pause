@@ -63,7 +63,8 @@ reset sạch như trên (dữ liệu hiện tại chỉ là test).
 supabase/
 ├── config.toml                     # Cấu hình local stack (auth, storage, email templates)
 ├── migrations/
-│   └── 20251115090000_init_schema.sql   # ⭐ TOÀN BỘ schema trong 1 file duy nhất
+│   ├── 20251115090000_init_schema.sql          # ⭐ baseline schema
+│   └── 20261021090000_create_drawer_rpc.sql    # FR-02 atomic drawer creation repair
 ├── templates/
 │   ├── confirmation.html           # Email xác nhận (link + OTP)
 │   └── recovery.html               # Email khôi phục mật khẩu (link + OTP)

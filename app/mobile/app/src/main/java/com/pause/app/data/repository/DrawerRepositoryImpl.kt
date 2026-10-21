@@ -7,8 +7,6 @@ import com.pause.app.data.mapper.toDomain
 import com.pause.app.data.mapper.toDrawerFailure
 import com.pause.app.data.remote.dto.DrawerCoverDto
 import com.pause.app.data.remote.dto.DrawerDto
-import com.pause.app.data.remote.dto.DrawerInsertDto
-import com.pause.app.data.remote.dto.DrawerRowDto
 import com.pause.app.data.remote.dto.DrawerUpdateDto
 import com.pause.app.data.remote.dto.DrawerUpdateWithCoverDto
 import com.pause.app.data.remote.dto.IdDto
@@ -78,10 +76,22 @@ class DrawerRepositoryImpl(
         description: String?,
     ): Drawer = withContext(ioDispatcher) {
         call {
-            val row = client.from(TABLE)
-                .insert(DrawerInsertDto(ownerId = ownerId, name = name, description = description))
-                .decodeSingle<DrawerRowDto>()
-            fetchDrawer(row.id)
+            // Insert the drawer row. We capture the returned ID so that if the
+            // subsequent fetchDrawer() call fails (e.g. network timeout) we can
+            // still recover on retry instead of blindly inserting a duplicate.
+            // This RPC inserts and reads the drawer within one database call.
+            // It prevents a committed INSERT from being reported as a failed
+            // creation when the follow-up detail request cannot be completed.
+            val parameters = buildJsonObject {
+                put("p_name", name)
+                put("p_description", description)
+            }
+
+            client.postgrest.rpc("create_drawer", parameters)
+                .decodeList<DrawerDto>()
+                .firstOrNull()
+                ?.toDomain()
+                ?: throw DrawerFailure.Unknown()
         }
     }
 

@@ -185,4 +185,19 @@ class DrawerFlowIntegrationTest {
         detail.deleteDrawer()
         assertFalse(detail.state.value.deleted)
     }
+
+    @Test
+    fun `switching accounts clears the root scoped drawer list`() = runTest {
+        drawers.drawers += testDrawer(id = "drawer-a")
+        val list = listViewModel()
+
+        list.onSessionChanged("account-a")
+        list.load()
+        assertEquals(1, list.state.value.owned.size)
+
+        list.onSessionChanged("account-b")
+        assertTrue(list.state.value.owned.isEmpty())
+        assertTrue(list.state.value.shared.isEmpty())
+        assertTrue(list.state.value.isLoading)
+    }
 }

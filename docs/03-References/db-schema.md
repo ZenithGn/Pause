@@ -193,8 +193,9 @@ CREATE POLICY "Users can update own profile"
     ON profiles FOR UPDATE USING (auth.uid() = id);
 ```
 
-> **Đã triển khai** – toàn bộ schema nằm trong một file baseline duy nhất:
-> `supabase/migrations/20251115090000_init_schema.sql`.
+> **Đã triển khai** – schema nền nằm trong
+> `supabase/migrations/20251115090000_init_schema.sql`; các sửa lỗi sau đó là
+> migration bổ sung, không thay đổi lịch sử baseline đã áp.
 > - `profiles` chỉ cấp `SELECT/UPDATE` cho role `authenticated`; `INSERT/DELETE`
 >   do trigger `handle_new_user()` (SECURITY DEFINER) và `ON DELETE CASCADE` xử lý.
 > - Trigger `protect_profiles_columns()` chặn user tự đổi `max_drawers`
@@ -637,7 +638,7 @@ cover_photo_url)`; `storage_used_bytes`, `storage_limit_bytes`, `is_purchased`,
 | RPC | Dùng cho |
 |---|---|
 | `list_drawers()` | danh sách owned + shared accepted (kèm owner name, photo_count, permission) |
-| `get_drawer(uuid)` | chi tiết 1 ngăn kéo |
+| `create_drawer(text, text)` | tạo drawer của `auth.uid()` và trả về DTO hiển thị trong cùng một transaction |
 | `share_drawer(uuid, text, text)` | owner mời qua email (tạo `pending`) |
 | `respond_share_invitation(uuid, boolean)` | người nhận chấp nhận/từ chối |
 | `list_share_invitations()` | lời mời đang chờ của user |

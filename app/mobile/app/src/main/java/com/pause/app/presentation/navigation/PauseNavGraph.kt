@@ -88,6 +88,12 @@ fun PauseNavGraph(
         }
     }
 
+    // DrawerListViewModel lives at this graph's scope and therefore outlives
+    // navigation back to Login. Keep its state tied to the active account.
+    LaunchedEffect(authState.session?.user?.id) {
+        drawerListViewModel.onSessionChanged(authState.session?.user?.id)
+    }
+
     LaunchedEffect(Unit) {
         authViewModel.events.collect { event ->
             when (event) {

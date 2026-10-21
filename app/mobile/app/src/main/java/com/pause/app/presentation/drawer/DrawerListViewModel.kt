@@ -31,7 +31,20 @@ class DrawerListViewModel(
     val state: StateFlow<DrawerListUiState> = _state.asStateFlow()
 
     private var hasLoaded = false
+    private var sessionUserId: String? = null
 
+    /**
+     * The ViewModel is scoped to the root navigation graph, so it survives a
+     * sign-out/sign-in transition. Reset its in-memory state whenever the
+     * authenticated account changes; otherwise account B briefly renders
+     * account A's list until a manual refresh happens.
+     */
+    fun onSessionChanged(userId: String?) {
+        if (sessionUserId == userId) return
+        sessionUserId = userId
+        hasLoaded = false
+        _state.value = DrawerListUiState()
+    }
     fun loadIfNeeded() {
         if (hasLoaded) return
         load()

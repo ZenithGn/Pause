@@ -47,10 +47,17 @@ Pause/
 
 ## 📐 Quy tắc code chung
 
-### Ngôn ngữ
+### Ngôn ngữ & Git Workflow
 - **Code & comments**: Tiếng Anh
 - **Documentation**: Tiếng Việt
 - **Commit messages**: Tiếng Anh, theo Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`)
+- **Quy tắc phân nhánh (Branching rules)**:
+  - Khi phát triển / thao tác chức năng **Mobile**: Luôn checkout và làm việc trên nhánh `mobile-app_dev` (hoặc `mobile-app-dev`).
+  - Khi phát triển / thao tác chức năng **Web**: Luôn checkout và làm việc trên nhánh `webapp-dev`.
+  - Tuyệt đối không commit/thao tác trực tiếp trên `main`.
+- **Quy tắc Commit khi làm tính năng**:
+  - Mỗi khi hoàn thành xong một chức năng → **bắt buộc phải commit**.
+  - Nếu chức năng cần chỉnh sửa lại theo yêu cầu của user → **chỉ khi user xác nhận đã sửa xong/được rồi thì mới gom tất cả những gì đã sửa vào commit**. Không commit dở dang khi chưa có xác nhận từ user.
 
 ### Kotlin (Mobile)
 - Kiến trúc: **Clean Architecture + MVVM**

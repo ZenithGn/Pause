@@ -33,7 +33,6 @@ import com.pause.app.presentation.drawer.DrawerDetailScreen
 import com.pause.app.presentation.drawer.DrawerDetailViewModel
 import com.pause.app.presentation.drawer.DrawerListScreen
 import com.pause.app.presentation.drawer.DrawerListViewModel
-import com.pause.app.presentation.home.ExploreScreen
 import com.pause.app.presentation.home.HomeScreen
 import com.pause.app.presentation.profile.ProfileScreen
 import com.pause.app.presentation.profile.ProfileViewModel
@@ -143,7 +142,7 @@ fun PauseNavGraph(
     fun onTabSelected(tab: PauseTab) {
         val route = when (tab) {
             PauseTab.HOME -> Routes.HOME
-            PauseTab.EXPLORE -> Routes.EXPLORE
+            PauseTab.PHOTOBOOTH -> Routes.PHOTOBOOTH_TEMPLATES
             PauseTab.MEMORIES -> Routes.MEMORIES
             PauseTab.PROFILE -> Routes.PROFILE
         }
@@ -288,10 +287,6 @@ fun PauseNavGraph(
                     onConsumeToast = drawerListViewModel::consumeToast,
                     onRespondInvitation = drawerListViewModel::respondInvitation,
                 )
-            }
-
-            composable(Routes.EXPLORE) {
-                ExploreScreen(onNavigate = ::onTabSelected)
             }
 
             composable(

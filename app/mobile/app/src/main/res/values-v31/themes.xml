@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Pause" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/pause_accent</item>
+        <item name="android:statusBarColor">@color/pause_accent</item>
+        <item name="android:navigationBarColor">@color/pause_accent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowSplashScreenBackground">@color/pause_accent</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/pause_mark_white</item>
+    </style>
+</resources>

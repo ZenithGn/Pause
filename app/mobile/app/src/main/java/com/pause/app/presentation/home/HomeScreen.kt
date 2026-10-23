@@ -16,16 +16,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Flight
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -43,8 +41,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -99,11 +97,11 @@ fun HomeScreen(
                         .background(PauseColors.CategoryBg, CircleShape),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(
-                        text = "P",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = PauseColors.Ink,
+                    Icon(
+                        painter = painterResource(R.drawable.pause_mark),
+                        contentDescription = "Pause",
+                        tint = PauseColors.Wine,
+                        modifier = Modifier.size(24.dp),
                     )
                 }
                 Spacer(modifier = Modifier.width(12.dp))
@@ -139,15 +137,16 @@ fun HomeScreen(
                     }
                 }
                 Spacer(modifier = Modifier.width(4.dp))
-                Box(
+                IconButton(
+                    onClick = { onNavigate(PauseTab.PROFILE) },
                     modifier = Modifier
-                        .size(36.dp)
-                        .background(PauseColors.Wine, CircleShape),
-                    contentAlignment = Alignment.Center,
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(PauseColors.Wine),
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Person,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.tab_profile),
                         tint = Color.White,
                         modifier = Modifier.size(18.dp),
                     )
@@ -234,7 +233,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            // ── Ngăn kéo kỷ niệm – Category row ──
+            // ── Ngăn kéo kỷ niệm – data from DrawerListViewModel / Supabase ──
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -257,33 +256,12 @@ fun HomeScreen(
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
-                horizontalArrangement = Arrangement.spacedBy(20.dp),
-            ) {
-                CategoryIcon(
-                    icon = Icons.Filled.CardGiftcard,
-                    label = stringResource(R.string.home_category_birthday),
-                    onClick = {},
-                )
-                CategoryIcon(
-                    icon = Icons.Filled.Home,
-                    label = stringResource(R.string.home_category_family),
-                    onClick = {},
-                )
-                CategoryIcon(
-                    icon = Icons.Filled.Flight,
-                    label = stringResource(R.string.home_category_travel),
-                    onClick = {},
-                )
-                CategoryIcon(
-                    icon = Icons.Filled.Add,
-                    label = stringResource(R.string.home_category_more),
-                    onClick = onCreateDrawer,
-                )
-            }
+            MemoryDrawerRow(
+                drawers = recentDrawers,
+                hasError = hasError,
+                onOpenDrawer = onOpenDrawer,
+                onCreateDrawer = onCreateDrawer,
+            )
 
             Spacer(modifier = Modifier.height(28.dp))
 
@@ -371,36 +349,92 @@ fun HomeScreen(
 
 // ─────────────────────────── Sub-components ───────────────────────────
 
-/** Circular icon + label used in the category row. */
+/**
+ * Compact Home representation of the caller's real drawers. The list comes
+ * from Supabase through DrawerListViewModel; it is not a static category list.
+ */
 @Composable
-private fun CategoryIcon(
-    icon: ImageVector,
-    label: String,
-    onClick: () -> Unit,
+private fun MemoryDrawerRow(
+    drawers: List<Drawer>,
+    hasError: Boolean,
+    onOpenDrawer: (Drawer) -> Unit,
+    onCreateDrawer: () -> Unit,
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable(onClick = onClick),
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 20.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Box(
-            modifier = Modifier
-                .size(52.dp)
-                .background(PauseColors.CategoryBg, RoundedCornerShape(16.dp)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = label,
-                tint = PauseColors.Ink,
-                modifier = Modifier.size(24.dp),
-            )
+        items(drawers, key = { it.id }) { drawer ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .width(72.dp)
+                    .clickable { onOpenDrawer(drawer) },
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .background(PauseColors.CategoryBg, RoundedCornerShape(16.dp)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = drawer.name.trim().firstOrNull()?.uppercase() ?: "P",
+                        fontWeight = FontWeight.Bold,
+                        color = PauseColors.Wine,
+                    )
+                }
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = drawer.name,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = PauseColors.Ink,
+                    fontSize = 12.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    text = stringResource(R.string.drawers_photo_count, drawer.photoCount),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = PauseColors.Muted,
+                    fontSize = 10.sp,
+                )
+            }
         }
-        Spacer(modifier = Modifier.height(6.dp))
+        item {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .width(72.dp)
+                    .clickable(onClick = onCreateDrawer),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .background(PauseColors.WineLight, RoundedCornerShape(16.dp)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = stringResource(R.string.drawers_create),
+                        tint = PauseColors.Wine,
+                    )
+                }
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = stringResource(R.string.home_category_more),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = PauseColors.Wine,
+                    fontSize = 12.sp,
+                )
+            }
+        }
+    }
+    if (drawers.isEmpty() && hasError) {
         Text(
-            text = label,
+            text = stringResource(R.string.error_network),
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
             style = MaterialTheme.typography.bodyMedium,
-            color = PauseColors.Muted,
-            fontSize = 12.sp,
+            color = PauseColors.Error,
         )
     }
 }
@@ -537,7 +571,7 @@ fun ExploreScreen(onNavigate: (PauseTab) -> Unit) {
     Scaffold(
         containerColor = PauseColors.Paper,
         bottomBar = {
-            PauseBottomBar(selected = PauseTab.EXPLORE, onSelect = onNavigate)
+            PauseBottomBar(selected = PauseTab.PHOTOBOOTH, onSelect = onNavigate)
         },
     ) { innerPadding ->
         Box(
@@ -548,7 +582,7 @@ fun ExploreScreen(onNavigate: (PauseTab) -> Unit) {
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = stringResource(R.string.tab_explore),
+                    text = stringResource(R.string.tab_photobooth),
                     style = MaterialTheme.typography.headlineMedium,
                     color = PauseColors.Ink,
                 )

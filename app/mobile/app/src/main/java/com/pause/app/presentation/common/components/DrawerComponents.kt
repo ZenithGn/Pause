@@ -145,7 +145,7 @@ fun StorageIndicator(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(6.dp),
-            color = if (fraction > 0.9f) PauseColors.Error else PauseColors.Ink,
+            color = if (fraction > 0.9f) PauseColors.Error else PauseColors.Wine,
             trackColor = PauseColors.Line
         )
         Spacer(modifier = Modifier.height(4.dp))
@@ -183,7 +183,7 @@ fun BadgeChip(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(999.dp),
-        color = if (filled) PauseColors.Ink else PauseColors.Surface.copy(alpha = 0.92f),
+        color = if (filled) PauseColors.Wine else PauseColors.Surface.copy(alpha = 0.92f),
     ) {
         Text(
             text = text,

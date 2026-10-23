@@ -37,6 +37,15 @@ import com.pause.app.presentation.home.ExploreScreen
 import com.pause.app.presentation.home.HomeScreen
 import com.pause.app.presentation.profile.ProfileScreen
 import com.pause.app.presentation.profile.ProfileViewModel
+import com.pause.app.presentation.order.OrderConfirmScreen
+import com.pause.app.presentation.order.OrderDetailScreen
+import com.pause.app.presentation.order.OrderFormScreen
+import com.pause.app.presentation.order.OrderListScreen
+import com.pause.app.presentation.order.OrderViewModel
+import com.pause.app.presentation.photobooth.PhotoboothPreviewScreen
+import com.pause.app.presentation.photobooth.PhotoboothViewModel
+import com.pause.app.presentation.photobooth.SelectPhotosScreen
+import com.pause.app.presentation.photobooth.TemplateListScreen
 import com.pause.app.presentation.share.ShareDrawerScreen
 import com.pause.app.presentation.share.ShareDrawerViewModel
 import com.pause.app.presentation.splash.SplashScreen
@@ -45,7 +54,7 @@ import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-/** Navigation graph: auth flow + FR-02 drawer flow. */
+/** Navigation graph: auth flow + FR-02 drawer flow + FR-03 photobooth & order flow. */
 object Routes {
     const val SPLASH = "splash"
     const val LOGIN = "login"
@@ -58,9 +67,19 @@ object Routes {
     const val DRAWER_DETAIL = "drawer/{drawerId}"
     const val SHARE_DRAWER = "drawer/{drawerId}/share"
     const val PROFILE = "profile"
+    const val PHOTOBOOTH_TEMPLATES = "photobooth/templates"
+    const val PHOTOBOOTH_PHOTOS = "photobooth/photos"
+    const val PHOTOBOOTH_PREVIEW = "photobooth/preview"
+    const val ORDER_FORM = "order/form/{itemId}"
+    const val ORDER_CONFIRM = "order/confirm/{orderId}"
+    const val ORDER_LIST = "order/list"
+    const val ORDER_DETAIL = "order/detail/{orderId}"
 
     fun drawerDetail(drawerId: String) = "drawer/$drawerId"
     fun shareDrawer(drawerId: String) = "drawer/$drawerId/share"
+    fun orderForm(itemId: String) = "order/form/$itemId"
+    fun orderConfirm(orderId: String) = "order/confirm/$orderId"
+    fun orderDetail(orderId: String) = "order/detail/$orderId"
 }
 
 @Composable
@@ -78,8 +97,14 @@ fun PauseNavGraph(
 
     val drawerListViewModel: DrawerListViewModel = koinViewModel()
     val drawerState by drawerListViewModel.state.collectAsStateWithLifecycle()
+    val photoboothViewModel: PhotoboothViewModel = koinViewModel()
+    val photoboothState by photoboothViewModel.state.collectAsStateWithLifecycle()
+    val orderViewModel: OrderViewModel = koinViewModel()
+    val orderFormState by orderViewModel.formState.collectAsStateWithLifecycle()
+    val orderListState by orderViewModel.listState.collectAsStateWithLifecycle()
+    val orderDetailState by orderViewModel.detailState.collectAsStateWithLifecycle()
 
-    var toast by remember { mutableStateOf<UiText?>(null) }
+    var toast by remember { mutableStateOf<UiText?> (null) }
 
     LaunchedEffect(deepLinkUri) {
         if (!deepLinkUri.isNullOrBlank()) {
@@ -206,7 +231,48 @@ fun PauseNavGraph(
                     onOpenDrawer = { drawer ->
                         navController.navigate(Routes.drawerDetail(drawer.id))
                     },
+                    onStartPhotobooth = {
+                        photoboothViewModel.start()
+                        navController.navigate(Routes.PHOTOBOOTH_TEMPLATES)
+                    },
+                    onViewOrders = { navController.navigate(Routes.ORDER_LIST) },
                     onNavigate = ::onTabSelected,
+                )
+            }
+
+            composable(Routes.PHOTOBOOTH_TEMPLATES) {
+                LaunchedEffect(photoboothState.templates.isEmpty()) {
+                    if (photoboothState.templates.isEmpty()) photoboothViewModel.loadTemplates()
+                }
+                TemplateListScreen(
+                    state = photoboothState,
+                    onBack = { navController.popBackStack() },
+                    onTemplateSelected = { templateId ->
+                        photoboothViewModel.selectTemplate(templateId)
+                        navController.navigate(Routes.PHOTOBOOTH_PHOTOS)
+                    },
+                )
+            }
+
+            composable(Routes.PHOTOBOOTH_PHOTOS) {
+                SelectPhotosScreen(
+                    state = photoboothState,
+                    onBack = { navController.popBackStack() },
+                    onDrawerSelected = photoboothViewModel::selectDrawer,
+                    onPhotoToggled = photoboothViewModel::togglePhoto,
+                    onContinue = { navController.navigate(Routes.PHOTOBOOTH_PREVIEW) },
+                )
+            }
+
+            composable(Routes.PHOTOBOOTH_PREVIEW) {
+                PhotoboothPreviewScreen(
+                    state = photoboothState,
+                    onBack = { navController.popBackStack() },
+                    onEditPhotos = { navController.popBackStack() },
+                    onSave = photoboothViewModel::saveDraft,
+                    onOrderClick = { draftId ->
+                        navController.navigate(Routes.orderForm(draftId))
+                    },
                 )
             }
 
@@ -242,6 +308,10 @@ fun PauseNavGraph(
                     state = detailState,
                     onBack = { navController.popBackStack() },
                     onShare = { navController.navigate(Routes.shareDrawer(drawerId)) },
+                    onStartPhotobooth = {
+                        photoboothViewModel.start(drawerId)
+                        navController.navigate(Routes.PHOTOBOOTH_TEMPLATES)
+                    },
                     onPhotosPicked = detailViewModel::upload,
                     onToggleSelection = detailViewModel::toggleSelection,
                     onExitSelection = detailViewModel::exitSelectionMode,
@@ -293,8 +363,80 @@ fun PauseNavGraph(
                         profileViewModel.signOut()
                         navController.navigateClearingBackStack(Routes.LOGIN)
                     },
+                    onViewOrders = { navController.navigate(Routes.ORDER_LIST) },
                     onConsumeMessage = profileViewModel::consumeMessage,
                     onNavigate = ::onTabSelected,
+                )
+            }
+
+            composable(
+                route = Routes.ORDER_FORM,
+                arguments = listOf(navArgument("itemId") { type = NavType.StringType }),
+            ) { entry ->
+                val itemId = entry.arguments?.getString("itemId").orEmpty()
+                LaunchedEffect(itemId) {
+                    orderViewModel.initOrderForm(
+                        itemId = itemId,
+                        templateName = photoboothState.selectedTemplate?.name ?: "Photobooth Strip",
+                        previewUrl = null,
+                        slotCount = photoboothState.selectedTemplate?.slotCount ?: 4,
+                    )
+                }
+                OrderFormScreen(
+                    state = orderFormState,
+                    onBack = { navController.popBackStack() },
+                    onNameChange = orderViewModel::onShippingNameChanged,
+                    onPhoneChange = orderViewModel::onShippingPhoneChanged,
+                    onAddressChange = orderViewModel::onShippingAddressChanged,
+                    onNoteChange = orderViewModel::onNoteChanged,
+                    onIncrementQuantity = orderViewModel::incrementQuantity,
+                    onDecrementQuantity = orderViewModel::decrementQuantity,
+                    onSubmit = {
+                        orderViewModel.submitOrder { orderId ->
+                            navController.navigate(Routes.orderConfirm(orderId)) {
+                                popUpTo(Routes.PHOTOBOOTH_PREVIEW) { inclusive = true }
+                            }
+                        }
+                    },
+                )
+            }
+
+            composable(
+                route = Routes.ORDER_CONFIRM,
+                arguments = listOf(navArgument("orderId") { type = NavType.StringType }),
+            ) { entry ->
+                val orderId = entry.arguments?.getString("orderId").orEmpty()
+                OrderConfirmScreen(
+                    orderId = orderId,
+                    onViewDetail = { id ->
+                        navController.navigate(Routes.orderDetail(id)) {
+                            popUpTo(Routes.HOME)
+                        }
+                    },
+                    onBackHome = { navController.navigateClearingBackStack(Routes.HOME) },
+                )
+            }
+
+            composable(Routes.ORDER_LIST) {
+                OrderListScreen(
+                    state = orderListState,
+                    onBack = { navController.popBackStack() },
+                    onFilterSelected = orderViewModel::setFilter,
+                    onOrderClick = { orderId -> navController.navigate(Routes.orderDetail(orderId)) },
+                    onRefresh = orderViewModel::loadOrders,
+                )
+            }
+
+            composable(
+                route = Routes.ORDER_DETAIL,
+                arguments = listOf(navArgument("orderId") { type = NavType.StringType }),
+            ) { entry ->
+                val orderId = entry.arguments?.getString("orderId").orEmpty()
+                OrderDetailScreen(
+                    orderId = orderId,
+                    state = orderDetailState,
+                    onBack = { navController.popBackStack() },
+                    onRefresh = orderViewModel::loadOrderDetail,
                 )
             }
         }

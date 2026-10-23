@@ -24,12 +24,22 @@ object PauseColors {
     val Muted = Color(0xFF6B6B6B)
     val Line = Color(0xFFE5E2DF)
     val Error = Color(0xFFB3261E)
+
+    /** Figma accent – deep wine red (#630D11). */
+    val Wine = Color(0xFF630D11)
+    val WineLight = Color(0xFFFDF2F2)
+    val BannerBg = Color(0xFFF5F0EB)
+    val CategoryBg = Color(0xFFF0EDEA)
+    val SearchBg = Color(0xFFF2F0EE)
+    val BlueBadge = Color(0xFF2962FF)
 }
 
 private val PauseColorScheme = lightColorScheme(
-    primary = PauseColors.Ink,
+    // #630D11 is the product accent supplied with the Figma reference.
+    // Ink remains reserved for typography and the authentication hero.
+    primary = PauseColors.Wine,
     onPrimary = Color.White,
-    primaryContainer = PauseColors.Charcoal,
+    primaryContainer = PauseColors.WineLight,
     onPrimaryContainer = Color.White,
     secondary = PauseColors.Muted,
     onSecondary = Color.White,

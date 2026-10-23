@@ -44,9 +44,9 @@ fun PauseBottomBar(
                 icon = { Icon(imageVector = tab.icon, contentDescription = null) },
                 label = { Text(text = stringResource(tab.labelRes)) },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = PauseColors.Ink,
-                    selectedTextColor = PauseColors.Ink,
-                    indicatorColor = PauseColors.Paper,
+                    selectedIconColor = PauseColors.Wine,
+                    selectedTextColor = PauseColors.Wine,
+                    indicatorColor = PauseColors.WineLight,
                     unselectedIconColor = PauseColors.Muted,
                     unselectedTextColor = PauseColors.Muted,
                 ),

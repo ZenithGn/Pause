@@ -151,7 +151,7 @@ fun PausePrimaryButton(
         enabled = enabled && !loading,
         shape = RoundedCornerShape(999.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = PauseColors.Ink,
+            containerColor = PauseColors.Wine,
             contentColor = androidx.compose.ui.graphics.Color.White,
         ),
     ) {
@@ -175,7 +175,7 @@ fun PauseTextButton(
     enabled: Boolean = true,
 ) {
     TextButton(onClick = onClick, modifier = modifier, enabled = enabled) {
-        Text(text = text, style = MaterialTheme.typography.labelLarge, color = PauseColors.Ink)
+        Text(text = text, style = MaterialTheme.typography.labelLarge, color = PauseColors.Wine)
     }
 }
 

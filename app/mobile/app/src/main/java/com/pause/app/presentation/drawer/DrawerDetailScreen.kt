@@ -87,6 +87,7 @@ fun DrawerDetailScreen(
     state: DrawerDetailUiState,
     onBack: () -> Unit,
     onShare: () -> Unit,
+    onStartPhotobooth: () -> Unit,
     onPhotosPicked: (List<RawPhoto>) -> Unit,
     onToggleSelection: (String) -> Unit,
     onExitSelection: () -> Unit,
@@ -182,6 +183,13 @@ fun DrawerDetailScreen(
                             }
                             DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                                 DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.drawer_create_photobooth)) },
+                                    onClick = {
+                                        menuOpen = false
+                                        onStartPhotobooth()
+                                    },
+                                )
+                                DropdownMenuItem(
                                     text = { Text(stringResource(R.string.drawer_edit_action)) },
                                     onClick = {
                                         menuOpen = false
@@ -212,7 +220,7 @@ fun DrawerDetailScreen(
                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
                         )
                     },
-                    containerColor = PauseColors.Ink,
+                    containerColor = PauseColors.Wine,
                     contentColor = Color.White,
                     icon = { Icon(Icons.Filled.AddPhotoAlternate, contentDescription = null) },
                     text = { Text(text = stringResource(R.string.drawer_add_photos)) },

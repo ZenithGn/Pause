@@ -74,6 +74,7 @@ fun ProfileScreen(
     onSave: () -> Unit,
     onAvatarPicked: (ByteArray, String) -> Unit,
     onSignOut: () -> Unit,
+    onViewOrders: () -> Unit = {},
     onConsumeMessage: () -> Unit,
     onNavigate: (PauseTab) -> Unit,
 ) {
@@ -219,7 +220,7 @@ fun ProfileScreen(
             ProfileMenuItem(
                 icon = Icons.Filled.Receipt,
                 label = stringResource(R.string.profile_orders),
-                onClick = {},
+                onClick = onViewOrders,
             )
             ProfileMenuItem(
                 icon = Icons.Filled.WorkspacePremium,

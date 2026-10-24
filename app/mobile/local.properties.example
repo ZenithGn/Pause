@@ -13,3 +13,8 @@ SUPABASE_ANON_KEY=your-anon-key
 
 # Google OAuth "Web application" client ID (used as serverClientId for Credential Manager)
 GOOGLE_WEB_CLIENT_ID=your-web-client-id.apps.googleusercontent.com
+
+# Cloudinary (Dashboard -> Product Environment Settings -> API Keys)
+# Upload preset: Settings -> Upload -> Upload presets -> Add (Unsigned)
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_UPLOAD_PRESET=your-unsigned-upload-preset

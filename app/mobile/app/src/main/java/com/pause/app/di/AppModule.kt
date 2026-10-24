@@ -7,6 +7,7 @@ import com.pause.app.data.local.PauseDatabase
 import com.pause.app.data.local.PhotoDao
 import com.pause.app.data.local.ShareDao
 import com.pause.app.data.media.AndroidPhotoProcessor
+import com.pause.app.data.remote.CloudinaryUploader
 import com.pause.app.data.repository.AuthRepositoryImpl
 import com.pause.app.data.repository.DrawerRepositoryImpl
 import com.pause.app.data.repository.PhotoRepositoryImpl
@@ -67,6 +68,8 @@ import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.gotrue.Auth
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.storage.Storage
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -125,9 +128,25 @@ val repositoryModule = module {
     single<ProfileRepository> { ProfileRepositoryImpl(client = get()) }
     single<LoginAttemptStore> { InMemoryLoginAttemptStore() }
 
+    // Cloudinary uploader (hybrid storage: Cloudinary for photos, Supabase for DB)
+    single<HttpClient> { HttpClient(OkHttp) }
+    single {
+        CloudinaryUploader(
+            cloudName = BuildConfig.CLOUDINARY_CLOUD_NAME,
+            uploadPreset = BuildConfig.CLOUDINARY_UPLOAD_PRESET,
+            httpClient = get(),
+        )
+    }
+
     // FR-02 & FR-03
     single<DrawerRepository> { DrawerRepositoryImpl(client = get(), drawerDao = get()) }
-    single<PhotoRepository> { PhotoRepositoryImpl(client = get(), photoDao = get()) }
+    single<PhotoRepository> {
+        PhotoRepositoryImpl(
+            client = get(),
+            photoDao = get(),
+            cloudinaryUploader = get(),
+        )
+    }
     single<PhotoboothRepository> { PhotoboothRepositoryImpl(client = get()) }
     single<ShareRepository> { ShareRepositoryImpl(client = get(), shareDao = get()) }
     single<PhotoProcessor> { AndroidPhotoProcessor() }

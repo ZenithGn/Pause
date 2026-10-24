@@ -42,6 +42,10 @@ android {
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${escape(secret("SUPABASE_ANON_KEY"))}\"")
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"${escape(secret("GOOGLE_WEB_CLIENT_ID"))}\"")
         buildConfigField("String", "AUTH_REDIRECT_URL", "\"pause://auth-callback\"")
+
+        // Cloudinary (Hybrid storage: Cloudinary for photos, Supabase for DB + Auth)
+        buildConfigField("String", "CLOUDINARY_CLOUD_NAME", "\"${escape(secret("CLOUDINARY_CLOUD_NAME"))}\"")
+        buildConfigField("String", "CLOUDINARY_UPLOAD_PRESET", "\"${escape(secret("CLOUDINARY_UPLOAD_PRESET"))}\"")
     }
 
     buildFeatures {

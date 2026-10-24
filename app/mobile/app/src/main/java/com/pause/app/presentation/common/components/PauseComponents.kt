@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -42,25 +43,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.text.KeyboardOptions
+import com.pause.app.R
 import com.pause.app.presentation.common.UiText
 import com.pause.app.presentation.theme.PauseColors
 
-/** "PAUSE" wordmark used on the auth screens (dark background in Figma). */
+/** Reusable Pause P mark for splash, authentication, and compact app branding. */
 @Composable
 fun PauseLogo(
     modifier: Modifier = Modifier,
-    color: androidx.compose.ui.graphics.Color = PauseColors.Ink,
-) {
-    Text(
-        text = "PAUSE",
-        modifier = modifier,
-        color = color,
-        fontSize = 34.sp,
-        fontWeight = FontWeight.Bold,
-        letterSpacing = 10.sp,
-        textAlign = TextAlign.Center,
-    )
-}
+    color: androidx.compose.ui.graphics.Color = PauseColors.Wine,
+) = Icon(
+    painter = painterResource(R.drawable.pause_mark),
+    contentDescription = "Pause",
+    modifier = modifier.size(56.dp),
+    tint = color,
+)
 
 @Composable
 fun PauseTextField(
@@ -151,7 +148,7 @@ fun PausePrimaryButton(
         enabled = enabled && !loading,
         shape = RoundedCornerShape(999.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = PauseColors.Ink,
+            containerColor = PauseColors.Wine,
             contentColor = androidx.compose.ui.graphics.Color.White,
         ),
     ) {
@@ -175,7 +172,7 @@ fun PauseTextButton(
     enabled: Boolean = true,
 ) {
     TextButton(onClick = onClick, modifier = modifier, enabled = enabled) {
-        Text(text = text, style = MaterialTheme.typography.labelLarge, color = PauseColors.Ink)
+        Text(text = text, style = MaterialTheme.typography.labelLarge, color = PauseColors.Wine)
     }
 }
 

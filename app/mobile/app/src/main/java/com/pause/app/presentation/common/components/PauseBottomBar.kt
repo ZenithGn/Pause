@@ -1,7 +1,7 @@
 package com.pause.app.presentation.common.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhotoLibrary
@@ -20,7 +20,7 @@ import com.pause.app.presentation.theme.PauseColors
 
 enum class PauseTab(val labelRes: Int, val icon: ImageVector) {
     HOME(R.string.tab_home, Icons.Filled.Home),
-    EXPLORE(R.string.tab_explore, Icons.Filled.Explore),
+    PHOTOBOOTH(R.string.tab_photobooth, Icons.Filled.PhotoCamera),
     MEMORIES(R.string.tab_memories, Icons.Filled.PhotoLibrary),
     PROFILE(R.string.tab_profile, Icons.Filled.Person),
 }
@@ -44,9 +44,9 @@ fun PauseBottomBar(
                 icon = { Icon(imageVector = tab.icon, contentDescription = null) },
                 label = { Text(text = stringResource(tab.labelRes)) },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = PauseColors.Ink,
-                    selectedTextColor = PauseColors.Ink,
-                    indicatorColor = PauseColors.Paper,
+                    selectedIconColor = PauseColors.Wine,
+                    selectedTextColor = PauseColors.Wine,
+                    indicatorColor = PauseColors.WineLight,
                     unselectedIconColor = PauseColors.Muted,
                     unselectedTextColor = PauseColors.Muted,
                 ),

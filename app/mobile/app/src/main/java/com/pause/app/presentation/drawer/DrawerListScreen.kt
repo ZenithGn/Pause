@@ -89,7 +89,7 @@ fun DrawerListScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onCreateClick,
-                containerColor = PauseColors.Ink,
+                containerColor = PauseColors.Wine,
                 contentColor = androidx.compose.ui.graphics.Color.White,
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
                 text = { Text(text = stringResource(R.string.drawers_create)) },
@@ -117,7 +117,7 @@ fun DrawerListScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
                     ) {
-                        CircularProgressIndicator(color = PauseColors.Ink)
+                        CircularProgressIndicator(color = PauseColors.Wine)
                     }
                 }
 

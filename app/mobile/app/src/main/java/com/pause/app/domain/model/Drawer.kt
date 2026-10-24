@@ -6,9 +6,15 @@ import java.time.Instant
 enum class SharePermission(val wire: String) {
     VIEW("view"),
     EDIT("edit"),
+
+    /**
+     * Returned by RPCs (`list_drawers`, `get_drawer`) when the authenticated
+     * user is the drawer owner. Treated as full write access.
+     */
+    OWNER("owner"),
     ;
 
-    val canWrite: Boolean get() = this == EDIT
+    val canWrite: Boolean get() = this == EDIT || this == OWNER
 
     companion object {
         fun fromWire(value: String?): SharePermission? =

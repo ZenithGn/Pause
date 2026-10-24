@@ -155,21 +155,6 @@ fun LoginScreen(
                     onClick = launchGoogle,
                     enabled = !state.isLoading,
                 )
-                Spacer(modifier = Modifier.height(10.dp))
-                PauseSocialButton(
-                    text = stringResource(R.string.login_with_apple),
-                    mark = "",
-                    onClick = {},
-                    enabled = false,
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.login_apple_coming_soon),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = PauseColors.Muted,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                )
 
                 Spacer(modifier = Modifier.height(16.dp))
                 PauseTextButton(

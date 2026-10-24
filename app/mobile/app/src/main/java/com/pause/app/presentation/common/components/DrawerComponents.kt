@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -22,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -69,14 +71,14 @@ fun DrawerCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(140.dp)
-                            .background(PauseColors.Ink.copy(alpha = 0.9f)),
+                            .background(PauseColors.Wine),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(
-                            text = "PAUSE",
-                            letterSpacing = 6.sp,
-                            color = Color.White.copy(alpha = 0.7f),
-                            style = MaterialTheme.typography.titleLarge,
+                        Icon(
+                            painter = painterResource(R.drawable.pause_mark),
+                            contentDescription = null,
+                            modifier = Modifier.size(56.dp),
+                            tint = Color.White,
                         )
                     }
                 }
@@ -145,7 +147,7 @@ fun StorageIndicator(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(6.dp),
-            color = if (fraction > 0.9f) PauseColors.Error else PauseColors.Ink,
+            color = if (fraction > 0.9f) PauseColors.Error else PauseColors.Wine,
             trackColor = PauseColors.Line
         )
         Spacer(modifier = Modifier.height(4.dp))
@@ -183,7 +185,7 @@ fun BadgeChip(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(999.dp),
-        color = if (filled) PauseColors.Ink else PauseColors.Surface.copy(alpha = 0.92f),
+        color = if (filled) PauseColors.Wine else PauseColors.Surface.copy(alpha = 0.92f),
     ) {
         Text(
             text = text,

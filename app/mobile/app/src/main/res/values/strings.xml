@@ -27,8 +27,6 @@
     <string name="login_cta">Đăng nhập</string>
     <string name="login_no_account">Chưa có tài khoản? Đăng ký ngay</string>
     <string name="login_with_google">Đăng nhập với Google</string>
-    <string name="login_with_apple">Đăng nhập với Apple</string>
-    <string name="login_apple_coming_soon">Đăng nhập Apple sẽ sớm ra mắt</string>
 
     <!-- Auth – Register (FR-01.1) -->
     <string name="register_title">Tạo tài khoản mới</string>
@@ -113,7 +111,7 @@
 
     <!-- Bottom navigation -->
     <string name="tab_home">Home</string>
-    <string name="tab_explore">Explore</string>
+    <string name="tab_photobooth">PhotoBooth</string>
     <string name="tab_memories">Memories</string>
     <string name="tab_profile">Profile</string>
 
@@ -167,6 +165,7 @@
     <string name="drawer_delete_message">Toàn bộ ảnh bên trong sẽ bị xoá vĩnh viễn và không thể khôi phục.</string>
     <string name="drawer_delete_confirm">Xoá ngăn kéo</string>
     <string name="drawer_share_action">Chia sẻ</string>
+    <string name="drawer_create_photobooth">Tạo photobooth từ ảnh này</string>
     <string name="drawer_edit_action">Chỉnh sửa</string>
     <string name="drawer_menu_more">Tuỳ chọn khác</string>
     <string name="drawer_photo_open">Xem ảnh</string>
@@ -217,4 +216,93 @@
     <string name="share_status_pending">Đang chờ</string>
     <string name="share_status_accepted">Đã chấp nhận</string>
     <string name="share_status_rejected">Đã từ chối</string>
+
+    <!-- Home – redesigned (Figma) -->
+    <string name="home_welcome_back">Welcome back</string>
+    <string name="home_search_placeholder">Tìm kiếm ngăn kéo, kỷ niệm…</string>
+    <string name="home_banner_subtitle">GỢI Ý IN ẤN</string>
+    <string name="home_banner_title">BIẾN ẢNH THÀNH\nPHOTOBOOTH</string>
+    <string name="home_banner_desc">Lưu giữ khoảnh khắc thanh xuân với dải photobooth 3-4 khung hình cổ điển, giấy in chất lượng cao sắc nét bền màu.</string>
+    <string name="home_banner_cta">Bắt đầu in →</string>
+    <string name="home_drawers_title">Ngăn kéo kỷ niệm</string>
+    <string name="home_drawers_see_all">Xem tất cả</string>
+    <string name="home_category_birthday">sinh nhật</string>
+    <string name="home_category_family">gia đình</string>
+    <string name="home_category_travel">du lịch</string>
+    <string name="home_category_more">thêm</string>
+    <string name="home_products_title">Sản phẩm in</string>
+    <string name="home_products_count">%1$d loại</string>
+    <string name="home_product_polaroid">Polaroid</string>
+    <string name="home_product_polaroid_price">từ 25.000đ</string>
+    <string name="home_product_photostrip">Photostrip</string>
+    <string name="home_product_photostrip_price">từ 18.000đ</string>
+    <string name="home_product_photobook">Photobook</string>
+    <string name="home_product_photobook_price">từ 120.000đ</string>
+    <string name="home_orders_title">Đơn hàng gần đây</string>
+    <string name="home_orders_see_all">Xem tất cả</string>
+
+    <!-- Album / Memories – redesigned (Figma) -->
+    <string name="album_create_new">+ Tạo ngăn kéo kỷ niệm mới</string>
+    <string name="album_shared_title">Album chia sẻ</string>
+    <string name="album_shared_count">%1$d nhóm</string>
+    <string name="album_updated_ago">Cập nhật %1$s trước</string>
+    <string name="album_added_photos">%1$s vừa thêm %2$d ảnh mới</string>
+
+    <!-- Photobooth (FR-03) -->
+    <string name="photobooth_templates_title">Chọn mẫu in</string>
+    <string name="photobooth_templates_subtitle">Chọn một mẫu photobooth phù hợp với khoảnh khắc của bạn.</string>
+    <string name="photobooth_templates_empty">Chưa có mẫu in nào. Vui lòng quay lại sau.</string>
+    <string name="photobooth_filter_all">Tất cả</string>
+    <string name="photobooth_premium">Premium</string>
+    <string name="photobooth_slot_count">%1$d khung ảnh</string>
+    <string name="photobooth_select_photos_title">Chọn ảnh</string>
+    <string name="photobooth_select_photos_hint">Đã chọn %1$d/%2$d ảnh</string>
+    <string name="photobooth_drawers_empty">Bạn cần tạo ngăn kéo và thêm ảnh trước khi tạo photobooth.</string>
+    <string name="photobooth_photos_empty">Ngăn kéo này chưa có ảnh để chọn.</string>
+    <string name="photobooth_view_preview">Xem trước</string>
+    <string name="photobooth_preview_title">Xem trước photobooth</string>
+    <string name="photobooth_preview_hint">Ảnh sẽ được căn chỉnh và crop theo từng khung khi in.</string>
+    <string name="photobooth_edit_photos">Chỉnh sửa ảnh</string>
+    <string name="photobooth_save_draft">Lưu photobooth</string>
+    <string name="photobooth_draft_saved">Đã lưu photobooth</string>
+    <string name="photobooth_error_templates">Không tải được mẫu in. Kiểm tra kết nối hoặc cấu hình Supabase.</string>
+    <string name="photobooth_error_photos">Không tải được ảnh trong ngăn kéo này.</string>
+    <string name="photobooth_error_save">Không lưu được photobooth. Vui lòng thử lại.</string>
+    <!-- Photobooth Order (FR-03) -->
+    <string name="photobooth_order_now">Đặt in ngay</string>
+    <string name="order_form_title">Thông tin đặt in</string>
+    <string name="order_recipient_section">Thông tin giao hàng</string>
+    <string name="order_recipient_name">Họ và tên người nhận</string>
+    <string name="order_recipient_phone">Số điện thoại</string>
+    <string name="order_recipient_address">Địa chỉ nhận hàng chi tiết</string>
+    <string name="order_recipient_notes">Ghi chú (tuỳ chọn)</string>
+    <string name="order_summary_section">Thông tin đơn hàng</string>
+    <string name="order_quantity_label">Số lượng bản in</string>
+    <string name="order_subtotal">Tạm tính</string>
+    <string name="order_shipping_fee">Phí vận chuyển</string>
+    <string name="order_total_amount">Tổng thanh toán</string>
+    <string name="order_payment_section">Phương thức thanh toán</string>
+    <string name="order_payment_cod">Thanh toán khi nhận hàng (COD)</string>
+    <string name="order_payment_bank">Chuyển khoản ngân hàng (QR)</string>
+    <string name="order_submit_button">Xác nhận đặt hàng</string>
+    <string name="order_confirm_title">Đặt hàng thành công!</string>
+    <string name="order_confirm_subtitle">Cảm ơn bạn đã tin tưởng Pause. Đơn hàng photobooth của bạn đang được tiếp nhận và xử lý.</string>
+    <string name="order_code_label">Mã đơn hàng</string>
+    <string name="order_view_orders">Xem danh sách đơn</string>
+    <string name="order_view_detail">Xem chi tiết đơn</string>
+    <string name="order_back_home">Về trang chủ</string>
+    <string name="order_list_title">Đơn in của tôi</string>
+    <string name="order_list_empty">Bạn chưa có đơn đặt in photobooth nào</string>
+    <string name="order_detail_title">Chi tiết đơn in</string>
+    <string name="order_timeline_title">Tiến trình xử lý</string>
+    <string name="order_status_pending">Chờ xử lý</string>
+    <string name="order_status_printing">Đang in ấn</string>
+    <string name="order_status_shipped">Đang giao hàng</string>
+    <string name="order_status_delivered">Đã giao thành công</string>
+    <string name="order_status_cancelled">Đã huỷ</string>
+    <string name="order_error_name_required">Vui lòng nhập họ tên người nhận</string>
+    <string name="order_error_phone_invalid">Số điện thoại không hợp lệ (10–11 số)</string>
+    <string name="order_error_address_required">Vui lòng nhập địa chỉ nhận hàng</string>
+    <string name="order_error_submit">Đặt in thất bại. Vui lòng thử lại.</string>
+    <string name="order_format_currency">%1$,d đ</string>
 </resources>

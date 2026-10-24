@@ -23,7 +23,8 @@ data class DrawerListUiState(
 ) {
     val isEmpty: Boolean get() = owned.isEmpty() && shared.isEmpty() && invitations.isEmpty()
 
-    val recent: List<Drawer> get() = owned.take(3)
+    /** Home shows the latest accessible drawers, including accepted shared drawers. */
+    val recent: List<Drawer> get() = (owned + shared).take(3)
 
     val pendingInvitationCount: Int get() = invitations.count { it.status.wire == "pending" }
 }

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -188,13 +189,80 @@ fun ProfileScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-            profile?.let {
-                Text(
-                    text = stringResource(R.string.profile_drawers_label, it.maxDrawers),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = PauseColors.Muted,
-                )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Profile Stats Card
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                color = PauseColors.Surface,
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "${profile?.maxDrawers ?: 3}",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = PauseColors.Ink,
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "Hạn mức Tủ",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = PauseColors.Muted,
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .width(1.dp)
+                            .height(30.dp)
+                            .background(PauseColors.Line),
+                    )
+
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "256 MB",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = PauseColors.Wine,
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "Mỗi ngăn kéo",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = PauseColors.Muted,
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .width(1.dp)
+                            .height(30.dp)
+                            .background(PauseColors.Line),
+                    )
+
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = if (profile?.isPremium == true) "VIP" else "FREE",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = if (profile?.isPremium == true) PauseColors.GoldAccent else PauseColors.Ink,
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "Gói tài khoản",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = PauseColors.Muted,
+                        )
+                    }
+                }
             }
 
             state.message?.let { message ->

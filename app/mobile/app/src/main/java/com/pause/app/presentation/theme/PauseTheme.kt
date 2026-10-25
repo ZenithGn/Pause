@@ -1,14 +1,39 @@
 package com.pause.app.presentation.theme
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pause.app.R
+
+val PlayfairDisplayFontFamily = FontFamily(
+    Font(R.font.playfair_display, FontWeight.Normal),
+    Font(R.font.playfair_display, FontWeight.Bold)
+)
+
+val BeVietnamProFontFamily = FontFamily(
+    Font(R.font.be_vietnam_pro, FontWeight.Normal),
+    Font(R.font.be_vietnam_pro, FontWeight.Medium),
+    Font(R.font.be_vietnam_pro, FontWeight.SemiBold),
+    Font(R.font.be_vietnam_pro, FontWeight.Bold)
+)
+
+val PauseShapes = Shapes(
+    extraSmall = RoundedCornerShape(6.dp),
+    small = RoundedCornerShape(10.dp),
+    medium = RoundedCornerShape(14.dp),
+    large = RoundedCornerShape(20.dp),
+    extraLarge = RoundedCornerShape(28.dp)
+)
 
 /**
  * Pause design system.
@@ -32,11 +57,11 @@ object PauseColors {
     val CategoryBg = Color(0xFFF0EDEA)
     val SearchBg = Color(0xFFF2F0EE)
     val BlueBadge = Color(0xFF2962FF)
+    val GoldAccent = Color(0xFFD97706)
+    val GoldLight = Color(0xFFFEF3C7)
 }
 
 private val PauseColorScheme = lightColorScheme(
-    // #630D11 is the product accent supplied with the Figma reference.
-    // Ink remains reserved for typography and the authentication hero.
     primary = PauseColors.Wine,
     onPrimary = Color.White,
     primaryContainer = PauseColors.WineLight,
@@ -55,53 +80,106 @@ private val PauseColorScheme = lightColorScheme(
 )
 
 private val PauseTypography = Typography(
-    displaySmall = TextStyle(
-        fontFamily = FontFamily.Default,
+    displayLarge = TextStyle(
+        fontFamily = PlayfairDisplayFontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 36.sp,
-        letterSpacing = 10.sp,
+        lineHeight = 44.sp,
+        letterSpacing = (-0.5).sp,
     ),
-    headlineMedium = TextStyle(
-        fontFamily = FontFamily.Default,
+    displayMedium = TextStyle(
+        fontFamily = PlayfairDisplayFontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 28.sp,
+        lineHeight = 36.sp,
+        letterSpacing = (-0.25).sp,
+    ),
+    displaySmall = TextStyle(
+        fontFamily = PlayfairDisplayFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp,
+        letterSpacing = 2.sp,
+    ),
+    headlineLarge = TextStyle(
+        fontFamily = BeVietnamProFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp,
+        lineHeight = 32.sp,
+    ),
+    headlineMedium = TextStyle(
+        fontFamily = BeVietnamProFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp,
+        lineHeight = 28.sp,
     ),
     headlineSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 22.sp,
-    ),
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = BeVietnamProFontFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = 18.sp,
+        lineHeight = 24.sp,
+    ),
+    titleLarge = TextStyle(
+        fontFamily = BeVietnamProFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 18.sp,
+        lineHeight = 26.sp,
+    ),
+    titleMedium = TextStyle(
+        fontFamily = BeVietnamProFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+    ),
+    titleSmall = TextStyle(
+        fontFamily = BeVietnamProFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
     ),
     bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = BeVietnamProFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
     ),
     bodyMedium = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = BeVietnamProFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 20.sp,
     ),
+    bodySmall = TextStyle(
+        fontFamily = BeVietnamProFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+    ),
     labelLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = BeVietnamProFontFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = 14.sp,
-        letterSpacing = 0.4.sp,
+        lineHeight = 20.sp,
+    ),
+    labelMedium = TextStyle(
+        fontFamily = BeVietnamProFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+    ),
+    labelSmall = TextStyle(
+        fontFamily = BeVietnamProFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp,
+        lineHeight = 14.sp,
     ),
 )
 
 @Composable
 fun PauseTheme(content: @Composable () -> Unit) {
-    // Brand is intentionally light-only for the MVP.
     MaterialTheme(
         colorScheme = PauseColorScheme,
         typography = PauseTypography,
+        shapes = PauseShapes,
         content = content,
     )
 }

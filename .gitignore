@@ -16,6 +16,7 @@ captures/
 *.iws
 *.ipr
 .vscode/
+.agent/
 
 # OS
 .DS_Store

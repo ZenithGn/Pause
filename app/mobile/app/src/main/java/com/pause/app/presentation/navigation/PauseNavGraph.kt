@@ -222,6 +222,9 @@ fun PauseNavGraph(
                 HomeScreen(
                     displayName = profileState.profile?.displayName
                         ?: authState.session?.user?.email?.substringBefore('@'),
+                    isPremium = profileState.profile?.isPremium ?: false,
+                    maxDrawers = profileState.profile?.maxDrawers ?: 3,
+                    ownedDrawerCount = drawerState.owned.size,
                     recentDrawers = drawerState.recent,
                     hasError = drawerState.error != null,
                     pendingInvitationCount = drawerState.pendingInvitationCount,
@@ -279,6 +282,7 @@ fun PauseNavGraph(
                 LaunchedEffect(Unit) { drawerListViewModel.loadIfNeeded() }
                 DrawerListScreen(
                     state = drawerState,
+                    maxDrawers = profileState.profile?.maxDrawers ?: 3,
                     onDrawerClick = { drawer -> navController.navigate(Routes.drawerDetail(drawer.id)) },
                     onCreateClick = drawerListViewModel::openCreateSheet,
                     onDismissQuota = drawerListViewModel::dismissQuotaDialog,

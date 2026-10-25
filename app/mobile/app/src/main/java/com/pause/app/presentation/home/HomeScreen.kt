@@ -1,6 +1,7 @@
 package com.pause.app.presentation.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -61,6 +62,9 @@ import com.pause.app.presentation.theme.PauseColors
 @Composable
 fun HomeScreen(
     displayName: String?,
+    isPremium: Boolean = false,
+    maxDrawers: Int = 3,
+    ownedDrawerCount: Int = 0,
     recentDrawers: List<Drawer>,
     hasError: Boolean,
     pendingInvitationCount: Int,
@@ -83,48 +87,76 @@ fun HomeScreen(
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState()),
         ) {
-            // ── Header: Welcome back + icons ──
+            // ── Top Header: Avatar + Greeting + Tier Badge + Notification ──
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                // Clock / logo placeholder
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(PauseColors.CategoryBg, CircleShape),
-                    contentAlignment = Alignment.Center,
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable { onNavigate(PauseTab.PROFILE) },
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.pause_mark),
-                        contentDescription = "Pause",
-                        tint = PauseColors.Wine,
-                        modifier = Modifier.size(24.dp),
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(46.dp)
+                            .background(PauseColors.Ink, CircleShape),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = (displayName?.trim()?.firstOrNull() ?: 'P').uppercase().toString(),
+                            color = Color.White,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = stringResource(R.string.home_welcome_back),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = PauseColors.Muted,
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = displayName ?: stringResource(R.string.home_greeting_anonymous),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = PauseColors.Ink,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Surface(
+                                color = if (isPremium) PauseColors.GoldLight else PauseColors.CategoryBg,
+                                shape = RoundedCornerShape(6.dp),
+                            ) {
+                                Text(
+                                    text = if (isPremium) "PREMIUM" else "FREE",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isPremium) PauseColors.GoldAccent else PauseColors.Muted,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                )
+                            }
+                        }
+                    }
                 }
-                Spacer(modifier = Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(R.string.home_welcome_back),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = PauseColors.Muted,
-                    )
-                    Text(
-                        text = displayName ?: stringResource(R.string.home_greeting_anonymous),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = PauseColors.Ink,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-                IconButton(onClick = onOpenInvitations) {
-                    Box {
+
+                IconButton(
+                    onClick = onOpenInvitations,
+                    modifier = Modifier
+                        .size(42.dp)
+                        .clip(CircleShape)
+                        .background(PauseColors.Surface)
+                        .border(1.dp, PauseColors.Line, CircleShape),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
                         Icon(
                             imageVector = Icons.Filled.Notifications,
-                            contentDescription = null,
+                            contentDescription = "Notifications",
                             tint = PauseColors.Ink,
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.size(20.dp),
                         )
                         if (pendingInvitationCount > 0) {
                             Box(
@@ -136,21 +168,6 @@ fun HomeScreen(
                         }
                     }
                 }
-                Spacer(modifier = Modifier.width(4.dp))
-                IconButton(
-                    onClick = { onNavigate(PauseTab.PROFILE) },
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(PauseColors.Wine),
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Person,
-                        contentDescription = stringResource(R.string.tab_profile),
-                        tint = Color.White,
-                        modifier = Modifier.size(18.dp),
-                    )
-                }
             }
 
             // ── Search bar ──
@@ -158,7 +175,7 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(14.dp),
                 color = PauseColors.SearchBg,
             ) {
                 Row(
@@ -180,58 +197,148 @@ fun HomeScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
-            // ── Photobooth banner ──
+            // ── Quick Action Hero Banner (Pause Memory Studio) ──
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
                 shape = RoundedCornerShape(20.dp),
-                color = PauseColors.BannerBg,
+                color = PauseColors.Ink,
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    Text(
-                        text = stringResource(R.string.home_banner_subtitle),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = PauseColors.Muted,
-                        letterSpacing = 2.sp,
-                        fontSize = 11.sp,
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = stringResource(R.string.home_banner_title),
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = PauseColors.Ink,
-                        fontWeight = FontWeight.ExtraBold,
-                        lineHeight = 32.sp,
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = stringResource(R.string.home_banner_desc),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = PauseColors.Muted,
-                        lineHeight = 20.sp,
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        onClick = onStartPhotobooth,
-                        shape = RoundedCornerShape(999.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = PauseColors.Wine,
-                            contentColor = Color.White,
-                        ),
-                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp),
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(
-                            text = stringResource(R.string.home_banner_cta),
-                            style = MaterialTheme.typography.labelLarge,
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "PAUSE MEMORY STUDIO",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = PauseColors.WineLight,
+                                letterSpacing = 1.5.sp,
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Lưu giữ & In ấn Kỷ niệm",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                        Surface(
+                            color = Color.White.copy(alpha = 0.15f),
+                            shape = RoundedCornerShape(10.dp),
+                        ) {
+                            Text(
+                                text = "$ownedDrawerCount/$maxDrawers Tủ",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = Color.White,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(18.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Button(
+                            onClick = onCreateDrawer,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White,
+                                contentColor = PauseColors.Ink,
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(46.dp),
+                        ) {
+                            Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = stringResource(R.string.drawers_create),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                            )
+                        }
+
+                        Button(
+                            onClick = onStartPhotobooth,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = PauseColors.Wine,
+                                contentColor = Color.White,
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(46.dp),
+                        ) {
+                            Icon(painterResource(R.drawable.pause_mark_white), contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "Photobooth",
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                            )
+                        }
+                    }
+                }
+            }
+
+            // ── Lời mời chia sẻ (Pending Invitations Alert) ──
+            if (pendingInvitationCount > 0) {
+                Spacer(modifier = Modifier.height(14.dp))
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .clickable(onClick = onOpenInvitations),
+                    shape = RoundedCornerShape(14.dp),
+                    color = PauseColors.WineLight,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, PauseColors.Wine.copy(alpha = 0.25f)),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.pause_mark),
+                            contentDescription = null,
+                            tint = PauseColors.Wine,
+                            modifier = Modifier.size(20.dp),
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Bạn có $pendingInvitationCount lời mời chia sẻ ngăn kéo",
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = PauseColors.Wine,
+                            )
+                            Text(
+                                text = "Nhấn để xem và phản hồi lời mời",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = PauseColors.Ink.copy(alpha = 0.75f),
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Filled.ChevronRight,
+                            contentDescription = null,
+                            tint = PauseColors.Wine,
+                            modifier = Modifier.size(20.dp),
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // ── Ngăn kéo kỷ niệm – data from DrawerListViewModel / Supabase ──
             Row(
@@ -245,17 +352,18 @@ fun HomeScreen(
                     text = stringResource(R.string.home_drawers_title),
                     style = MaterialTheme.typography.titleLarge,
                     color = PauseColors.Ink,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
                 )
                 TextButton(onClick = { onNavigate(PauseTab.MEMORIES) }) {
                     Text(
                         text = stringResource(R.string.home_drawers_see_all),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = PauseColors.Muted,
+                        color = PauseColors.Wine,
+                        fontWeight = FontWeight.SemiBold,
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             MemoryDrawerRow(
                 drawers = recentDrawers,
                 hasError = hasError,

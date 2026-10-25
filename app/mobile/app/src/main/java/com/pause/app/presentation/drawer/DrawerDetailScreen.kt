@@ -58,9 +58,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -299,24 +306,103 @@ fun DrawerDetailScreen(
             }
 
             state.drawer?.let { drawer ->
-                Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-                    Text(
-                        text = listOfNotNull(
-                            stringResource(R.string.drawers_photo_count, drawer.photoCount),
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    color = PauseColors.Surface,
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = listOfNotNull(
+                                    stringResource(R.string.drawers_photo_count, drawer.photoCount),
+                                    if (!drawer.isOwner) stringResource(R.string.drawers_owner_label, drawer.ownerName) else null,
+                                ).joinToString(" · "),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = PauseColors.Ink,
+                            )
                             if (!drawer.isOwner) {
-                                stringResource(R.string.drawers_owner_label, drawer.ownerName)
-                            } else {
-                                null
-                            },
-                        ).joinToString(" · "),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = PauseColors.Muted,
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    StorageIndicator(
-                        usedBytes = drawer.storageUsedBytes,
-                        limitBytes = drawer.storageLimitBytes,
-                    )
+                                Surface(
+                                    color = PauseColors.WineLight,
+                                    shape = RoundedCornerShape(6.dp),
+                                ) {
+                                    Text(
+                                        text = if (drawer.canWrite) "Chỉnh sửa" else "Chỉ xem",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = PauseColors.Wine,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                    )
+                                }
+                            }
+                        }
+                        if (!drawer.description.isNullOrBlank()) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = drawer.description,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = PauseColors.Muted,
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        StorageIndicator(
+                            usedBytes = drawer.storageUsedBytes,
+                            limitBytes = drawer.storageLimitBytes,
+                        )
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        // Quick action buttons: Photobooth print, Upload, Share
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            if (state.canWrite) {
+                                Button(
+                                    onClick = {
+                                        picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = PauseColors.Ink,
+                                        contentColor = Color.White,
+                                    ),
+                                    shape = RoundedCornerShape(10.dp),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(40.dp),
+                                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                                ) {
+                                    Icon(Icons.Filled.AddPhotoAlternate, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Thêm ảnh", style = MaterialTheme.typography.labelMedium)
+                                }
+                            }
+
+                            Button(
+                                onClick = onStartPhotobooth,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = PauseColors.Wine,
+                                    contentColor = Color.White,
+                                ),
+                                shape = RoundedCornerShape(10.dp),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(40.dp),
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                            ) {
+                                Icon(painterResource(R.drawable.pause_mark_white), contentDescription = null, modifier = Modifier.size(14.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("In Photobooth", style = MaterialTheme.typography.labelMedium)
+                            }
+                        }
+                    }
                 }
             }
 

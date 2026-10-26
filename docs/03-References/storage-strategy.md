@@ -1,87 +1,116 @@
 # Chiến lược lưu trữ & quota (Storage Strategy)
 
-> Quyết định thiết kế cho FR-02 (Ngăn kéo Kỷ niệm). Tài liệu này thay thế con số
-> "1 GB/ngăn kéo" trong các tài liệu BA cũ (đã cập nhật đồng bộ).
+> Cập nhật cho kiến trúc **hybrid**: Cloudinary lưu ảnh (CDN + biến đổi ảnh),
+> Supabase lo DB + Auth + RLS. Tài liệu này thay thế mô tả "1 GB/ngăn kéo" cũ và
+> bổ sung phần Cloudinary (trước đây chỉ có Supabase Storage).
 
 ---
 
-## 1. Vấn đề
+## 1. Vì sao đổi sang Cloudinary?
 
-Bản SRS ban đầu ghi **1 GB/ngăn kéo**, 3 ngăn kéo free → **3 GB/user**. Trong khi:
+| Vấn đề với Supabase Storage | Cloudinary giải quyết |
+|---|---|
+| Free tier chỉ **1 GB**, ảnh gốc điện thoại rất nặng | Free tier ~25 credits/tháng, CDN toàn cầu, nén/transform tự động |
+| Phải tự viết pipeline resize/thumbnail (Edge Function hoặc client) | Thumbnail sinh bằng URL transformation (`w_480,q_70,c_limit,f_auto`) |
+| Signed URL phải tự quản lý, hết hạn 1h | URL CDN ổn định, cache tốt hơn |
+| Tốn egress/CPU của Supabase | CDN offload hoàn toàn |
 
-| Gói Supabase | Storage included | Chi phí |
+**Kiến trúc chốt (đã implement trong code mobile):**
+
+```
+Android app
+  ├─ ảnh ngăn kéo ──► Cloudinary (unsigned upload preset) ──► secure_url
+  │                        │
+  │                        └─ thumbnail = URL transform (không upload riêng)
+  └─ metadata (URL, size, dimensions) ──► Supabase `photos` (Postgres + RLS)
+
+Ảnh preview photobooth (render trên máy) ──► Cloudinary `pause/photobooth/{user_id}`
+                                            └─ URL lưu vào photobooth_items.preview_url
+```
+
+Supabase Storage **vẫn dùng** cho:
+- `avatars` (private, 5 MB) – signed URL.
+- `templates` (public) – ảnh preview/frame do admin upload.
+- `photobooth-previews` / `photos` / `thumbnails`: chỉ còn là **legacy fallback**
+  cho ảnh cũ (code vẫn đọc được object path cũ → signed URL).
+
+---
+
+## 2. Cấu hình Cloudinary
+
+| Biến | Lấy ở đâu | Ghi chú |
 |---|---|---|
-| Free | **1 GB** | $0 |
-| Pro | **100 GB** | ~$25/tháng |
+| `CLOUDINARY_CLOUD_NAME` | Dashboard → Product Environment Settings | không phải bí mật |
+| `CLOUDINARY_UPLOAD_PRESET` | Settings → Upload → Upload presets → **Unsigned** | không phải bí mật |
 
-→ Free tier không thể chứa nổi dù chỉ 1 user dùng hết quota. Ảnh gốc từ điện thoại
-(3–12 MB/ảnh) cũng làm quota cạn rất nhanh.
+- Đặt trong `app/mobile/local.properties` → `BuildConfig` (không hardcode).
+- Mẫu: [`app/mobile/local.properties.example`](../../app/mobile/local.properties.example).
+- Preset nên cấu hình: folder mặc định `pause/photos`, `allowed_formats` (jpg,png,webp),
+  `max_file_size` 10 MB, `quality` auto. **Không** dùng signed upload ở client
+  (sẽ lộ API secret).
+
+### Đường dẫn (folder) quy ước
+
+| Loại | Folder | Lưu ở đâu |
+|---|---|---|
+| Ảnh ngăn kéo | `pause/photos/{drawer_id}` | `photos.original_url` = `secure_url` |
+| Thumbnail ngăn kéo | (không upload) | `photos.thumbnail_url` = URL transform của original |
+| Preview photobooth | `pause/photobooth/{user_id}` | `photobooth_items.preview_url` |
+| Avatar | `pause/avatars/{user_id}` (hoặc Supabase `avatars`) | `profiles.avatar_url` |
 
 ---
 
-## 2. Quota mới
+## 3. Quota (giữ nguyên nghiệp vụ)
 
 | Loại ngăn kéo | Dung lượng | Ghi chú |
 |---|---|---|
-| **Free** (3 ngăn kéo mặc định) | **256 MB / ngăn kéo** | Tổng tối đa 768 MB |
-| **Mua lẻ** (one-time purchase) | **256 MB / ngăn kéo** | Vĩnh viễn, không phụ thuộc hội viên |
-| **Hội viên** (FR-04) | **1 GB / ngăn kéo** | Tổng account cap dự kiến 10 GB (Pro 100 GB) |
+| **Free** (3 ngăn kéo) | **256 MB / ngăn kéo** | Tổng 768 MB |
+| **Mua lẻ** | 256 MB / ngăn kéo | Vĩnh viễn |
+| **Hội viên** (FR-04) | 1 GB / ngăn kéo | Cap account dự kiến 10 GB |
 
-**Vì sao 256 MB?**
-
-- 3 × 256 MB = **768 MB** → vừa Supabase Free 1 GB, còn ~250 MB cho avatar, template
-  preview, thumbnail buffer và email/bucket metadata.
-- Với ảnh đã nén (~1.2 MB/ảnh) → **~200 ảnh/ngăn kéo**, tương đương 1 album kỷ niệm
-  thực tế (một chuyến đi, một năm của một cặp đôi).
-- Là luỹ thừa của 2 → dễ đọc trong code/DB (`268435456` bytes), dễ nâng cấp sau này
-  mà không phải đổi schema (chỉ đổi `storage_limit_bytes`).
-
-Số lượng ảnh **không giới hạn** — chỉ giới hạn dung lượng (giữ nguyên NFR-02.3).
+- Quota tính trên **dung lượng ảnh sau nén** (`photos.file_size_bytes`), **không**
+  phụ thuộc nhà cung cấp lưu trữ → đổi Cloudinary hay Supabase đều không đổi nghiệp vụ.
+- Enforce **2 lớp**: client chặn trước khi upload (UX) + trigger Postgres
+  `enforce_photo_quota` là nguồn sự thật (transactional, chống vượt quota).
 
 ---
 
-## 3. Pipeline xử lý ảnh (client-side)
-
-Lý do chọn client-side thay vì Edge Function cho MVP: giảm egress/CPU của Supabase,
-upload nhanh hơn, và không cần chờ function cold-start.
+## 4. Pipeline xử lý ảnh (client-side, trước khi upload Cloudinary)
 
 | Bước | Thông số |
 |---|---|
-| Ảnh gốc người dùng chọn | chấp nhận ≤ **15 MB**, jpeg/png/webp/heic* |
-| Resize | cạnh dài ≤ **2048 px** (`inSampleSize` + scale) |
-| Nén JPEG | quality **82**, strip EXIF (trừ hướng ảnh đã xoay) |
-| Kích thước sau nén | mục tiêu ≤ **1.5 MB**, hard-reject nếu > **5 MB** |
-| Thumbnail | cạnh dài **480 px**, quality **70**, WebP/JPEG ~**40–60 KB** |
-| Upload | `photos/{drawer_id}/{photo_id}.jpg` + `thumbnails/{drawer_id}/{photo_id}.webp` |
-| Hiển thị | private bucket → **signed URL** (TTL 1h, cache trong RAM) |
-
-\* HEIC chỉ đọc được trên Android 9+; nếu decode lỗi → hiển thị message "định dạng
-không hỗ trợ" thay vì crash.
+| Ảnh gốc người dùng chọn | chấp nhận ≤ 15 MB, jpeg/png/webp |
+| Resize | cạnh dài ≤ **2048 px** (`inSampleSize` + scale, xoay theo EXIF) |
+| Nén JPEG | quality **82**, mục tiêu ≤ 1.5 MB |
+| Hard reject | file nén > **5 MB** (trigger DB cũng chặn) |
+| Upload | Cloudinary unsigned preset → `secure_url` |
+| Thumbnail | URL transform `w_480,q_70,c_limit,f_auto` (không upload riêng) |
+| Hiển thị | Coil load trực tiếp CDN URL (cache đĩa) |
 
 ---
 
-## 4. Cách enforce (client + server)
+## 5. Bảo mật & quyền riêng tư (trade-off đã biết)
 
-1. **Client (trước khi upload)**: `UploadPhotosUseCase` cộng dồn kích thước đã nén,
-   so với `drawer.storage_used_bytes + limit`; vượt → trả `DrawerFailure.StorageFull`
-   để UI hiện upsell (FR-02.9).
-2. **Server (nguồn sự thật)**: trigger `photos` cộng `storage_used_bytes` trong cùng
-   transaction và raise `check_violation` nếu vượt `storage_limit_bytes`; trigger
-   delete hoàn lại dung lượng.
-3. **Chống sửa quota từ client**: `storage_used_bytes`, `storage_limit_bytes`,
-   `is_purchased`, `owner_id` **không** được grant UPDATE cho role `authenticated`
-   (PostgreSQL column-level privileges). Chỉ trigger `security definer` và
-   `service_role` (membership/purchase) mới đổi được.
+- Cloudinary unsigned upload tạo URL **public nhưng không thể đoán** (public_id UUID
+  + folder). Ai có URL đều xem được – tương đương "unlisted link".
+- RLS của Supabase vẫn là nơi kiểm soát **ai thấy metadata/ảnh nào trong app**:
+  `photos` chỉ trả row cho owner hoặc người được share `accepted`.
+- Với dữ liệu thật, nên nâng cấp theo 1 trong 2 hướng (ghi ở technical debt):
+  1. Cloudinary **signed upload** qua Supabase Edge Function (giữ API secret server-side)
+     → kèm `access_mode: authenticated` + signed delivery URL.
+  2. Chuyển ảnh nhạy cảm về bucket private với signed URL.
+- Việc xoá: app xoá row DB; object Cloudinary **giữ lại** (client không có API secret)
+  → cần Edge Function/cron dọn orphan (technical debt).
 
 ---
 
-## 5. Hệ quả & việc cần làm
+## 6. Hệ quả cần lưu ý
 
-- User đã có ngăn kéo với limit 1 GB cũ → migration hạ default và cập nhật row cũ;
-  nếu dung lượng đang dùng > 256 MB thì vẫn giữ nguyên (không xoá ảnh) nhưng chặn
-  upload tiếp cho tới khi dưới ngưỡng.
-- Edge Function `create-thumbnail` (T-02.05) được **thay bằng pipeline client-side**;
-  Edge Function sẽ dùng cho ảnh cũ/backfill hoặc khi mở web upload (chưa có trong MVP).
-- Cleanup ảnh mồ côi trong Storage khi xoá ngăn kéo: client xoá best-effort; cron
-  Edge Function sẽ dọn định kỳ (ghi nhận technical debt).
-- Khi lên Pro (100 GB) chỉ cần tăng `storage_limit_bytes` theo gói, không đổi schema.
+- Không còn phụ thuộc egress Supabase cho ảnh → gói Free thoải mái hơn cho demo/EXE.
+- `photos.original_url`/`thumbnail_url` giờ là **URL tuyệt đối** (Cloudinary), không phải
+  object path. Code vẫn tương thích ảnh legacy dạng path (phân biệt bằng
+  `CloudinaryUploader.isCloudinaryUrl`).
+- Admin dashboard (FR-06) upload template preview lên Supabase `templates` (public)
+  hoặc Cloudinary; ưu tiên admin upload qua Cloudinary folder `pause/templates`.
+- Nếu Cloudinary hết credit/quota: app hiện banner lỗi upload (đã có), ảnh cũ vẫn xem được
+  vì URL CDN không phụ thuộc Supabase.

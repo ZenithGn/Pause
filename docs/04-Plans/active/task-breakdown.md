@@ -124,52 +124,56 @@
 # Task Breakdown – FR-03: In ảnh Photobooth
 
 > **Module**: Photobooth Print-on-Demand
-> **Trạng thái**: 🔲 Chưa bắt đầu
+> **Trạng thái**: ✅ Hoàn thành – xem [completed/fr-03-photobooth.md](../completed/fr-03-photobooth.md)
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-03-in-ảnh-photobooth-photobooth-print-on-demand)
 
 ---
 
 ## Supabase Setup
 
-- [ ] **T-03.01** – Tạo bảng `photobooth_templates` (ref: db-schema.md)
-- [ ] **T-03.02** – Tạo bảng `photobooth_items` + `photobooth_photos`
-- [ ] **T-03.03** – Tạo bảng `print_orders`
-- [ ] **T-03.04** – Tạo Storage bucket `templates` (public) + `photobooth-previews` (private)
-- [ ] **T-03.05** – Seed data: upload 5–10 template mẫu ban đầu
-- [ ] **T-03.06** – RLS policies cho tất cả bảng photobooth
+- [x] **T-03.01** – Tạo bảng `photobooth_templates` (ref: db-schema.md)
+- [x] **T-03.02** – Tạo bảng `photobooth_items` + `photobooth_photos`
+- [x] **T-03.03** – Tạo bảng `print_orders`
+- [x] **T-03.04** – Tạo Storage bucket `templates` (public) + `photobooth-previews` (private)
+- [x] **T-03.05** – Seed data: upload 5–10 template mẫu ban đầu
+- [x] **T-03.06** – RLS policies cho tất cả bảng photobooth
 
 ## Mobile – Data Layer
 
-- [ ] **T-03.07** – `TemplateRepository` interface + impl
-- [ ] **T-03.08** – `PhotoboothRepository` interface + impl
-- [ ] **T-03.09** – `OrderRepository` interface + impl
+- [x] **T-03.07** – `TemplateRepository` interface + impl
+- [x] **T-03.08** – `PhotoboothRepository` interface + impl
+- [x] **T-03.09** – `OrderRepository` interface + impl
 
 ## Mobile – Domain Layer
 
-- [ ] **T-03.10** – Domain models: `PhotoboothTemplate`, `PhotoboothItem`, `PrintOrder`, `OrderStatus`
-- [ ] **T-03.11** – Use case: `GetTemplatesUseCase` (list + filter by category/premium)
-- [ ] **T-03.12** – Use case: `CreatePhotoboothUseCase` (chọn template + fill ảnh)
-- [ ] **T-03.13** – Use case: `CreateOrderUseCase` (đặt in + validate)
-- [ ] **T-03.14** – Use case: `GetOrdersUseCase` (lịch sử đơn hàng)
+- [x] **T-03.10** – Domain models: `PhotoboothTemplate`, `PhotoboothItem`, `PrintOrder`, `OrderStatus`
+- [x] **T-03.11** – Use case: `GetTemplatesUseCase` (list + filter by category/premium)
+- [x] **T-03.12** – Use case: `CreatePhotoboothUseCase` (chọn template + fill ảnh)
+- [x] **T-03.13** – Use case: `CreateOrderUseCase` (đặt in + validate)
+- [x] **T-03.14** – Use case: `GetOrdersUseCase` (lịch sử đơn hàng)
 
 ## Mobile – Presentation Layer (UI theo Figma)
 
-- [ ] **T-03.15** – `TemplateListScreen` + `PhotoboothViewModel` (grid template, filter)
-- [ ] **T-03.16** – `PhotoboothBuilderScreen` (hiển thị template + fill ảnh vào slot)
-- [ ] **T-03.17** – Photobooth canvas renderer (render template + ảnh → preview image)
-- [ ] **T-03.18** – Photo picker từ ngăn kéo (chọn ảnh để fill vào slot)
-- [ ] **T-03.19** – `PhotoboothPreviewScreen` (xem kết quả cuối cùng)
-- [ ] **T-03.20** – `OrderFormScreen` (nhập số lượng, địa chỉ, SĐT)
-- [ ] **T-03.21** – `OrderListScreen` + `OrderDetailScreen` (theo dõi đơn)
-- [ ] **T-03.22** – Order status timeline UI (hiển thị trạng thái từng bước)
+- [x] **T-03.15** – `TemplateListScreen` + `PhotoboothViewModel` (grid template, filter)
+- [x] **T-03.16** – `PhotoboothBuilderScreen` (hiển thị template + fill ảnh vào slot)
+- [x] **T-03.17** – Photobooth canvas renderer (render template + ảnh → preview image)
+- [x] **T-03.18** – Photo picker từ ngăn kéo (chọn ảnh để fill vào slot)
+- [x] **T-03.19** – `PhotoboothPreviewScreen` (xem kết quả cuối cùng)
+- [x] **T-03.20** – `OrderFormScreen` (nhập số lượng, địa chỉ, SĐT)
+- [x] **T-03.21** – `OrderListScreen` + `OrderDetailScreen` (theo dõi đơn)
+- [x] **T-03.22** – Order status timeline UI (hiển thị trạng thái từng bước)
 
 ## Testing
 
-- [ ] **T-03.23** – Unit test: `CreatePhotoboothUseCase`
-- [ ] **T-03.24** – Unit test: `CreateOrderUseCase`
-- [ ] **T-03.25** – Visual test: Template render trên nhiều kích thước màn hình
+- [x] **T-03.23** – Unit test: `CreatePhotoboothUseCase`
+- [x] **T-03.24** – Unit test: `CreateOrderUseCase`
+- [x] **T-03.25** – Visual test: Template render trên nhiều kích thước màn hình
 
 ---
+
+**Ghi chú triển khai**: `TemplateRepository` được gộp vào `PhotoboothRepository`
+(`getActiveTemplates` / `getTemplate`) để tránh 2 repository cùng truy vấn 1 bảng.
+Photo picker tái sử dụng `PhotoRepository` + `DrawerRepository` của FR-02.
 
 **Tổng tasks**: 25
 **Estimated effort**: 7–9 ngày

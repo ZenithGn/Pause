@@ -489,6 +489,15 @@ def check_fr02(conn) -> None:
     plans = conn.execute("select count(*) from public.membership_plans").fetchone()[0]
     check("membership plans are seeded", plans >= 3, plans)
 
+    templates = conn.execute("select count(*) from public.photobooth_templates").fetchone()[0]
+    check("photobooth templates are seeded", templates >= 6, templates)
+
+    layout = conn.execute(
+        "select layout_config->>'width', jsonb_array_length(layout_config->'slots') "
+        "from public.photobooth_templates where name = 'Classic White'"
+    ).fetchone()
+    check("template layout_config is valid (width + slots)", layout == ("1200", 2), layout)
+
     notification = conn.execute(
         "select count(*) from public.notifications where user_id=%s and type='drawer_share'",
         (bob,),

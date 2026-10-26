@@ -22,7 +22,7 @@
 | **Web App** | Next.js 14+ (App Router) + TypeScript | Landing page + Admin dashboard. KHÔNG chứa logic nghiệp vụ mobile |
 | **Backend** | Supabase (PostgreSQL + Auth + Storage + Edge Functions) | Managed BaaS – không tự deploy backend riêng |
 | **Auth** | Supabase Auth (Email/Password + Google OAuth) | JWT-based, RLS cho phân quyền |
-| **Storage** | Supabase Storage (S3-compatible) | Private buckets, signed URL |
+| **Storage** | **Cloudinary** (ảnh ngăn kéo + preview photobooth) + Supabase Storage (avatar/templates, private buckets, signed URL) | Chi tiết: `docs/03-References/storage-strategy.md` |
 | **Push Notification** | Firebase Cloud Messaging (FCM) | Android only |
 | **CI/CD** | Vercel (web), Manual (mobile → Play Store) | |
 
@@ -91,7 +91,9 @@ Pause/
 1. **KHÔNG bao giờ** hardcode credentials, API keys, hoặc secrets trong source code
 2. Sử dụng environment variables cho tất cả config nhạy cảm
 3. **KHÔNG** disable RLS trên bất kỳ bảng nào
-4. Ảnh người dùng **phải** nằm trong private bucket, truy cập qua signed URL
+4. Ảnh người dùng không được liệt kê công khai: ảnh ngăn kéo/preview dùng Cloudinary
+   URL không đoán được (unsigned preset), avatar dùng private bucket + signed URL;
+   khi lên production nên chuyển sang signed upload/authenticated delivery
 5. Validate input ở cả client và server (Edge Functions)
 6. Không lưu thông tin thanh toán (thẻ, tài khoản) trên hệ thống
 

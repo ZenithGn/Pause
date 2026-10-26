@@ -131,6 +131,8 @@ erDiagram
         string shipping_phone
         string shipping_address
         string status
+        string cover_type
+        string paper_type
         timestamp created_at
         timestamp updated_at
     }
@@ -632,6 +634,41 @@ cover_photo_url)`; `storage_used_bytes`, `storage_limit_bytes`, `is_purchased`,
 - Xoá policy cũ `"Shared users can view drawers"` (policy này bỏ qua status).
 - `create or replace` toàn bộ RPC FR-02 để DB đang ở trạng thái dở dang cũng
   hội tụ về hành vi chỉ-hiển-thị-khi-accepted.
+
+
+### Lưu trữ ảnh: Cloudinary (hybrid)
+
+- **Ảnh ngăn kéo** (`photos.original_url`) = `secure_url` từ Cloudinary
+  (upload preset unsigned, folder `pause/photos/{drawer_id}`).
+- **Thumbnail** (`photos.thumbnail_url`) = URL transformation
+  `.../image/upload/w_480,q_70,c_limit,f_auto/...` — Cloudinary sinh on-the-fly,
+  **không upload file thumbnail**.
+- **Preview photobooth** (`photobooth_items.preview_url`) = ảnh render trên máy,
+  upload Cloudinary folder `pause/photobooth/{user_id}`.
+- **Avatar** vẫn nằm ở bucket private `avatars` (Supabase Storage, signed URL).
+- Ảnh legacy dạng object path (`{drawer_id}/{photo_id}.jpg`) vẫn được hỗ trợ:
+  code phân biệt bằng `CloudinaryUploader.isCloudinaryUrl()` và resolve signed URL.
+- Chi tiết + trade-off bảo mật: [storage-strategy.md](storage-strategy.md).
+
+### `layout_config` (photobooth_templates)
+
+JSON do admin cấu hình, renderer mobile đọc để vẽ preview:
+
+```json
+{
+  "width": 1200,
+  "height": 1800,
+  "background_color": "#FFFFFF",
+  "slots": [
+    { "index": 0, "x": 60, "y": 80, "width": 1080, "height": 700 },
+    { "index": 1, "x": 60, "y": 820, "width": 1080, "height": 700 }
+  ],
+  "texts": [
+    { "content": "Pause", "x": 600, "y": 1700, "font_size": 48, "color": "#111111" }
+  ],
+  "frame_url": null
+}
+```
 
 ### RPC (gọi từ mobile)
 

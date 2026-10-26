@@ -119,6 +119,27 @@
 
 ---
 
+
+### 2.4 Lưu trữ ảnh (Cloudinary + Supabase Storage)
+
+| Loại dữ liệu | Nơi lưu | Truy cập |
+|---|---|---|
+| Ảnh kỷ niệm (drawer) | **Cloudinary** (`pause/photos/{drawer_id}`) | `secure_url` CDN; thumbnail = URL transform |
+| Preview photobooth | **Cloudinary** (`pause/photobooth/{user_id}`) | URL lưu ở `photobooth_items.preview_url` |
+| Avatar | Supabase Storage bucket `avatars` (private) | signed URL (TTL 1h) |
+| Template preview/frame | Supabase Storage bucket `templates` (public) hoặc Cloudinary `pause/templates` | public URL |
+| Metadata + quyền | Supabase PostgreSQL + RLS | RPC/PostgREST |
+
+Luồng upload ảnh ngăn kéo:
+
+```
+User chọn ảnh → app nén (2048px, q82) + đọc kích thước
+      → upload Cloudinary (unsigned preset) → secure_url
+      → insert row `photos` (URL + size) → trigger enforce_photo_quota (quota 256MB)
+```
+
+Chi tiết & trade-off bảo mật: [storage-strategy.md](../03-References/storage-strategy.md).
+
 ## 3. Luồng dữ liệu chính (Key Data Flows)
 
 ### 3.1 Upload ảnh vào ngăn kéo

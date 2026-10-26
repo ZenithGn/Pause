@@ -1,10 +1,12 @@
 package com.pause.app.presentation.photobooth
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -13,9 +15,12 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -45,6 +50,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -53,11 +61,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.pause.app.R
+import com.pause.app.domain.model.CAPTION_BOTTOM_OFFSET_PX
+import com.pause.app.domain.model.CAPTION_FONT_SIZE_PX
 import com.pause.app.domain.model.Drawer
 import com.pause.app.domain.model.Photo
 import com.pause.app.domain.model.PhotoboothTemplate
+import com.pause.app.domain.model.TemplateLayout
+import com.pause.app.domain.model.effectiveLayout
 import com.pause.app.presentation.common.components.PauseErrorBanner
 import com.pause.app.presentation.theme.PauseColors
+import android.graphics.Color as AndroidColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -319,34 +332,48 @@ fun PhotoboothPreviewScreen(
         containerColor = PauseColors.Paper,
     ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(Modifier.height(10.dp))
             Text(template?.name.orEmpty(), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(16.dp))
             Box(
-                modifier = Modifier.width(210.dp).height(460.dp).clip(RoundedCornerShape(12.dp))
-                    .background(PauseColors.Surface).border(1.dp, PauseColors.Line, RoundedCornerShape(12.dp)).padding(12.dp),
+                modifier = Modifier
+                    .width(230.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(PauseColors.Surface)
+                    .border(1.dp, PauseColors.Line, RoundedCornerShape(12.dp))
+                    .padding(10.dp),
+                contentAlignment = Alignment.Center,
             ) {
+                val layout = template?.effectiveLayout
                 val rendered = state.previewUrl
-                if (rendered != null) {
-                    AsyncImage(
+                when {
+                    rendered != null -> AsyncImage(
                         model = rendered,
                         contentDescription = stringResource(R.string.photobooth_preview_title),
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(layout?.let { it.width.toFloat() / it.height } ?: (2f / 3f)),
                         contentScale = ContentScale.Fit,
                     )
-                } else {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        state.selectedPhotoIds.forEach { photoId ->
-                            Box(Modifier.fillMaxWidth().weight(1f).clip(RoundedCornerShape(6.dp)).background(PauseColors.CategoryBg)) {
-                                state.photoUrls[photoId]?.let { url ->
-                                    AsyncImage(url, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-                                }
-                            }
-                        }
-                    }
+                    layout != null -> TemplateLayoutPreview(
+                        layout = layout,
+                        photoUrls = state.selectedPhotoIds.map { state.photoUrls[it] },
+                        caption = state.caption,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+                if (state.isSaving) {
+                    Box(
+                        Modifier.matchParentSize().background(PauseColors.Surface.copy(alpha = 0.6f)),
+                        contentAlignment = Alignment.Center,
+                    ) { CircularProgressIndicator(color = PauseColors.Wine) }
                 }
             }
             Spacer(Modifier.height(12.dp))
@@ -367,9 +394,75 @@ fun PhotoboothPreviewScreen(
                 textAlign = TextAlign.Center,
             )
             state.error?.let { PauseErrorBanner(it, Modifier.padding(top = 12.dp)) }
+            Spacer(Modifier.height(16.dp))
         }
     }
 }
+
+/**
+ * Live preview drawn with the same geometry as [com.pause.app.data.media.AndroidPhotoboothRenderer]
+ * (slots, frame, template texts and the user caption), scaled to the available width.
+ */
+@Composable
+private fun TemplateLayoutPreview(
+    layout: TemplateLayout,
+    photoUrls: List<String?>,
+    caption: String,
+    modifier: Modifier = Modifier,
+) {
+    BoxWithConstraints(
+        modifier
+            .aspectRatio(layout.width.toFloat() / layout.height)
+            .background(Color(parseHexColor(layout.backgroundColor, AndroidColor.WHITE))),
+    ) {
+        val unit = maxWidth / layout.width
+        layout.slots.forEachIndexed { position, slot ->
+            Box(
+                Modifier
+                    .offset(x = unit * slot.x, y = unit * slot.y)
+                    .size(width = unit * slot.width, height = unit * slot.height)
+                    .background(PauseColors.CategoryBg),
+                contentAlignment = Alignment.Center,
+            ) {
+                val url = photoUrls.getOrNull(position)
+                if (url != null) {
+                    AsyncImage(url, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                } else {
+                    Icon(Icons.Filled.Image, null, tint = PauseColors.Muted, modifier = Modifier.size(20.dp))
+                }
+            }
+        }
+        layout.frameUrl?.let { frame ->
+            AsyncImage(frame, null, Modifier.fillMaxSize(), contentScale = ContentScale.FillBounds)
+        }
+        Canvas(Modifier.fillMaxSize()) {
+            val ratio = size.width / layout.width
+            val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+                textAlign = android.graphics.Paint.Align.CENTER
+            }
+            drawIntoCanvas { canvas ->
+                layout.texts.forEach { text ->
+                    paint.color = parseHexColor(text.color, AndroidColor.BLACK)
+                    paint.textSize = text.fontSize * ratio
+                    canvas.nativeCanvas.drawText(text.content, text.x * ratio, text.y * ratio, paint)
+                }
+                if (caption.isNotBlank()) {
+                    paint.color = AndroidColor.BLACK
+                    paint.textSize = CAPTION_FONT_SIZE_PX * ratio
+                    canvas.nativeCanvas.drawText(
+                        caption.trim().take(40),
+                        size.width / 2f,
+                        (layout.height - CAPTION_BOTTOM_OFFSET_PX) * ratio,
+                        paint,
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun parseHexColor(value: String, fallback: Int): Int =
+    runCatching { AndroidColor.parseColor(value) }.getOrDefault(fallback)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

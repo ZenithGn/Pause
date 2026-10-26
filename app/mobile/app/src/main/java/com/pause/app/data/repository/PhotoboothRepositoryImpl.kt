@@ -42,6 +42,7 @@ class PhotoboothRepositoryImpl(
         val userId = client.auth.currentSessionOrNull()?.user?.id
             ?: error("A signed-in user is required")
 
+        // supabase-kt 2.x returns no body for writes unless select() is requested.
         val item = client.from(ITEMS)
             .insert(
                 PhotoboothItemInsertDto(
@@ -50,16 +51,18 @@ class PhotoboothRepositoryImpl(
                     previewUrl = previewUrl,
                     status = if (previewUrl != null) "completed" else "draft",
                 ),
-            )
+            ) { select() }
             .decodeSingle<PhotoboothItemDto>()
 
-        photoIds.forEachIndexed { index, photoId ->
+        if (photoIds.isNotEmpty()) {
             client.from(PHOTOS).insert(
-                PhotoboothPhotoInsertDto(
-                    photoboothItemId = item.id,
-                    photoId = photoId,
-                    slotIndex = index,
-                ),
+                photoIds.mapIndexed { index, photoId ->
+                    PhotoboothPhotoInsertDto(
+                        photoboothItemId = item.id,
+                        photoId = photoId,
+                        slotIndex = index,
+                    )
+                },
             )
         }
         PhotoboothDraft(item.id, item.templateId, photoIds, item.previewUrl ?: previewUrl)

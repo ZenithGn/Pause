@@ -6,8 +6,11 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import com.pause.app.domain.model.CAPTION_BOTTOM_OFFSET_PX
+import com.pause.app.domain.model.CAPTION_FONT_SIZE_PX
 import com.pause.app.domain.model.PhotoboothRenderer
 import com.pause.app.domain.model.PhotoboothTemplate
+import com.pause.app.domain.model.effectiveLayout
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -28,7 +31,7 @@ class AndroidPhotoboothRenderer(
         caption: String?,
     ): Result<ByteArray> = withContext(ioDispatcher) {
         try {
-            val layout = template.layoutConfig ?: fallbackLayout(template.slotCount)
+            val layout = template.effectiveLayout
             val canvasBitmap = Bitmap.createBitmap(layout.width, layout.height, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(canvasBitmap)
             canvas.drawColor(parseColor(layout.backgroundColor, Color.WHITE))
@@ -71,8 +74,8 @@ class AndroidPhotoboothRenderer(
             // Edit Template screen caption (user editable, layout itself is fixed).
             if (!caption.isNullOrBlank()) {
                 textPaint.color = Color.BLACK
-                textPaint.textSize = 52f
-                canvas.drawText(caption.take(40), layout.width / 2f, layout.height - 60f, textPaint)
+                textPaint.textSize = CAPTION_FONT_SIZE_PX
+                canvas.drawText(caption.take(40), layout.width / 2f, layout.height - CAPTION_BOTTOM_OFFSET_PX, textPaint)
             }
 
             val output = ByteArrayOutputStream()
@@ -83,20 +86,6 @@ class AndroidPhotoboothRenderer(
             Result.failure(error)
         }
     }
-
-    private fun fallbackLayout(slotCount: Int) = com.pause.app.domain.model.TemplateLayout(
-        width = 1200,
-        height = 1800,
-        slots = List(slotCount.coerceAtLeast(1)) { index ->
-            com.pause.app.domain.model.TemplateSlot(
-                index = index,
-                x = 60,
-                y = 60 + index * 560,
-                width = 1080,
-                height = 500,
-            )
-        },
-    )
 
     private fun cropToFill(source: Bitmap, targetWidth: Int, targetHeight: Int): Bitmap {
         val scale = maxOf(targetWidth.toFloat() / source.width, targetHeight.toFloat() / source.height)

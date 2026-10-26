@@ -145,7 +145,7 @@ class PhotoRepositoryImpl(
                         height = processed.height,
                         takenAt = processed.takenAt?.toString(),
                     ),
-                )
+                ) { select() }
                 .decodeSingle<PhotoDto>()
                 .toDomain()
             Log.d(TAG, "uploadPhoto: DB row inserted, id=${inserted.id}")

@@ -48,7 +48,7 @@ class OrderRepositoryImpl(
                 coverType = coverType,
                 paperType = paperType,
             ),
-        ).decodeSingle<PrintOrderDto>()
+        ) { select() }.decodeSingle<PrintOrderDto>()
         dto.toDomain()
     }
 

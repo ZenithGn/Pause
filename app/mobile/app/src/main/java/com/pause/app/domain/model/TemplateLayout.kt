@@ -42,6 +42,23 @@ fun parseTemplateLayout(raw: String?): TemplateLayout? {
         .getOrNull()
 }
 
+/** Vertical strip used when a template has no valid `layout_config`. */
+fun fallbackTemplateLayout(slotCount: Int) = TemplateLayout(
+    width = 1200,
+    height = 1800,
+    slots = List(slotCount.coerceAtLeast(1)) { index ->
+        TemplateSlot(index = index, x = 60, y = 60 + index * 560, width = 1080, height = 500)
+    },
+)
+
+/** Layout shared by the on-screen preview and [PhotoboothRenderer]. */
+val PhotoboothTemplate.effectiveLayout: TemplateLayout
+    get() = layoutConfig?.takeIf { it.slots.isNotEmpty() } ?: fallbackTemplateLayout(slotCount)
+
+/** Font size / bottom offset (template px) of the user caption baked into the render. */
+const val CAPTION_FONT_SIZE_PX = 52f
+const val CAPTION_BOTTOM_OFFSET_PX = 60f
+
 /** Renders template + photos into a single printable JPEG (T-03.17). */
 interface PhotoboothRenderer {
     /** @param caption user caption rendered at the bottom (Edit Template screen). */

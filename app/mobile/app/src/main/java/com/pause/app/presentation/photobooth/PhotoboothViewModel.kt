@@ -42,7 +42,15 @@ class PhotoboothViewModel(
 
     fun selectTemplate(templateId: String) {
         val template = _state.value.templates.firstOrNull { it.id == templateId } ?: return
-        _state.update { it.copy(selectedTemplate = template, selectedPhotoIds = emptyList(), savedDraftId = null) }
+        _state.update {
+            it.copy(
+                selectedTemplate = template,
+                selectedPhotoIds = emptyList(),
+                savedDraftId = null,
+                previewUrl = null,
+                caption = "",
+            )
+        }
         loadDrawers()
     }
 
@@ -57,7 +65,7 @@ class PhotoboothViewModel(
     }
 
     fun selectDrawer(drawerId: String) {
-        _state.update { it.copy(selectedDrawerId = drawerId, selectedPhotoIds = emptyList()) }
+        _state.update { it.copy(selectedDrawerId = drawerId, selectedPhotoIds = emptyList(), savedDraftId = null, previewUrl = null) }
         loadPhotos(drawerId)
     }
 
@@ -82,11 +90,14 @@ class PhotoboothViewModel(
             chosen.size >= current.requiredSlots -> chosen
             else -> chosen + photo.id
         }
-        _state.update { it.copy(selectedPhotoIds = next, savedDraftId = null) }
+        _state.update { it.copy(selectedPhotoIds = next, savedDraftId = null, previewUrl = null) }
     }
 
     fun onCaptionChange(value: String) {
-        _state.update { it.copy(caption = value.take(40)) }
+        val next = value.take(40)
+        if (next == _state.value.caption) return
+        // Caption is baked into the render, so an existing preview/draft becomes stale.
+        _state.update { it.copy(caption = next, savedDraftId = null, previewUrl = null, error = null) }
     }
 
     /** FR-03.2 – render preview + upload Cloudinary + persist draft. */
@@ -115,7 +126,8 @@ class PhotoboothViewModel(
                     )
                 }
             }
-            .onFailure {
+            .onFailure { exception ->
+                android.util.Log.e("Photobooth", "Failed to create photobooth preview", exception)
                 _state.update {
                     it.copy(isSaving = false, error = UiText.Resource(R.string.photobooth_error_save))
                 }

@@ -72,7 +72,7 @@ class PhotoboothRepositoryImpl(
         previewPath = previewUrl,
         slotCount = slotCount,
         isPremium = isPremium,
-        layoutConfig = parseTemplateLayout(layoutConfig),
+        layoutConfig = parseTemplateLayout(layoutConfig?.toString()),
     )
 
     private companion object {

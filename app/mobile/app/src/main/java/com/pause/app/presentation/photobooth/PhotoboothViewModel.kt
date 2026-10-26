@@ -34,7 +34,10 @@ class PhotoboothViewModel(
         _state.update { it.copy(isLoadingTemplates = true, error = null) }
         runCatching { photoboothRepository.getActiveTemplates() }
             .onSuccess { templates -> _state.update { it.copy(isLoadingTemplates = false, templates = templates) } }
-            .onFailure { _state.update { it.copy(isLoadingTemplates = false, error = UiText.Resource(R.string.photobooth_error_templates)) } }
+            .onFailure { exception ->
+                android.util.Log.e("Photobooth", "Failed to load templates", exception)
+                _state.update { it.copy(isLoadingTemplates = false, error = UiText.Resource(R.string.photobooth_error_templates)) }
+            }
     }
 
     fun selectTemplate(templateId: String) {

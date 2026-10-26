@@ -70,6 +70,14 @@ class OrderViewModel(
         _formState.update { it.copy(note = note) }
     }
 
+    fun onCoverTypeChanged(coverType: String) {
+        _formState.update { it.copy(coverType = coverType) }
+    }
+
+    fun onPaperTypeChanged(paperType: String) {
+        _formState.update { it.copy(paperType = paperType) }
+    }
+
     fun incrementQuantity() {
         _formState.update { it.copy(quantity = (it.quantity + 1).coerceAtMost(99)) }
     }
@@ -100,13 +108,15 @@ class OrderViewModel(
                 createOrderUseCase(
                     photoboothItemId = current.photoboothItemId,
                     quantity = current.quantity,
-                    unitPriceVnd = current.unitPriceVnd,
+                    unitPriceVnd = current.effectiveUnitPriceVnd,
                     shipping = ShippingInfo(
                         name = current.shippingName.trim(),
                         phone = cleanPhone,
                         address = current.shippingAddress.trim(),
                         note = current.note.trim(),
                     ),
+                    coverType = current.coverType,
+                    paperType = current.paperType,
                 )
             }.onSuccess { created ->
                 _formState.update { it.copy(isSubmitting = false, createdOrder = created) }

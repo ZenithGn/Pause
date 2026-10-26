@@ -73,11 +73,14 @@ fun OrderFormScreen(
     onPhoneChange: (String) -> Unit,
     onAddressChange: (String) -> Unit,
     onNoteChange: (String) -> Unit,
+    onCoverTypeChange: (String) -> Unit = {},
+    onPaperTypeChange: (String) -> Unit = {},
     onIncrementQuantity: () -> Unit,
     onDecrementQuantity: () -> Unit,
     onSubmit: () -> Unit,
 ) {
     var selectedPaymentMethod by remember { mutableStateOf(0) } // 0 = COD, 1 = Banking QR
+    // Product options (Figma: Custom & Print).
 
     Scaffold(
         topBar = {

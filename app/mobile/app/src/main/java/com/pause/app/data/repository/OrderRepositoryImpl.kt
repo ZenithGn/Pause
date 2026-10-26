@@ -28,6 +28,8 @@ class OrderRepositoryImpl(
         quantity: Int,
         unitPriceVnd: Int,
         shipping: ShippingInfo,
+        coverType: String,
+        paperType: String,
     ): PrintOrder = withContext(ioDispatcher) {
         val userId = client.auth.currentSessionOrNull()?.user?.id
             ?: error("A signed-in user is required")
@@ -43,6 +45,8 @@ class OrderRepositoryImpl(
                 shippingPhone = shipping.phone,
                 shippingAddress = shipping.address,
                 note = shipping.note.ifBlank { null },
+                coverType = coverType,
+                paperType = paperType,
             ),
         ).decodeSingle<PrintOrderDto>()
         dto.toDomain()

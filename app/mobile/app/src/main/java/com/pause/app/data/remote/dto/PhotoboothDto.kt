@@ -11,12 +11,14 @@ data class PhotoboothTemplateDto(
     @SerialName("preview_url") val previewUrl: String,
     @SerialName("slot_count") val slotCount: Int,
     @SerialName("is_premium") val isPremium: Boolean = false,
+    @SerialName("layout_config") val layoutConfig: String? = null,
 )
 
 @Serializable
 data class PhotoboothItemInsertDto(
     @SerialName("user_id") val userId: String,
     @SerialName("template_id") val templateId: String,
+    @SerialName("preview_url") val previewUrl: String? = null,
     val status: String = "draft",
 )
 
@@ -24,6 +26,7 @@ data class PhotoboothItemInsertDto(
 data class PhotoboothItemDto(
     val id: String,
     @SerialName("template_id") val templateId: String,
+    @SerialName("preview_url") val previewUrl: String? = null,
 )
 
 @Serializable

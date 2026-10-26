@@ -6,6 +6,7 @@ import com.pause.app.data.remote.dto.PhotoboothPhotoInsertDto
 import com.pause.app.data.remote.dto.PhotoboothTemplateDto
 import com.pause.app.domain.model.PhotoboothDraft
 import com.pause.app.domain.model.PhotoboothTemplate
+import com.pause.app.domain.model.parseTemplateLayout
 import com.pause.app.domain.repository.PhotoboothRepository
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.gotrue.auth
@@ -14,7 +15,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/** Direct PostgREST implementation for the currently available FR-03 schema. */
+/** PostgREST implementation for FR-03 templates + drafts. */
 class PhotoboothRepositoryImpl(
     private val client: SupabaseClient,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
@@ -23,36 +24,56 @@ class PhotoboothRepositoryImpl(
     override suspend fun getActiveTemplates(): List<PhotoboothTemplate> = withContext(ioDispatcher) {
         client.from(TEMPLATES).select {
             filter { eq("is_active", true) }
-        }.decodeList<PhotoboothTemplateDto>().map { dto ->
-            PhotoboothTemplate(
-                id = dto.id,
-                name = dto.name,
-                category = dto.category,
-                previewPath = dto.previewUrl,
-                slotCount = dto.slotCount,
-                isPremium = dto.isPremium,
-            )
-        }
+        }.decodeList<PhotoboothTemplateDto>().map { it.toDomain() }
     }
 
-    override suspend fun createDraft(templateId: String, photoIds: List<String>): PhotoboothDraft =
+    override suspend fun getTemplate(templateId: String): PhotoboothTemplate? =
         withContext(ioDispatcher) {
-            val userId = client.auth.currentSessionOrNull()?.user?.id
-                ?: error("A signed-in user is required")
-            val item = client.from(ITEMS)
-                .insert(PhotoboothItemInsertDto(userId = userId, templateId = templateId))
-                .decodeSingle<PhotoboothItemDto>()
-            photoIds.forEachIndexed { index, photoId ->
-                client.from(PHOTOS).insert(
-                    PhotoboothPhotoInsertDto(
-                        photoboothItemId = item.id,
-                        photoId = photoId,
-                        slotIndex = index,
-                    ),
-                )
-            }
-            PhotoboothDraft(item.id, item.templateId, photoIds)
+            client.from(TEMPLATES).select {
+                filter { eq("id", templateId) }
+            }.decodeList<PhotoboothTemplateDto>().firstOrNull()?.toDomain()
         }
+
+    override suspend fun createDraft(
+        templateId: String,
+        photoIds: List<String>,
+        previewUrl: String?,
+    ): PhotoboothDraft = withContext(ioDispatcher) {
+        val userId = client.auth.currentSessionOrNull()?.user?.id
+            ?: error("A signed-in user is required")
+
+        val item = client.from(ITEMS)
+            .insert(
+                PhotoboothItemInsertDto(
+                    userId = userId,
+                    templateId = templateId,
+                    previewUrl = previewUrl,
+                    status = if (previewUrl != null) "completed" else "draft",
+                ),
+            )
+            .decodeSingle<PhotoboothItemDto>()
+
+        photoIds.forEachIndexed { index, photoId ->
+            client.from(PHOTOS).insert(
+                PhotoboothPhotoInsertDto(
+                    photoboothItemId = item.id,
+                    photoId = photoId,
+                    slotIndex = index,
+                ),
+            )
+        }
+        PhotoboothDraft(item.id, item.templateId, photoIds, item.previewUrl ?: previewUrl)
+    }
+
+    private fun PhotoboothTemplateDto.toDomain() = PhotoboothTemplate(
+        id = id,
+        name = name,
+        category = category,
+        previewPath = previewUrl,
+        slotCount = slotCount,
+        isPremium = isPremium,
+        layoutConfig = parseTemplateLayout(layoutConfig),
+    )
 
     private companion object {
         const val TEMPLATES = "photobooth_templates"

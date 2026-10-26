@@ -269,6 +269,7 @@ fun PhotoboothPreviewScreen(
     onBack: () -> Unit,
     onEditPhotos: () -> Unit,
     onSave: () -> Unit,
+    onCaptionChange: (String) -> Unit = {},
     onOrderClick: (itemId: String) -> Unit = {},
 ) {
     val template = state.selectedTemplate
@@ -285,6 +286,13 @@ fun PhotoboothPreviewScreen(
                     ) {
                         Text(stringResource(R.string.photobooth_order_now), fontWeight = FontWeight.Bold)
                     }
+                    OutlinedButton(
+                        onClick = onSave,
+                        enabled = !state.isSaving,
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    ) {
+                        Text(stringResource(R.string.photobooth_regenerate_preview), color = PauseColors.Wine)
+                    }
                 } else {
                     Button(
                         onClick = onSave,
@@ -294,7 +302,13 @@ fun PhotoboothPreviewScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = PauseColors.Wine),
                     ) {
                         if (state.isSaving) CircularProgressIndicator(Modifier.size(18.dp), color = PauseColors.Surface, strokeWidth = 2.dp)
-                        else Text(stringResource(R.string.photobooth_save_draft), fontWeight = FontWeight.Bold)
+                        else Text(
+                            stringResource(
+                                if (state.previewUrl == null) R.string.photobooth_generate_preview
+                                else R.string.photobooth_regenerate_preview,
+                            ),
+                            fontWeight = FontWeight.Bold,
+                        )
                     }
                 }
                 OutlinedButton(onClick = onEditPhotos, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
@@ -315,17 +329,37 @@ fun PhotoboothPreviewScreen(
                 modifier = Modifier.width(210.dp).height(460.dp).clip(RoundedCornerShape(12.dp))
                     .background(PauseColors.Surface).border(1.dp, PauseColors.Line, RoundedCornerShape(12.dp)).padding(12.dp),
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    state.selectedPhotoIds.forEach { photoId ->
-                        Box(Modifier.fillMaxWidth().weight(1f).clip(RoundedCornerShape(6.dp)).background(PauseColors.CategoryBg)) {
-                            state.photoUrls[photoId]?.let { url ->
-                                AsyncImage(url, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                val rendered = state.previewUrl
+                if (rendered != null) {
+                    AsyncImage(
+                        model = rendered,
+                        contentDescription = stringResource(R.string.photobooth_preview_title),
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit,
+                    )
+                } else {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        state.selectedPhotoIds.forEach { photoId ->
+                            Box(Modifier.fillMaxWidth().weight(1f).clip(RoundedCornerShape(6.dp)).background(PauseColors.CategoryBg)) {
+                                state.photoUrls[photoId]?.let { url ->
+                                    AsyncImage(url, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                                }
                             }
                         }
                     }
                 }
             }
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(12.dp))
+            androidx.compose.material3.OutlinedTextField(
+                value = state.caption,
+                onValueChange = onCaptionChange,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(stringResource(R.string.photobooth_caption_label)) },
+                placeholder = { Text(stringResource(R.string.photobooth_caption_hint)) },
+                singleLine = true,
+                enabled = !state.isSaving,
+            )
+            Spacer(Modifier.height(12.dp))
             Text(
                 text = stringResource(R.string.photobooth_preview_hint),
                 style = MaterialTheme.typography.bodyMedium,

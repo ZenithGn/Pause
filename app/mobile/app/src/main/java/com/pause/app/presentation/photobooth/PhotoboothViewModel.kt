@@ -7,6 +7,7 @@ import com.pause.app.domain.model.Photo
 import com.pause.app.domain.repository.DrawerRepository
 import com.pause.app.domain.repository.PhotoRepository
 import com.pause.app.domain.repository.PhotoboothRepository
+import com.pause.app.domain.usecase.CreatePhotoboothUseCase
 import com.pause.app.presentation.common.UiText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +17,7 @@ import kotlinx.coroutines.launch
 
 class PhotoboothViewModel(
     private val photoboothRepository: PhotoboothRepository,
+    private val createPhotoboothUseCase: CreatePhotoboothUseCase,
     private val drawerRepository: DrawerRepository,
     private val photoRepository: PhotoRepository,
 ) : ViewModel() {
@@ -80,13 +82,40 @@ class PhotoboothViewModel(
         _state.update { it.copy(selectedPhotoIds = next, savedDraftId = null) }
     }
 
+    fun onCaptionChange(value: String) {
+        _state.update { it.copy(caption = value.take(40)) }
+    }
+
+    /** FR-03.2 – render preview + upload Cloudinary + persist draft. */
     fun saveDraft() = viewModelScope.launch {
         val current = _state.value
         val template = current.selectedTemplate ?: return@launch
-        if (!current.canPreview) return@launch
+        if (!current.canPreview || current.isSaving) return@launch
+
+        val orderedUrls = current.selectedPhotoIds.map { id ->
+            current.photoUrls[id].orEmpty()
+        }
+
         _state.update { it.copy(isSaving = true, error = null) }
-        runCatching { photoboothRepository.createDraft(template.id, current.selectedPhotoIds) }
-            .onSuccess { draft -> _state.update { it.copy(isSaving = false, savedDraftId = draft.id) } }
-            .onFailure { _state.update { it.copy(isSaving = false, error = UiText.Resource(R.string.photobooth_error_save)) } }
+        createPhotoboothUseCase(
+            template = template,
+            photoIds = current.selectedPhotoIds,
+            photoUrls = orderedUrls,
+            caption = current.caption.trim().ifBlank { null },
+        )
+            .onSuccess { draft ->
+                _state.update {
+                    it.copy(
+                        isSaving = false,
+                        savedDraftId = draft.id,
+                        previewUrl = draft.previewUrl,
+                    )
+                }
+            }
+            .onFailure {
+                _state.update {
+                    it.copy(isSaving = false, error = UiText.Resource(R.string.photobooth_error_save))
+                }
+            }
     }
 }

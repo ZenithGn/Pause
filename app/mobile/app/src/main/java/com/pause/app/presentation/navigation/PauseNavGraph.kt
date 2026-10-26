@@ -274,6 +274,7 @@ fun PauseNavGraph(
                     onBack = { navController.popBackStack() },
                     onEditPhotos = { navController.popBackStack() },
                     onSave = photoboothViewModel::saveDraft,
+                    onCaptionChange = photoboothViewModel::onCaptionChange,
                     onOrderClick = { draftId ->
                         navController.navigate(Routes.orderForm(draftId))
                     },
@@ -389,7 +390,7 @@ fun PauseNavGraph(
                     orderViewModel.initOrderForm(
                         itemId = itemId,
                         templateName = photoboothState.selectedTemplate?.name ?: "Photobooth Strip",
-                        previewUrl = null,
+                        previewUrl = photoboothState.previewUrl,
                         slotCount = photoboothState.selectedTemplate?.slotCount ?: 4,
                     )
                 }
@@ -400,6 +401,8 @@ fun PauseNavGraph(
                     onPhoneChange = orderViewModel::onShippingPhoneChanged,
                     onAddressChange = orderViewModel::onShippingAddressChanged,
                     onNoteChange = orderViewModel::onNoteChanged,
+                    onCoverTypeChange = orderViewModel::onCoverTypeChanged,
+                    onPaperTypeChange = orderViewModel::onPaperTypeChanged,
                     onIncrementQuantity = orderViewModel::incrementQuantity,
                     onDecrementQuantity = orderViewModel::decrementQuantity,
                     onSubmit = {

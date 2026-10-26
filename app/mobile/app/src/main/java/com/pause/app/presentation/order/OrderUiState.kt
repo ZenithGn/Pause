@@ -12,6 +12,8 @@ data class OrderFormUiState(
     val slotCount: Int = 0,
     val unitPriceVnd: Int = 25_000,
     val quantity: Int = 1,
+    val coverType: String = "soft",
+    val paperType: String = "standard",
     // Shipping fields
     val shippingName: String = "",
     val shippingPhone: String = "",
@@ -22,7 +24,10 @@ data class OrderFormUiState(
     val createdOrder: PrintOrder? = null,
     val error: UiText? = null,
 ) {
-    val totalPriceVnd: Int get() = unitPriceVnd * quantity
+    val coverSurchargeVnd: Int get() = if (coverType == "hard") 15_000 else 0
+    val paperSurchargeVnd: Int get() = if (paperType == "premium") 10_000 else 0
+    val effectiveUnitPriceVnd: Int get() = unitPriceVnd + coverSurchargeVnd + paperSurchargeVnd
+    val totalPriceVnd: Int get() = effectiveUnitPriceVnd * quantity
     val shippingFeeVnd: Int get() = 30_000
     val grandTotalVnd: Int get() = totalPriceVnd + shippingFeeVnd
 

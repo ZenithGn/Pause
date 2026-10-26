@@ -269,6 +269,11 @@
     <string name="photobooth_error_photos">Không tải được ảnh trong ngăn kéo này.</string>
     <string name="photobooth_error_save">Không lưu được photobooth. Vui lòng thử lại.</string>
     <!-- Photobooth Order (FR-03) -->
+    <string name="photobooth_caption_label">Chú thích trên ảnh (tuỳ chọn)</string>
+    <string name="photobooth_caption_hint">Ví dụ: Đà Lạt 2026</string>
+    <string name="photobooth_generate_preview">Tạo ảnh xem trước</string>
+    <string name="photobooth_regenerate_preview">Cập nhật ảnh xem trước</string>
+    <string name="photobooth_preview_rendering">Đang tạo ảnh xem trước…</string>
     <string name="photobooth_order_now">Đặt in ngay</string>
     <string name="order_form_title">Thông tin đặt in</string>
     <string name="order_recipient_section">Thông tin giao hàng</string>
@@ -281,6 +286,12 @@
     <string name="order_subtotal">Tạm tính</string>
     <string name="order_shipping_fee">Phí vận chuyển</string>
     <string name="order_total_amount">Tổng thanh toán</string>
+    <string name="order_cover_section">Loại bìa</string>
+    <string name="order_cover_soft">Bìa mềm</string>
+    <string name="order_cover_hard">Bìa cứng (+15.000đ)</string>
+    <string name="order_paper_section">Loại giấy in</string>
+    <string name="order_paper_standard">Tiêu chuẩn</string>
+    <string name="order_paper_premium">Cao cấp (+10.000đ)</string>
     <string name="order_payment_section">Phương thức thanh toán</string>
     <string name="order_payment_cod">Thanh toán khi nhận hàng (COD)</string>
     <string name="order_payment_bank">Chuyển khoản ngân hàng (QR)</string>

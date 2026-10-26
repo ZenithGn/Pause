@@ -17,6 +17,8 @@ data class PhotoboothUiState(
     val selectedPhotoIds: List<String> = emptyList(),
     val isSaving: Boolean = false,
     val savedDraftId: String? = null,
+    val previewUrl: String? = null,
+    val caption: String = "",
     val error: UiText? = null,
 ) {
     val requiredSlots: Int get() = selectedTemplate?.slotCount ?: 0

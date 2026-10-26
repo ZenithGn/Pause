@@ -15,10 +15,14 @@ class CreateOrderUseCase(private val orderRepository: OrderRepository) {
         quantity: Int,
         unitPriceVnd: Int,
         shipping: ShippingInfo,
+        coverType: String = "soft",
+        paperType: String = "standard",
     ): PrintOrder {
         require(photoboothItemId.isNotBlank()) { "Photobooth item ID is required" }
         require(quantity > 0) { "Quantity must be positive" }
         require(unitPriceVnd >= 0) { "Unit price must be non-negative" }
+        require(coverType in setOf("soft", "hard")) { "Invalid cover type" }
+        require(paperType in setOf("standard", "premium")) { "Invalid paper type" }
         require(shipping.name.isNotBlank()) { "Shipping name is required" }
         require(shipping.phone.isNotBlank()) { "Shipping phone is required" }
         require(shipping.address.isNotBlank()) { "Shipping address is required" }
@@ -28,6 +32,8 @@ class CreateOrderUseCase(private val orderRepository: OrderRepository) {
             quantity = quantity,
             unitPriceVnd = unitPriceVnd,
             shipping = shipping,
+            coverType = coverType,
+            paperType = paperType,
         )
     }
 }

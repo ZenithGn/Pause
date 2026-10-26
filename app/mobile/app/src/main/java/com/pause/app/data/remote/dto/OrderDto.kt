@@ -15,6 +15,8 @@ data class PrintOrderDto(
     @SerialName("shipping_phone") val shippingPhone: String,
     @SerialName("shipping_address") val shippingAddress: String,
     val note: String? = null,
+    @SerialName("cover_type") val coverType: String = "soft",
+    @SerialName("paper_type") val paperType: String = "standard",
     val status: String = "pending",
     @SerialName("admin_notes") val adminNotes: String? = null,
     @SerialName("created_at") val createdAt: String? = null,
@@ -32,6 +34,8 @@ data class PrintOrderInsertDto(
     @SerialName("shipping_phone") val shippingPhone: String,
     @SerialName("shipping_address") val shippingAddress: String,
     val note: String? = null,
+    @SerialName("cover_type") val coverType: String = "soft",
+    @SerialName("paper_type") val paperType: String = "standard",
 )
 
 /** Joined query result for order list display (order + template name via photobooth_items). */
@@ -47,6 +51,8 @@ data class PrintOrderWithTemplateDto(
     @SerialName("shipping_phone") val shippingPhone: String,
     @SerialName("shipping_address") val shippingAddress: String,
     val note: String? = null,
+    @SerialName("cover_type") val coverType: String = "soft",
+    @SerialName("paper_type") val paperType: String = "standard",
     val status: String = "pending",
     @SerialName("admin_notes") val adminNotes: String? = null,
     @SerialName("created_at") val createdAt: String? = null,

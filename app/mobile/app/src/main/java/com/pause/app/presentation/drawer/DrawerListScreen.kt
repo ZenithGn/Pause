@@ -78,6 +78,7 @@ fun DrawerListScreen(
     onNavigate: (PauseTab) -> Unit,
     onConsumeToast: () -> Unit,
     onRespondInvitation: (ShareInvitation, Boolean) -> Unit,
+    onUpgradeClick: () -> Unit = {},
 ) {
     var toast by remember { mutableStateOf<UiText?>(null) }
     var filterMode by rememberSaveable { mutableStateOf("all") } // "all", "owned", "shared"
@@ -257,7 +258,7 @@ fun DrawerListScreen(
                                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                                     ) {
                                         OutlinedButton(
-                                            onClick = onCreateClick,
+                                            onClick = onUpgradeClick,
                                             shape = RoundedCornerShape(10.dp),
                                             border = androidx.compose.foundation.BorderStroke(1.dp, PauseColors.Line),
                                             modifier = Modifier
@@ -273,7 +274,7 @@ fun DrawerListScreen(
                                         }
 
                                         Button(
-                                            onClick = onCreateClick,
+                                            onClick = onUpgradeClick,
                                             colors = ButtonDefaults.buttonColors(
                                                 containerColor = PauseColors.Ink,
                                                 contentColor = Color.White,
@@ -396,15 +397,18 @@ fun DrawerListScreen(
         }
     }
 
-    state.quotaReachedMaxDrawers?.let { maxDrawers ->
+    state.quotaReachedMaxDrawers?.let { quotaLimit ->
         AlertDialog(
             onDismissRequest = onDismissQuota,
             title = { Text(text = stringResource(R.string.drawers_quota_title)) },
             text = {
-                Text(text = stringResource(R.string.drawers_quota_message, maxDrawers))
+                Text(text = stringResource(R.string.drawers_quota_message, quotaLimit))
             },
             confirmButton = {
-                TextButton(onClick = onDismissQuota) {
+                TextButton(onClick = {
+                    onDismissQuota()
+                    onUpgradeClick()
+                }) {
                     Text(text = stringResource(R.string.drawers_quota_action))
                 }
             },

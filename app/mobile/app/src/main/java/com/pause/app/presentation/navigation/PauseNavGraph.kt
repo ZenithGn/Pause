@@ -49,6 +49,7 @@ import com.pause.app.presentation.share.ShareDrawerScreen
 import com.pause.app.presentation.share.ShareDrawerViewModel
 import com.pause.app.presentation.splash.SplashScreen
 import com.pause.app.presentation.splash.SplashViewModel
+import com.pause.app.presentation.upgrade.UpgradeScreen
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -73,6 +74,7 @@ object Routes {
     const val ORDER_CONFIRM = "order/confirm/{orderId}"
     const val ORDER_LIST = "order/list"
     const val ORDER_DETAIL = "order/detail/{orderId}"
+    const val UPGRADE = "upgrade"
 
     fun drawerDetail(drawerId: String) = "drawer/$drawerId"
     fun shareDrawer(drawerId: String) = "drawer/$drawerId/share"
@@ -290,6 +292,7 @@ fun PauseNavGraph(
                     onNavigate = ::onTabSelected,
                     onConsumeToast = drawerListViewModel::consumeToast,
                     onRespondInvitation = drawerListViewModel::respondInvitation,
+                    onUpgradeClick = { navController.navigate(Routes.UPGRADE) },
                 )
             }
 
@@ -351,6 +354,7 @@ fun PauseNavGraph(
                 LaunchedEffect(Unit) { profileViewModel.load() }
                 ProfileScreen(
                     state = profileState,
+                    userEmail = authState.session?.user?.email,
                     onBack = { navController.popBackStack() },
                     onEdit = profileViewModel::startEditing,
                     onCancelEdit = profileViewModel::cancelEditing,
@@ -363,8 +367,16 @@ fun PauseNavGraph(
                         navController.navigateClearingBackStack(Routes.LOGIN)
                     },
                     onViewOrders = { navController.navigate(Routes.ORDER_LIST) },
+                    onUpgrade = { navController.navigate(Routes.UPGRADE) },
                     onConsumeMessage = profileViewModel::consumeMessage,
                     onNavigate = ::onTabSelected,
+                )
+            }
+
+            composable(Routes.UPGRADE) {
+                UpgradeScreen(
+                    isPremium = profileState.profile?.isPremium == true,
+                    onBack = { navController.popBackStack() },
                 )
             }
 

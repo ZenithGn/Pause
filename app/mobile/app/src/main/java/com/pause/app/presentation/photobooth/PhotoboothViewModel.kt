@@ -27,7 +27,22 @@ class PhotoboothViewModel(
 
     fun start(drawerId: String? = null) {
         requestedDrawerId = drawerId
+        _state.update {
+            it.copy(
+                selectedSlotCount = null,
+                selectedTemplate = null,
+                selectedPhotoIds = emptyList(),
+                savedDraftId = null,
+                previewUrl = null,
+                caption = "",
+                error = null,
+            )
+        }
         loadTemplates()
+    }
+
+    fun selectSlotCount(slotCount: Int?) {
+        _state.update { it.copy(selectedSlotCount = slotCount, error = null) }
     }
 
     fun loadTemplates() = viewModelScope.launch {

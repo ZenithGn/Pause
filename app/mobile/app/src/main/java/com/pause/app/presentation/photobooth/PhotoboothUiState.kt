@@ -8,6 +8,7 @@ import com.pause.app.presentation.common.UiText
 data class PhotoboothUiState(
     val isLoadingTemplates: Boolean = true,
     val templates: List<PhotoboothTemplate> = emptyList(),
+    val selectedSlotCount: Int? = null,
     val selectedTemplate: PhotoboothTemplate? = null,
     val drawers: List<Drawer> = emptyList(),
     val selectedDrawerId: String? = null,
@@ -23,4 +24,6 @@ data class PhotoboothUiState(
 ) {
     val requiredSlots: Int get() = selectedTemplate?.slotCount ?: 0
     val canPreview: Boolean get() = requiredSlots > 0 && selectedPhotoIds.size == requiredSlots
+    val filteredTemplates: List<PhotoboothTemplate>
+        get() = selectedSlotCount?.let { count -> templates.filter { it.slotCount == count } } ?: templates
 }

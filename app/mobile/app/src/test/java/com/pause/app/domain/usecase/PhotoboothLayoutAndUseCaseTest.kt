@@ -2,6 +2,8 @@ package com.pause.app.domain.usecase
 
 import com.pause.app.domain.model.PhotoboothTemplate
 import com.pause.app.domain.model.ShippingInfo
+import com.pause.app.domain.model.TemplateLayout
+import com.pause.app.domain.model.captionColorHex
 import com.pause.app.domain.model.parseTemplateLayout
 import com.pause.app.testutil.FakeOrderRepository
 import com.pause.app.testutil.FakePhotoboothRenderer
@@ -44,6 +46,14 @@ class PhotoboothLayoutAndUseCaseTest {
     fun `invalid layout json returns null`() {
         assertNull(parseTemplateLayout("{not-json"))
         assertNull(parseTemplateLayout(null))
+    }
+
+    @Test
+    fun `caption color contrasts with dark and light backgrounds`() {
+        val darkNoText = TemplateLayout(backgroundColor = "#111111")
+        val lightNoText = TemplateLayout(backgroundColor = "#FDE8EF")
+        assertEquals("#FFFFFF", darkNoText.captionColorHex)
+        assertEquals("#111111", lightNoText.captionColorHex)
     }
 
     @Test

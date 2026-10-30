@@ -149,6 +149,9 @@ fun PauseNavGraph(
             PauseTab.PROFILE -> Routes.PROFILE
         }
         if (navController.currentDestination?.route != route) {
+            if (tab == PauseTab.PHOTOBOOTH) {
+                photoboothViewModel.start()
+            }
             navController.navigate(route) {
                 popUpTo(Routes.HOME) { inclusive = false }
                 launchSingleTop = true
@@ -251,6 +254,7 @@ fun PauseNavGraph(
                 TemplateListScreen(
                     state = photoboothState,
                     onBack = { navController.popBackStack() },
+                    onSlotCountSelected = photoboothViewModel::selectSlotCount,
                     onTemplateSelected = { templateId ->
                         photoboothViewModel.selectTemplate(templateId)
                         navController.navigate(Routes.PHOTOBOOTH_PHOTOS)

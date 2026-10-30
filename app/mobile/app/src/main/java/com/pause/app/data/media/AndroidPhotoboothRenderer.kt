@@ -10,6 +10,7 @@ import com.pause.app.domain.model.CAPTION_BOTTOM_OFFSET_PX
 import com.pause.app.domain.model.CAPTION_FONT_SIZE_PX
 import com.pause.app.domain.model.PhotoboothRenderer
 import com.pause.app.domain.model.PhotoboothTemplate
+import com.pause.app.domain.model.captionColorHex
 import com.pause.app.domain.model.effectiveLayout
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -73,7 +74,7 @@ class AndroidPhotoboothRenderer(
 
             // Edit Template screen caption (user editable, layout itself is fixed).
             if (!caption.isNullOrBlank()) {
-                textPaint.color = Color.BLACK
+                textPaint.color = parseColor(layout.captionColorHex, Color.BLACK)
                 textPaint.textSize = CAPTION_FONT_SIZE_PX
                 canvas.drawText(caption.take(40), layout.width / 2f, layout.height - CAPTION_BOTTOM_OFFSET_PX, textPaint)
             }

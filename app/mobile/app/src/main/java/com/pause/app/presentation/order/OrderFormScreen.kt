@@ -217,7 +217,7 @@ fun OrderFormScreen(
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            text = stringResource(R.string.order_format_currency, state.unitPriceVnd),
+                            text = stringResource(R.string.order_format_currency, state.effectiveUnitPriceVnd),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = PauseColors.Wine,
@@ -252,6 +252,49 @@ fun OrderFormScreen(
                         }
                     }
                 }
+            }
+
+            Spacer(Modifier.height(18.dp))
+
+            // --- Product Options: Cover Type & Paper Type ---
+            SectionHeader(title = stringResource(R.string.order_cover_section))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                ProductOptionChip(
+                    label = stringResource(R.string.order_cover_soft),
+                    selected = state.coverType == "soft",
+                    onClick = { onCoverTypeChange("soft") },
+                    modifier = Modifier.weight(1f),
+                )
+                ProductOptionChip(
+                    label = stringResource(R.string.order_cover_hard),
+                    selected = state.coverType == "hard",
+                    onClick = { onCoverTypeChange("hard") },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+
+            Spacer(Modifier.height(14.dp))
+
+            SectionHeader(title = stringResource(R.string.order_paper_section))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                ProductOptionChip(
+                    label = stringResource(R.string.order_paper_standard),
+                    selected = state.paperType == "standard",
+                    onClick = { onPaperTypeChange("standard") },
+                    modifier = Modifier.weight(1f),
+                )
+                ProductOptionChip(
+                    label = stringResource(R.string.order_paper_premium),
+                    selected = state.paperType == "premium",
+                    onClick = { onPaperTypeChange("premium") },
+                    modifier = Modifier.weight(1f),
+                )
             }
 
             Spacer(Modifier.height(18.dp))
@@ -432,6 +475,35 @@ private fun PriceRow(label: String, value: String, isBold: Boolean = false) {
             style = if (isBold) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyMedium,
             fontWeight = if (isBold) FontWeight.Bold else FontWeight.Medium,
             color = if (isBold) PauseColors.Wine else PauseColors.Ink,
+        )
+    }
+}
+
+@Composable
+private fun ProductOptionChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(if (selected) PauseColors.WineLight else PauseColors.Surface)
+            .border(
+                width = if (selected) 1.5.dp else 1.dp,
+                color = if (selected) PauseColors.Wine else PauseColors.Line,
+                shape = RoundedCornerShape(12.dp),
+            )
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 12.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+            color = if (selected) PauseColors.Wine else PauseColors.Ink,
         )
     }
 }

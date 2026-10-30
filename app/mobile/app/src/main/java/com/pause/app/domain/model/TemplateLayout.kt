@@ -55,6 +55,31 @@ fun fallbackTemplateLayout(slotCount: Int) = TemplateLayout(
 val PhotoboothTemplate.effectiveLayout: TemplateLayout
     get() = layoutConfig?.takeIf { it.slots.isNotEmpty() } ?: fallbackTemplateLayout(slotCount)
 
+/**
+ * Readable hex color for the user caption: uses the template's primary text color
+ * when defined, otherwise contrasts with [TemplateLayout.backgroundColor] luminance.
+ */
+val TemplateLayout.captionColorHex: String
+    get() {
+        val templateTextColor = texts.firstOrNull()?.color?.trim()
+        if (!templateTextColor.isNullOrBlank()) return templateTextColor
+        return if (isHexDark(backgroundColor)) "#FFFFFF" else "#111111"
+    }
+
+private fun isHexDark(hex: String): Boolean {
+    val clean = hex.trim().removePrefix("#")
+    val rgb = when (clean.length) {
+        6 -> clean.toLongOrNull(16)
+        8 -> clean.takeLast(6).toLongOrNull(16)
+        else -> null
+    } ?: return false
+    val r = (rgb shr 16) and 0xFF
+    val g = (rgb shr 8) and 0xFF
+    val b = rgb and 0xFF
+    val luminance = 0.299 * r + 0.587 * g + 0.114 * b
+    return luminance < 128.0
+}
+
 /** Font size / bottom offset (template px) of the user caption baked into the render. */
 const val CAPTION_FONT_SIZE_PX = 52f
 const val CAPTION_BOTTOM_OFFSET_PX = 60f

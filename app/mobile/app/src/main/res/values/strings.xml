@@ -249,6 +249,18 @@
     <string name="album_added_photos">%1$s vừa thêm %2$d ảnh mới</string>
 
     <!-- Photobooth (FR-03) -->
+    <string name="photobooth_category_title">Chọn khung Photobooth</string>
+    <string name="photobooth_category_subtitle">Chọn số lượng khung ảnh bạn muốn ghép để xem các mẫu thiết kế tương ứng.</string>
+    <string name="photobooth_category_slot_title">Khung %1$d ảnh</string>
+    <string name="photobooth_category_1_desc">Polaroid cổ điển · 1 khoảnh khắc</string>
+    <string name="photobooth_category_2_desc">Khung đôi cân đối · 2 khoảnh khắc</string>
+    <string name="photobooth_category_3_desc">Dải Photostrip · 3 khoảnh khắc</string>
+    <string name="photobooth_category_4_desc">Photobooth 4 khung · 4 khoảnh khắc</string>
+    <string name="photobooth_category_template_count">%1$d mẫu</string>
+    <string name="photobooth_category_view_templates">Xem mẫu →</string>
+    <string name="photobooth_templates_by_slot_title">Mẫu khung %1$d ảnh</string>
+    <string name="photobooth_templates_by_slot_subtitle">Chọn một mẫu thiết kế cho khung %1$d ảnh của bạn.</string>
+    <string name="photobooth_templates_by_slot_empty">Chưa có mẫu nào cho khung %1$d ảnh.</string>
     <string name="photobooth_templates_title">Chọn mẫu in</string>
     <string name="photobooth_templates_subtitle">Chọn một mẫu photobooth phù hợp với khoảnh khắc của bạn.</string>
     <string name="photobooth_templates_empty">Chưa có mẫu in nào. Vui lòng quay lại sau.</string>

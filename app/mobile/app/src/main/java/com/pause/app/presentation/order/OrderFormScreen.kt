@@ -75,9 +75,11 @@ fun OrderFormScreen(
     onNoteChange: (String) -> Unit,
     onCoverTypeChange: (String) -> Unit = {},
     onPaperTypeChange: (String) -> Unit = {},
+    onPromoCodeChange: (String) -> Unit = {},
     onIncrementQuantity: () -> Unit,
     onDecrementQuantity: () -> Unit,
     onSubmit: () -> Unit,
+    onSubmitWithPayment: ((isBankQr: Boolean) -> Unit)? = null,
 ) {
     var selectedPaymentMethod by remember { mutableStateOf(0) } // 0 = COD, 1 = Banking QR
     // Product options (Figma: Custom & Print).
@@ -124,7 +126,13 @@ fun OrderFormScreen(
                 Spacer(Modifier.height(10.dp))
 
                 Button(
-                    onClick = onSubmit,
+                    onClick = {
+                        if (onSubmitWithPayment != null) {
+                            onSubmitWithPayment(selectedPaymentMethod == 1)
+                        } else {
+                            onSubmit()
+                        }
+                    },
                     enabled = !state.isSubmitting,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -387,6 +395,55 @@ fun OrderFormScreen(
 
             Spacer(Modifier.height(18.dp))
 
+            // --- Promo Code / Voucher (Figma Screen 9: Check Out) ---
+            SectionHeader(title = "Mã ưu đãi / Voucher")
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(PauseColors.Surface)
+                    .border(1.dp, PauseColors.Line, RoundedCornerShape(14.dp))
+                    .padding(14.dp),
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    OutlinedTextField(
+                        value = state.promoCode,
+                        onValueChange = onPromoCodeChange,
+                        label = { Text("Nhập mã giảm giá hoặc Freeship") },
+                        placeholder = { Text("Ví dụ: FREESHIP hoặc PAUSE20") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        colors = outlinedFieldColors(),
+                        shape = RoundedCornerShape(10.dp),
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        ProductOptionChip(
+                            label = "FREESHIP (Miễn phí ship)",
+                            selected = state.promoCode.equals("FREESHIP", ignoreCase = true),
+                            onClick = {
+                                val next = if (state.promoCode.equals("FREESHIP", ignoreCase = true)) "" else "FREESHIP"
+                                onPromoCodeChange(next)
+                            },
+                            modifier = Modifier.weight(1f),
+                        )
+                        ProductOptionChip(
+                            label = "PAUSE20 (-20% in ấn)",
+                            selected = state.promoCode.equals("PAUSE20", ignoreCase = true),
+                            onClick = {
+                                val next = if (state.promoCode.equals("PAUSE20", ignoreCase = true)) "" else "PAUSE20"
+                                onPromoCodeChange(next)
+                            },
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(18.dp))
+
             // --- Price Breakdown ---
             Box(
                 modifier = Modifier
@@ -401,9 +458,19 @@ fun OrderFormScreen(
                         label = stringResource(R.string.order_subtotal),
                         value = stringResource(R.string.order_format_currency, state.totalPriceVnd),
                     )
+                    if (state.discountVnd > 0) {
+                        PriceRow(
+                            label = "Ưu đãi Voucher (${state.promoCode.uppercase()})",
+                            value = "-${stringResource(R.string.order_format_currency, state.discountVnd)}",
+                        )
+                    }
                     PriceRow(
                         label = stringResource(R.string.order_shipping_fee),
-                        value = stringResource(R.string.order_format_currency, state.shippingFeeVnd),
+                        value = if (state.shippingFeeVnd == 0) {
+                            "Miễn phí (0 đ)"
+                        } else {
+                            stringResource(R.string.order_format_currency, state.shippingFeeVnd)
+                        },
                     )
                     HorizontalDivider(color = PauseColors.Line, modifier = Modifier.padding(vertical = 4.dp))
                     PriceRow(

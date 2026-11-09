@@ -14,6 +14,8 @@ data class OrderFormUiState(
     val quantity: Int = 1,
     val coverType: String = "soft",
     val paperType: String = "standard",
+    val isPremiumUser: Boolean = false,
+    val promoCode: String = "",
     // Shipping fields
     val shippingName: String = "",
     val shippingPhone: String = "",
@@ -28,8 +30,16 @@ data class OrderFormUiState(
     val paperSurchargeVnd: Int get() = if (paperType == "premium") 10_000 else 0
     val effectiveUnitPriceVnd: Int get() = unitPriceVnd + coverSurchargeVnd + paperSurchargeVnd
     val totalPriceVnd: Int get() = effectiveUnitPriceVnd * quantity
-    val shippingFeeVnd: Int get() = 30_000
-    val grandTotalVnd: Int get() = totalPriceVnd + shippingFeeVnd
+    val isFreeShipping: Boolean
+        get() = isPremiumUser || promoCode.trim().equals("FREESHIP", ignoreCase = true)
+    val shippingFeeVnd: Int get() = if (isFreeShipping) 0 else 30_000
+    val discountVnd: Int
+        get() = when (promoCode.trim().uppercase()) {
+            "PAUSE20" -> (totalPriceVnd * 20) / 100
+            "PAUSE10" -> (totalPriceVnd * 10) / 100
+            else -> 0
+        }
+    val grandTotalVnd: Int get() = (totalPriceVnd - discountVnd + shippingFeeVnd).coerceAtLeast(0)
 
     val canSubmit: Boolean
         get() = shippingName.isNotBlank() &&

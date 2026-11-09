@@ -33,6 +33,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.WorkspacePremium
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -44,6 +47,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -88,8 +92,12 @@ fun TemplateListScreen(
     onBack: () -> Unit,
     onTemplateSelected: (String) -> Unit,
     onSlotCountSelected: (Int?) -> Unit = {},
+    isUserPremium: Boolean = false,
+    onRequireUpgrade: () -> Unit = {},
 ) {
     val selectedSlot = state.selectedSlotCount
+    var lockedTemplate by remember { mutableStateOf<PhotoboothTemplate?>(null) }
+
     BackHandler(enabled = selectedSlot != null) {
         onSlotCountSelected(null)
     }
@@ -145,11 +153,67 @@ fun TemplateListScreen(
                             )
                         }
                     } else {
-                        TemplateGrid(slotTemplates, onTemplateSelected)
+                        TemplateGrid(
+                            templates = slotTemplates,
+                            isUserPremium = isUserPremium,
+                            onTemplateSelected = { template ->
+                                if (template.isPremium && !isUserPremium) {
+                                    lockedTemplate = template
+                                } else {
+                                    onTemplateSelected(template.id)
+                                }
+                            },
+                        )
                     }
                 }
             }
         }
+    }
+
+    lockedTemplate?.let { tpl ->
+        AlertDialog(
+            onDismissRequest = { lockedTemplate = null },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.WorkspacePremium,
+                        contentDescription = null,
+                        tint = PauseColors.GoldAccent,
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = "Mẫu thiết kế Premium",
+                        fontWeight = FontWeight.Bold,
+                        color = PauseColors.Ink,
+                    )
+                }
+            },
+            text = {
+                Text(
+                    text = "Mẫu “${tpl.name}” thuộc bộ sưu tập độc quyền dành cho Hội viên Pause Premium. Nâng cấp ngay để mở khóa 100% mẫu in cao cấp, 15 Ngăn kéo Kỷ niệm (1 GB/tủ) và miễn phí vận chuyển!",
+                    color = PauseColors.Charcoal,
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        lockedTemplate = null
+                        onRequireUpgrade()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = PauseColors.Wine),
+                    shape = RoundedCornerShape(8.dp),
+                ) {
+                    Text("Nâng cấp ngay", color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { lockedTemplate = null }) {
+                    Text("Để sau", color = PauseColors.Muted)
+                }
+            },
+            containerColor = PauseColors.Surface,
+            shape = RoundedCornerShape(16.dp),
+        )
     }
 }
 
@@ -362,7 +426,11 @@ private fun SlotMiniBox(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun TemplateGrid(templates: List<PhotoboothTemplate>, onTemplateSelected: (String) -> Unit) {
+private fun TemplateGrid(
+    templates: List<PhotoboothTemplate>,
+    isUserPremium: Boolean,
+    onTemplateSelected: (PhotoboothTemplate) -> Unit,
+) {
     val distinctCategories = templates.map { it.category }.distinct()
     val categories = if (distinctCategories.size > 1) listOf("all") + distinctCategories else emptyList()
     var selectedCategory by remember(templates) { mutableStateOf("all") }
@@ -390,14 +458,22 @@ private fun TemplateGrid(templates: List<PhotoboothTemplate>, onTemplateSelected
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             items(visibleTemplates, key = { it.id }) { template ->
-                TemplateCard(template, onClick = { onTemplateSelected(template.id) })
+                TemplateCard(
+                    template = template,
+                    isLocked = template.isPremium && !isUserPremium,
+                    onClick = { onTemplateSelected(template) },
+                )
             }
         }
     }
 }
 
 @Composable
-private fun TemplateCard(template: PhotoboothTemplate, onClick: () -> Unit) {
+private fun TemplateCard(
+    template: PhotoboothTemplate,
+    isLocked: Boolean = false,
+    onClick: () -> Unit,
+) {
     val hasCustomPreviewUrl = template.previewPath.startsWith("http") && !template.previewPath.contains("placehold.co")
     Column(Modifier.clickable(onClick = onClick)) {
         Box(
@@ -435,16 +511,32 @@ private fun TemplateCard(template: PhotoboothTemplate, onClick: () -> Unit) {
                 }
             }
             if (template.isPremium) {
-                Text(
-                    text = stringResource(R.string.photobooth_premium),
+                Row(
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .padding(8.dp)
-                        .background(PauseColors.Wine, RoundedCornerShape(99.dp))
+                        .background(
+                            if (isLocked) PauseColors.Ink else PauseColors.GoldAccent,
+                            RoundedCornerShape(99.dp),
+                        )
                         .padding(horizontal = 8.dp, vertical = 3.dp),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = PauseColors.Surface,
-                )
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (isLocked) {
+                        Icon(
+                            imageVector = Icons.Default.Lock,
+                            contentDescription = null,
+                            tint = PauseColors.GoldAccent,
+                            modifier = Modifier.size(12.dp),
+                        )
+                        Spacer(Modifier.width(4.dp))
+                    }
+                    Text(
+                        text = stringResource(R.string.photobooth_premium),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = PauseColors.Surface,
+                    )
+                }
             }
         }
         Spacer(Modifier.height(8.dp))

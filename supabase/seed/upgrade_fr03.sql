@@ -127,10 +127,108 @@ exception when others then
     raise notice 'seed failed: %', sqlerrm;
 end $$;
 
--- 5) Reload PostgREST schema cache -----------------------------------------
+-- 5) RPC cho Nâng cấp Premium, Mua lẻ ngăn kéo (FR-04) & Tạo Thông báo (FR-07)
+create or replace function public.subscribe_membership(p_is_yearly boolean default false)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+    v_uid uuid := auth.uid();
+begin
+    if v_uid is null then
+        raise exception 'not authenticated';
+    end if;
+
+    perform set_config('request.jwt.claim.role', 'service_role', true);
+
+    update public.profiles
+    set max_drawers = greatest(coalesce(max_drawers, 3), 15),
+        updated_at = now()
+    where id = v_uid;
+
+    update public.drawers
+    set storage_limit_bytes = greatest(storage_limit_bytes, 1073741824)
+    where owner_id = v_uid;
+
+    insert into public.notifications (user_id, type, title, body)
+    values (
+        v_uid,
+        'membership',
+        'Kích hoạt Pause Premium thành công!',
+        case when p_is_yearly
+            then 'Gói Pause Premium 1 năm (15 ngăn kéo, 1 GB/tủ) đã được kích hoạt.'
+            else 'Gói Pause Premium 1 tháng (15 ngăn kéo, 1 GB/tủ) đã được kích hoạt.'
+        end
+    );
+end;
+$$;
+
+grant execute on function public.subscribe_membership(boolean) to authenticated;
+
+create or replace function public.purchase_extra_drawer()
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+    v_uid uuid := auth.uid();
+    v_new_max integer;
+begin
+    if v_uid is null then
+        raise exception 'not authenticated';
+    end if;
+
+    perform set_config('request.jwt.claim.role', 'service_role', true);
+
+    update public.profiles
+    set max_drawers = coalesce(max_drawers, 3) + 1,
+        updated_at = now()
+    where id = v_uid
+    returning max_drawers into v_new_max;
+
+    insert into public.notifications (user_id, type, title, body)
+    values (
+        v_uid,
+        'membership',
+        'Đã mở thêm +1 Ngăn kéo Kỷ niệm',
+        format('Hạn mức ngăn kéo của bạn đã tăng lên %s ngăn kéo.', coalesce(v_new_max, 4))
+    );
+end;
+$$;
+
+grant execute on function public.purchase_extra_drawer() to authenticated;
+
+create or replace function public.create_user_notification(
+    p_type text,
+    p_title text,
+    p_body text
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+    v_uid uuid := auth.uid();
+begin
+    if v_uid is null then
+        return;
+    end if;
+
+    insert into public.notifications (user_id, type, title, body)
+    values (v_uid, coalesce(p_type, 'system'), p_title, p_body);
+end;
+$$;
+
+grant execute on function public.create_user_notification(text, text, text) to authenticated;
+
+-- 6) Reload PostgREST schema cache -----------------------------------------
 notify pgrst, 'reload schema';
 
--- Kiểm tra: phải thấy 6 template, is_active = true
+-- Kiểm tra: phải thấy 12 template, is_active = true
 select name, category, slot_count, is_premium, is_active
 from public.photobooth_templates
-order by name;
+order by slot_count, name;

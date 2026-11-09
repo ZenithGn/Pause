@@ -58,6 +58,7 @@ import com.pause.app.presentation.theme.PlayfairDisplayFontFamily
 @Composable
 fun UpgradeScreen(
     isPremium: Boolean = false,
+    maxDrawers: Int = 3,
     onBack: () -> Unit,
     onUpgradeClick: ((isYearly: Boolean) -> Unit)? = null,
     onBuySingleDrawerClick: (() -> Unit)? = null,
@@ -141,6 +142,19 @@ fun UpgradeScreen(
                         style = MaterialTheme.typography.bodySmall,
                         color = Color(0xFFA1A1AA)
                     )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Surface(
+                        color = Color.White.copy(alpha = 0.12f),
+                        shape = RoundedCornerShape(10.dp),
+                    ) {
+                        Text(
+                            text = "Trạng thái hiện tại: ${if (isPremium) "Hội viên PREMIUM" else "Gói FREE"} • Tối đa $maxDrawers ngăn kéo",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (isPremium) PauseColors.GoldLight else Color.White,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        )
+                    }
                 }
             }
 

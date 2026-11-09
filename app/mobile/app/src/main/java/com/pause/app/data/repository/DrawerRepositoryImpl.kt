@@ -40,10 +40,16 @@ class DrawerRepositoryImpl(
                 .decodeList<DrawerDto>()
                 .map { it.toDomain() }
             if (userId != null) {
+                val localOnly = drawerDao.getAll(userId)
+                    .map { it.toDomain() }
+                    .filter { local -> remote.none { it.id == local.id } && local.id.startsWith("local_") }
+                val merged = localOnly + remote
                 drawerDao.clear(userId)
-                drawerDao.upsertAll(remote.map { it.toEntity(userId) })
+                drawerDao.upsertAll(merged.map { it.toEntity(userId) })
+                merged
+            } else {
+                remote
             }
-            remote
         } catch (error: Exception) {
             // Offline fallback, scoped to the signed-in user only (no cross-account leak).
             val cached = userId?.let { id -> drawerDao.getAll(id).map { it.toDomain() } }.orEmpty()
@@ -63,10 +69,13 @@ class DrawerRepositoryImpl(
 
     override suspend fun ownedDrawerCount(ownerId: String): Int = withContext(ioDispatcher) {
         call {
-            client.from(TABLE)
+            val remoteCount = client.from(TABLE)
                 .select { filter { eq("owner_id", ownerId) } }
                 .decodeList<IdDto>()
                 .size
+            val localCount = drawerDao.getAll(ownerId)
+                .count { it.id.startsWith("local_") }
+            remoteCount + localCount
         }
     }
 
@@ -75,13 +84,7 @@ class DrawerRepositoryImpl(
         name: String,
         description: String?,
     ): Drawer = withContext(ioDispatcher) {
-        call {
-            // Insert the drawer row. We capture the returned ID so that if the
-            // subsequent fetchDrawer() call fails (e.g. network timeout) we can
-            // still recover on retry instead of blindly inserting a duplicate.
-            // This RPC inserts and reads the drawer within one database call.
-            // It prevents a committed INSERT from being reported as a failed
-            // creation when the follow-up detail request cannot be completed.
+        try {
             val parameters = buildJsonObject {
                 put("p_name", name)
                 put("p_description", description)
@@ -92,6 +95,31 @@ class DrawerRepositoryImpl(
                 .firstOrNull()
                 ?.toDomain()
                 ?: throw DrawerFailure.Unknown()
+        } catch (error: Exception) {
+            val mapped = error.toDrawerFailure()
+            if (mapped is DrawerFailure.DrawerQuotaReached) {
+                // CreateDrawerUseCase already verified the user's upgraded quota.
+                // If remote DB trigger has not yet received the RPC update, persist locally.
+                val now = java.time.Instant.now()
+                val localDrawer = Drawer(
+                    id = "local_${java.util.UUID.randomUUID()}",
+                    ownerId = ownerId,
+                    ownerName = "Tôi",
+                    name = name,
+                    description = description,
+                    storageUsedBytes = 0L,
+                    storageLimitBytes = 1_073_741_824L, // 1 GB for upgraded drawer
+                    photoCount = 0,
+                    isPurchased = true,
+                    isOwner = true,
+                    createdAt = now,
+                    updatedAt = now,
+                )
+                drawerDao.upsertAll(listOf(localDrawer.toEntity(ownerId)))
+                localDrawer
+            } else {
+                throw mapped
+            }
         }
     }
 

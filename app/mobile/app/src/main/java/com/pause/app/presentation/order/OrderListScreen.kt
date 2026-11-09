@@ -24,9 +24,11 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -60,6 +62,7 @@ fun OrderListScreen(
     onBack: () -> Unit,
     onFilterSelected: (OrderFilter) -> Unit,
     onOrderClick: (orderId: String) -> Unit,
+    onReorderClick: (PrintOrder) -> Unit = {},
     onRefresh: () -> Unit,
 ) {
     LaunchedEffect(Unit) {
@@ -144,7 +147,11 @@ fun OrderListScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         items(state.filteredOrders, key = { it.id }) { order ->
-                            OrderCard(order = order, onClick = { onOrderClick(order.id) })
+                            OrderCard(
+                                order = order,
+                                onClick = { onOrderClick(order.id) },
+                                onReorderClick = { onReorderClick(order) },
+                            )
                         }
                     }
                 }
@@ -157,6 +164,7 @@ fun OrderListScreen(
 private fun OrderCard(
     order: PrintOrder,
     onClick: () -> Unit,
+    onReorderClick: () -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -233,11 +241,19 @@ private fun OrderCard(
                     )
                 }
 
-                Icon(
-                    imageVector = Icons.Filled.ChevronRight,
-                    contentDescription = null,
-                    tint = PauseColors.Muted,
-                )
+                OutlinedButton(
+                    onClick = onReorderClick,
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                    modifier = Modifier.height(34.dp),
+                ) {
+                    Text(
+                        text = "Đặt lại",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = PauseColors.Wine,
+                    )
+                }
             }
         }
     }

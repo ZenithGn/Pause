@@ -21,10 +21,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -38,6 +40,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pause.app.R
 import com.pause.app.domain.model.Drawer
+import com.pause.app.domain.model.PrintOrder
 import com.pause.app.presentation.common.components.PauseBottomBar
 import com.pause.app.presentation.common.components.PauseTab
 import com.pause.app.presentation.theme.PauseColors
@@ -68,13 +75,29 @@ fun HomeScreen(
     recentDrawers: List<Drawer>,
     hasError: Boolean,
     pendingInvitationCount: Int,
+    unreadNotificationCount: Int = 0,
     onOpenInvitations: () -> Unit,
+    onOpenNotifications: () -> Unit = onOpenInvitations,
     onCreateDrawer: () -> Unit,
     onOpenDrawer: (Drawer) -> Unit,
     onStartPhotobooth: () -> Unit,
+    onStartPhotoboothWithSlot: (Int?) -> Unit = { onStartPhotobooth() },
+    recentOrders: List<PrintOrder> = emptyList(),
     onViewOrders: () -> Unit = {},
+    onOrderClick: (String) -> Unit = { onViewOrders() },
     onNavigate: (PauseTab) -> Unit,
 ) {
+    var searchQuery by remember { mutableStateOf("") }
+    val filteredDrawers = remember(recentDrawers, searchQuery) {
+        if (searchQuery.isBlank()) {
+            recentDrawers
+        } else {
+            val q = searchQuery.trim().lowercase()
+            recentDrawers.filter {
+                it.name.lowercase().contains(q) || (it.description?.lowercase()?.contains(q) == true)
+            }
+        }
+    }
     Scaffold(
         containerColor = PauseColors.Paper,
         bottomBar = {
@@ -144,7 +167,7 @@ fun HomeScreen(
                 }
 
                 IconButton(
-                    onClick = onOpenInvitations,
+                    onClick = onOpenNotifications,
                     modifier = Modifier
                         .size(42.dp)
                         .clip(CircleShape)
@@ -158,7 +181,7 @@ fun HomeScreen(
                             tint = PauseColors.Ink,
                             modifier = Modifier.size(20.dp),
                         )
-                        if (pendingInvitationCount > 0) {
+                        if (pendingInvitationCount > 0 || unreadNotificationCount > 0) {
                             Box(
                                 modifier = Modifier
                                     .size(8.dp)
@@ -189,11 +212,32 @@ fun HomeScreen(
                         modifier = Modifier.size(20.dp),
                     )
                     Spacer(modifier = Modifier.width(10.dp))
-                    Text(
-                        text = stringResource(R.string.home_search_placeholder),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = PauseColors.Muted,
-                    )
+                    Box(modifier = Modifier.weight(1f)) {
+                        if (searchQuery.isEmpty()) {
+                            Text(
+                                text = stringResource(R.string.home_search_placeholder),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = PauseColors.Muted,
+                            )
+                        }
+                        BasicTextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            singleLine = true,
+                            textStyle = MaterialTheme.typography.bodyMedium.copy(color = PauseColors.Ink),
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                    if (searchQuery.isNotEmpty()) {
+                        Icon(
+                            imageVector = Icons.Filled.Close,
+                            contentDescription = null,
+                            tint = PauseColors.Muted,
+                            modifier = Modifier
+                                .size(18.dp)
+                                .clickable { searchQuery = "" },
+                        )
+                    }
                 }
             }
 
@@ -365,7 +409,7 @@ fun HomeScreen(
             }
             Spacer(modifier = Modifier.height(10.dp))
             MemoryDrawerRow(
-                drawers = recentDrawers,
+                drawers = filteredDrawers,
                 hasError = hasError,
                 onOpenDrawer = onOpenDrawer,
                 onCreateDrawer = onCreateDrawer,
@@ -388,7 +432,7 @@ fun HomeScreen(
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    text = stringResource(R.string.home_products_count, 4),
+                    text = stringResource(R.string.home_products_count, 3),
                     style = MaterialTheme.typography.bodyMedium,
                     color = PauseColors.Muted,
                 )
@@ -402,21 +446,21 @@ fun HomeScreen(
                     ProductCard(
                         name = stringResource(R.string.home_product_polaroid),
                         price = stringResource(R.string.home_product_polaroid_price),
-                        onClick = {},
+                        onClick = { onStartPhotoboothWithSlot(1) },
                     )
                 }
                 item {
                     ProductCard(
                         name = stringResource(R.string.home_product_photostrip),
                         price = stringResource(R.string.home_product_photostrip_price),
-                        onClick = {},
+                        onClick = { onStartPhotoboothWithSlot(3) },
                     )
                 }
                 item {
                     ProductCard(
                         name = stringResource(R.string.home_product_photobook),
                         price = stringResource(R.string.home_product_photobook_price),
-                        onClick = {},
+                        onClick = { onStartPhotoboothWithSlot(4) },
                     )
                 }
             }
@@ -447,8 +491,22 @@ fun HomeScreen(
             }
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Sample order card placeholder
-            OrderCardPlaceholder(modifier = Modifier.padding(horizontal = 20.dp))
+            if (recentOrders.isNotEmpty()) {
+                val latest = recentOrders.first()
+                OrderCardPlaceholder(
+                    orderCode = "#${latest.id.takeLast(8).uppercase()}",
+                    statusLabel = latest.status.label,
+                    title = "${latest.templateName ?: "Photobooth Strip"} (${latest.quantity} bản)",
+                    priceText = stringResource(R.string.order_format_currency, latest.totalPriceVnd),
+                    onClick = { onOrderClick(latest.id) },
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                )
+            } else {
+                OrderCardPlaceholder(
+                    onClick = onViewOrders,
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
         }
@@ -590,11 +648,20 @@ private fun ProductCard(
     }
 }
 
-/** Recent order card placeholder matching the Figma design. */
+/** Recent order card matching the Figma design. */
 @Composable
-private fun OrderCardPlaceholder(modifier: Modifier = Modifier) {
+private fun OrderCardPlaceholder(
+    orderCode: String = "#NK-8429",
+    statusLabel: String = "Đang in",
+    title: String = "Bộ ảnh Polaroids Hoài Niệm (12 ảnh)",
+    priceText: String = "190.000đ",
+    onClick: () -> Unit = {},
+    modifier: Modifier = Modifier,
+) {
     Surface(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         color = PauseColors.Surface,
     ) {
@@ -614,7 +681,7 @@ private fun OrderCardPlaceholder(modifier: Modifier = Modifier) {
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "#NK-8429",
+                        text = orderCode,
                         style = MaterialTheme.typography.bodyMedium,
                         color = PauseColors.Ink,
                         fontWeight = FontWeight.SemiBold,
@@ -627,7 +694,7 @@ private fun OrderCardPlaceholder(modifier: Modifier = Modifier) {
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "Đang in",
+                        text = statusLabel,
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color(0xFF4CAF50),
                         fontSize = 12.sp,
@@ -635,7 +702,7 @@ private fun OrderCardPlaceholder(modifier: Modifier = Modifier) {
                 }
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = "Bộ ảnh Polaroids Hoài Niệm (12 ảnh)",
+                    text = title,
                     style = MaterialTheme.typography.bodyMedium,
                     color = PauseColors.Muted,
                     maxLines = 1,
@@ -643,7 +710,7 @@ private fun OrderCardPlaceholder(modifier: Modifier = Modifier) {
                     fontSize = 13.sp,
                 )
                 Text(
-                    text = "Hôm nay, 10:25",
+                    text = "Nhấn để xem chi tiết đơn in",
                     style = MaterialTheme.typography.bodyMedium,
                     color = PauseColors.Muted,
                     fontSize = 11.sp,
@@ -651,7 +718,7 @@ private fun OrderCardPlaceholder(modifier: Modifier = Modifier) {
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "190.000đ",
+                    text = priceText,
                     style = MaterialTheme.typography.bodyMedium,
                     color = PauseColors.Ink,
                     fontWeight = FontWeight.SemiBold,

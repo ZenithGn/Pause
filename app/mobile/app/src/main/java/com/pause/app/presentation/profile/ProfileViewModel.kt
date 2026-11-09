@@ -35,8 +35,8 @@ class ProfileViewModel(
 
     private var userId: String? = null
 
-    fun load() {
-        if (_state.value.profile != null && !_state.value.isLoading) return
+    fun load(force: Boolean = false) {
+        if (!force && _state.value.profile != null && !_state.value.isLoading) return
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, formError = null, signedOut = false) }
             val session = getCurrentSessionUseCase()
@@ -48,6 +48,42 @@ class ProfileViewModel(
             getProfileUseCase(session.user.id)
                 .onSuccess { profile -> applyProfile(profile) }
                 .onFailure(::applyFailure)
+        }
+    }
+
+    /** FR-04.1 / FR-04.2 – activates Pause Premium membership (15 drawers). */
+    fun upgradeToPremium(isYearly: Boolean, onSuccess: (UserProfile) -> Unit = {}) {
+        viewModelScope.launch {
+            val id = userId ?: getCurrentSessionUseCase()?.user?.id ?: return@launch
+            userId = id
+            _state.update { it.copy(isSaving = true, formError = null) }
+            runCatching {
+                profileRepository.upgradeMembership(id, isYearly)
+            }.onSuccess { updated ->
+                applyProfile(updated)
+                onSuccess(updated)
+            }.onFailure { failure ->
+                _state.update { it.copy(isSaving = false) }
+                applyFailure(failure)
+            }
+        }
+    }
+
+    /** FR-04.3 – purchases +1 permanent extra drawer (29,000 VND). */
+    fun purchaseSingleDrawer(onSuccess: (UserProfile) -> Unit = {}) {
+        viewModelScope.launch {
+            val id = userId ?: getCurrentSessionUseCase()?.user?.id ?: return@launch
+            userId = id
+            _state.update { it.copy(isSaving = true, formError = null) }
+            runCatching {
+                profileRepository.purchaseExtraDrawer(id)
+            }.onSuccess { updated ->
+                applyProfile(updated)
+                onSuccess(updated)
+            }.onFailure { failure ->
+                _state.update { it.copy(isSaving = false) }
+                applyFailure(failure)
+            }
         }
     }
 

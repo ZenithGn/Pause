@@ -38,6 +38,7 @@ class OrderViewModel(
         previewUrl: String? = null,
         slotCount: Int = 4,
         unitPriceVnd: Int = 25_000,
+        isPremiumUser: Boolean = false,
     ) {
         _formState.update {
             it.copy(
@@ -46,12 +47,18 @@ class OrderViewModel(
                 previewUrl = previewUrl,
                 slotCount = slotCount,
                 unitPriceVnd = unitPriceVnd,
+                isPremiumUser = isPremiumUser,
+                promoCode = if (isPremiumUser && it.promoCode.isBlank()) "PAUSE20" else it.promoCode,
                 quantity = 1,
                 error = null,
                 createdOrder = null,
                 isSubmitting = false,
             )
         }
+    }
+
+    fun onPromoCodeChanged(code: String) {
+        _formState.update { it.copy(promoCode = code) }
     }
 
     fun onShippingNameChanged(name: String) {

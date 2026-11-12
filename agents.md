@@ -9,8 +9,9 @@
 
 **Pause** là ứng dụng kết hợp **lưu trữ kỷ niệm số** và **in ấn photobooth theo yêu cầu (print-on-demand)**.
 
-- Người dùng tạo "Ngăn kéo Kỷ niệm" để lưu ảnh → chia sẻ với bạn bè → chọn template photobooth → fill ảnh → đặt in
-- Mô hình Freemium: Free (3 ngăn kéo × 256 MB) + Gói hội viên trả phí + Doanh thu in ấn
+- Người dùng tạo "Ngăn kéo" để lưu ảnh → chia sẻ với bạn bè → chọn template photobooth → fill ảnh → đặt in
+- Mô hình Freemium: Free (3 ngăn kéo, tối đa 50 ảnh / ngăn kéo) + Gói hội viên trả phí (PAUSE Go, Plus, Premium) + Doanh thu in ấn
+- Thanh toán: **VietQR Pro / PayOS** (App-to-App Open Banking với auto-detection khi quay lại app) & COD in ấn
 
 ---
 
@@ -65,7 +66,7 @@ Pause/
   - `domain/` → Use Cases + Repository interfaces + Domain models
   - `data/` → Repository implementations + DTOs + Supabase SDK calls
 - UI: **Jetpack Compose** (không dùng XML layouts)
-- DI: **Hilt** (ưu tiên) hoặc Koin
+- DI: **Koin** (dự án Mobile đang sử dụng Koin)
 - Image loading: **Coil**
 - Navigation: **Compose Navigation**
 - Naming: PascalCase cho classes/files, camelCase cho functions/variables
@@ -126,4 +127,4 @@ Theo thứ tự ưu tiên:
 - **Supabase là backend duy nhất**. Không tạo backend riêng (Express, NestJS...).
 - Khi thêm bảng mới → cập nhật `db-schema.md`.
 - Khi thêm FR mới → cập nhật `01-fr.md`.
-- Giới hạn storage: **256 MB / ngăn kéo (free tier), 3 ngăn kéo / user**. Logic này phải enforce ở cả client và server. Chi tiết: `docs/03-References/storage-strategy.md`.
+- Giới hạn storage: **Tối đa 50 ảnh / ngăn kéo (free tier), 3 ngăn kéo / user**. Gói hội viên mở rộng dung lượng đám mây (5GB – 20GB/năm) và mở khóa toàn bộ VIP Templates. Chi tiết: `docs/03-References/storage-strategy.md`.

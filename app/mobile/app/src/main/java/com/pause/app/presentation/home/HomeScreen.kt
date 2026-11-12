@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -48,12 +49,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.pause.app.R
 import com.pause.app.domain.model.Drawer
 import com.pause.app.domain.model.PrintOrder
@@ -540,14 +543,42 @@ private fun MemoryDrawerRow(
                 Box(
                     modifier = Modifier
                         .size(56.dp)
-                        .background(PauseColors.CategoryBg, RoundedCornerShape(16.dp)),
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(if (drawer.isOwner) PauseColors.CategoryBg else PauseColors.WineLight),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(
-                        text = drawer.name.trim().firstOrNull()?.uppercase() ?: "P",
-                        fontWeight = FontWeight.Bold,
-                        color = PauseColors.Wine,
-                    )
+                    if (!drawer.coverPhotoPath.isNullOrBlank()) {
+                        AsyncImage(
+                            model = drawer.coverPhotoPath,
+                            contentDescription = drawer.name,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    } else {
+                        Text(
+                            text = drawer.name.trim().firstOrNull()?.uppercase() ?: "P",
+                            fontWeight = FontWeight.Bold,
+                            color = PauseColors.Wine,
+                        )
+                    }
+                    if (!drawer.isOwner) {
+                        Surface(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(2.dp),
+                            shape = CircleShape,
+                            color = PauseColors.Wine,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Group,
+                                contentDescription = "Chia sẻ",
+                                tint = Color.White,
+                                modifier = Modifier
+                                    .size(14.dp)
+                                    .padding(2.dp),
+                            )
+                        }
+                    }
                 }
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
@@ -559,10 +590,16 @@ private fun MemoryDrawerRow(
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    text = stringResource(R.string.drawers_photo_count, drawer.photoCount),
+                    text = if (drawer.isOwner) {
+                        stringResource(R.string.drawers_photo_count, drawer.photoCount)
+                    } else {
+                        "Chia sẻ • ${drawer.photoCount}"
+                    },
                     style = MaterialTheme.typography.bodyMedium,
-                    color = PauseColors.Muted,
+                    color = if (drawer.isOwner) PauseColors.Muted else PauseColors.Wine,
                     fontSize = 10.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }

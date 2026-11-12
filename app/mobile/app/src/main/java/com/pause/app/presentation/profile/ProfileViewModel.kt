@@ -51,14 +51,18 @@ class ProfileViewModel(
         }
     }
 
-    /** FR-04.1 / FR-04.2 – activates Pause Premium membership (15 drawers). */
-    fun upgradeToPremium(isYearly: Boolean, onSuccess: (UserProfile) -> Unit = {}) {
+    /** FR-04.1 / FR-04.2 – activates Pause membership (PAUSE Go, Plus, Premium). */
+    fun upgradeToPremium(
+        isYearly: Boolean = true,
+        planType: String? = null,
+        onSuccess: (UserProfile) -> Unit = {},
+    ) {
         viewModelScope.launch {
             val id = userId ?: getCurrentSessionUseCase()?.user?.id ?: return@launch
             userId = id
             _state.update { it.copy(isSaving = true, formError = null) }
             runCatching {
-                profileRepository.upgradeMembership(id, isYearly)
+                profileRepository.upgradeMembership(id, isYearly, planType)
             }.onSuccess { updated ->
                 applyProfile(updated)
                 onSuccess(updated)

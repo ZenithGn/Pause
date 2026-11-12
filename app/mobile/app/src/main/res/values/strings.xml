@@ -96,7 +96,7 @@
     <string name="profile_support">Hỗ trợ</string>
     <string name="profile_logout">Đăng xuất</string>
     <string name="profile_logout_confirm_title">Đăng xuất?</string>
-    <string name="profile_logout_confirm_message">Bạn sẽ cần đăng nhập lại để xem ngăn kéo kỷ niệm.</string>
+    <string name="profile_logout_confirm_message">Bạn sẽ cần đăng nhập lại để xem ngăn kéo.</string>
     <string name="profile_updated">Đã cập nhật hồ sơ</string>
     <string name="profile_coming_soon">Tính năng sẽ có ở module tiếp theo</string>
 
@@ -107,13 +107,13 @@
     <string name="home_drawers_section">Tủ kỷ niệm (Memory Drawers)</string>
     <string name="home_create_drawer">Tạo tủ mới</string>
     <string name="home_quick_photobooth">Photobooth nhanh</string>
-    <string name="home_drawers_placeholder">Ngăn kéo kỷ niệm sẽ xuất hiện ở đây (FR-02)</string>
+    <string name="home_drawers_placeholder">Ngăn kéo sẽ xuất hiện ở đây (FR-02)</string>
 
     <!-- Bottom navigation -->
-    <string name="tab_home">Home</string>
-    <string name="tab_photobooth">PhotoBooth</string>
-    <string name="tab_memories">Memories</string>
-    <string name="tab_profile">Profile</string>
+    <string name="tab_home">Trang chủ</string>
+    <string name="tab_photobooth">Sản phẩm in</string>
+    <string name="tab_memories">Ngăn kéo</string>
+    <string name="tab_profile">Tôi</string>
 
     <!-- Drawers (FR-02) -->
     <string name="drawers_title">Tủ kỷ niệm</string>
@@ -130,9 +130,12 @@
     <string name="drawers_storage_usage">%1$s / %2$s</string>
     <string name="drawers_storage_remaining">Còn %1$s</string>
     <string name="drawers_quota_title">Đã đạt giới hạn ngăn kéo</string>
-    <string name="drawers_quota_message">Bạn đã dùng hết %1$d ngăn kéo miễn phí. Nâng cấp hội viên hoặc mua lẻ để mở thêm.</string>
+    <string name="drawers_quota_message">Bạn đã dùng hết %1$d ngăn kéo miễn phí. Nâng cấp hội viên để mở thêm ngăn kéo và dung lượng.</string>
     <string name="drawers_quota_action">Nâng cấp gói</string>
     <string name="drawers_retry">Thử lại</string>
+    <string name="drawer_set_cover">Đặt làm ảnh bìa</string>
+    <string name="drawer_cover_badge">Bìa</string>
+    <string name="drawer_cover_updated">Đã đặt làm ảnh bìa ngăn kéo</string>
 
     <!-- Create / edit drawer -->
     <string name="drawer_create_title">Ngăn kéo mới</string>
@@ -194,7 +197,7 @@
     <string name="error_drawer_not_owner">Chỉ chủ sở hữu mới được làm việc này</string>
     <string name="error_drawer_read_only">Bạn chỉ có quyền xem ngăn kéo này</string>
     <string name="error_drawer_quota_reached">Bạn đã đạt giới hạn %1$d ngăn kéo</string>
-    <string name="error_drawer_storage_full">Ngăn kéo đã đầy dung lượng. Xoá bớt ảnh hoặc nâng cấp gói.</string>
+    <string name="error_drawer_storage_full">Ngăn kéo đã đạt giới hạn tối đa 50 ảnh. Vui lòng xoá bớt ảnh để thêm ảnh mới.</string>
     <string name="error_photo_format">Định dạng ảnh không hỗ trợ</string>
     <string name="error_photo_too_large">Ảnh quá lớn sau khi nén (tối đa 5 MB)</string>
     <string name="error_photo_url">Đã lưu ảnh nhưng không tạo được link xem ảnh. Kiểm tra bucket/policy của Storage (photos, thumbnails).</string>
@@ -224,7 +227,7 @@
     <string name="home_banner_title">BIẾN ẢNH THÀNH\nPHOTOBOOTH</string>
     <string name="home_banner_desc">Lưu giữ khoảnh khắc thanh xuân với dải photobooth 3-4 khung hình cổ điển, giấy in chất lượng cao sắc nét bền màu.</string>
     <string name="home_banner_cta">Bắt đầu in →</string>
-    <string name="home_drawers_title">Ngăn kéo kỷ niệm</string>
+    <string name="home_drawers_title">Ngăn kéo</string>
     <string name="home_drawers_see_all">Xem tất cả</string>
     <string name="home_category_birthday">sinh nhật</string>
     <string name="home_category_family">gia đình</string>
@@ -242,7 +245,7 @@
     <string name="home_orders_see_all">Xem tất cả</string>
 
     <!-- Album / Memories – redesigned (Figma) -->
-    <string name="album_create_new">+ Tạo ngăn kéo kỷ niệm mới</string>
+    <string name="album_create_new">+ Tạo ngăn kéo mới</string>
     <string name="album_shared_title">Album chia sẻ</string>
     <string name="album_shared_count">%1$d nhóm</string>
     <string name="album_updated_ago">Cập nhật %1$s trước</string>

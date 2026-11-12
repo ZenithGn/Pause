@@ -81,14 +81,22 @@ class ProfileRepositoryImpl(
         }
     }
 
-    override suspend fun upgradeMembership(userId: String, isYearly: Boolean): UserProfile =
+    override suspend fun upgradeMembership(userId: String, isYearly: Boolean, planType: String?): UserProfile =
         withContext(ioDispatcher) {
             val current = getProfile(userId)
-            val targetMaxDrawers = maxOf(current.maxDrawers, 15)
+            val targetMaxDrawers = when (planType) {
+                "pause_go" -> 10
+                "pause_plus" -> 25
+                "pause_premium" -> 50
+                else -> maxOf(current.maxDrawers, 15)
+            }
             saveMaxDrawers(userId, targetMaxDrawers)
 
             runCatching {
-                val params = buildJsonObject { put("p_is_yearly", isYearly) }
+                val params = buildJsonObject {
+                    put("p_is_yearly", isYearly)
+                    planType?.let { put("p_plan_type", it) }
+                }
                 client.postgrest.rpc("subscribe_membership", params)
             }
 

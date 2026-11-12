@@ -60,16 +60,17 @@ Supabase Storage **vẫn dùng** cho:
 
 ---
 
-## 3. Quota (giữ nguyên nghiệp vụ)
+## 3. Quota (Quy định mới)
 
-| Loại ngăn kéo | Dung lượng | Ghi chú |
-|---|---|---|
-| **Free** (3 ngăn kéo) | **256 MB / ngăn kéo** | Tổng 768 MB |
-| **Mua lẻ** | 256 MB / ngăn kéo | Vĩnh viễn |
-| **Hội viên** (FR-04) | 1 GB / ngăn kéo | Cap account dự kiến 10 GB |
+| Loại gói | Giới hạn ngăn kéo | Giới hạn lưu trữ | Quyền lợi Photobooth | Giá |
+|---|---|---|---|---|
+| **Free** (Mặc định) | 3 ngăn kéo | **Tối đa 50 ảnh / ngăn kéo** | Template cơ bản | Miễn phí |
+| **PAUSE Go** | 10 ngăn kéo | **5 GB / năm** | Mở khóa toàn bộ VIP Templates | 30.000 VNĐ / năm |
+| **PAUSE Plus** | 25 ngăn kéo | **10 GB / năm** | Mở khóa toàn bộ VIP Templates | 55.000 VNĐ / năm |
+| **PAUSE Premium** | 50 ngăn kéo | **20 GB / năm** | Mở khóa toàn bộ VIP Templates + ưu đãi in | 100.000 VNĐ / năm |
 
-- Quota tính trên **dung lượng ảnh sau nén** (`photos.file_size_bytes`), **không**
-  phụ thuộc nhà cung cấp lưu trữ → đổi Cloudinary hay Supabase đều không đổi nghiệp vụ.
+- Bỏ cơ chế mua lẻ ngăn kéo rời, tập trung vào mô hình gói hội viên năm linh hoạt.
+- Quota ảnh ngăn kéo Free: giới hạn tối đa 50 ảnh/ngăn kéo được kiểm tra trực tiếp ở cả client và DB trigger.
 - Enforce **2 lớp**: client chặn trước khi upload (UX) + trigger Postgres
   `enforce_photo_quota` là nguồn sự thật (transactional, chống vượt quota).
 

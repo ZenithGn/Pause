@@ -45,8 +45,7 @@ fun DrawerCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val fraction = if (drawer.storageLimitBytes <= 0) 0f
-    else (drawer.storageUsedBytes.toFloat() / drawer.storageLimitBytes.toFloat()).coerceIn(0f, 1f)
+    val fraction = (drawer.photoCount.toFloat() / 50f).coerceIn(0f, 1f)
 
     Surface(
         modifier = modifier
@@ -124,7 +123,7 @@ fun DrawerCard(
 
                 Text(
                     text = if (drawer.isOwner) {
-                        "Supabase Sync • ${drawer.photoCount} ảnh"
+                        "${drawer.photoCount} ảnh"
                     } else {
                         "Được chia sẻ bởi ${drawer.ownerName} • ${drawer.photoCount} ảnh"
                     },
@@ -154,17 +153,53 @@ fun DrawerCard(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "${StorageFormat.bytes(drawer.storageUsedBytes)} / ${StorageFormat.bytes(drawer.storageLimitBytes)}",
+                        text = "${drawer.photoCount} / 50 ảnh",
                         style = MaterialTheme.typography.labelSmall,
                         color = PauseColors.Muted,
                     )
                     Text(
-                        text = "256 MB",
+                        text = if (drawer.photoCount >= 50) "Đầy (50/50)" else "Còn ${50 - drawer.photoCount} ảnh",
                         style = MaterialTheme.typography.labelSmall,
                         color = PauseColors.Muted,
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun StorageIndicator(
+    photoCount: Int,
+    maxPhotos: Int = 50,
+    modifier: Modifier = Modifier,
+) {
+    val fraction = if (maxPhotos <= 0) 0f
+    else (photoCount.toFloat() / maxPhotos.toFloat()).coerceIn(0f, 1f)
+    Column(modifier = modifier.fillMaxWidth()) {
+        LinearProgressIndicator(
+            progress = { fraction },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(6.dp),
+            color = if (fraction > 0.9f) PauseColors.Error else PauseColors.Wine,
+            trackColor = PauseColors.Line
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = "$photoCount / $maxPhotos ảnh",
+                style = MaterialTheme.typography.bodyMedium,
+                color = PauseColors.Muted,
+            )
+            Text(
+                text = if (photoCount >= maxPhotos) "Đã đầy" else "Còn ${maxPhotos - photoCount} ảnh",
+                style = MaterialTheme.typography.bodyMedium,
+                color = PauseColors.Muted,
+            )
         }
     }
 }

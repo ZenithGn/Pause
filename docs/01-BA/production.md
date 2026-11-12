@@ -48,9 +48,11 @@ Pause là ứng dụng mobile giúp người dùng **lưu trữ ảnh kỷ niệ
 - Quy trình 3 bước: Chọn mẫu → Chọn ảnh → Đặt in
 
 ### Gói Hội viên linh hoạt
-- Free: 3 ngăn kéo × 256 MB (~768 MB) – đủ dùng cơ bản
-- Hội viên: Thêm ngăn kéo, template premium, dung lượng lớn hơn
-- Mua lẻ: Chỉ cần thêm 1 ngăn kéo? Mua riêng, giữ vĩnh viễn
+- Free: 3 ngăn kéo, tối đa 50 ảnh / ngăn kéo – đủ dùng lưu giữ kỷ niệm cơ bản
+- Gói Hội viên nâng cấp:
+  - **PAUSE Go** (5GB/năm – 30.000 VNĐ/năm): 10 ngăn kéo, toàn quyền dùng kho VIP Templates
+  - **PAUSE Plus** (10GB/năm – 55.000 VNĐ/năm): 25 ngăn kéo, kho VIP Templates, chia sẻ không giới hạn
+  - **PAUSE Premium** (20GB/năm – 100.000 VNĐ/năm): 50 ngăn kéo, kho VIP Templates, ưu đãi in ấn tối đa
 
 ---
 
@@ -82,10 +84,8 @@ Pause là ứng dụng mobile giúp người dùng **lưu trữ ảnh kỷ niệ
 
 | Nguồn | Mô tả | Loại |
 |---|---|---|
-| **Gói hội viên** | Đăng ký tháng/năm để mở rộng quyền lợi | Recurring Revenue |
+| **Gói hội viên (Go, Plus, Premium)** | Đăng ký theo năm mở khóa VIP templates và dung lượng lớn | Recurring Revenue |
 | **In ấn Photobooth** | Phí in + shipping khi user đặt in | Transaction Revenue |
-| **Mua lẻ ngăn kéo** | Mua thêm ngăn kéo vĩnh viễn | One-time Revenue |
-| **Template Premium** | Template photobooth trả phí (future) | One-time Revenue |
 
 ### Cơ cấu chi phí chính
 

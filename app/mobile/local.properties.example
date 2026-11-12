@@ -18,3 +18,10 @@ GOOGLE_WEB_CLIENT_ID=your-web-client-id.apps.googleusercontent.com
 # Upload preset: Settings -> Upload -> Upload presets -> Add (Unsigned)
 CLOUDINARY_CLOUD_NAME=your-cloud-name
 CLOUDINARY_UPLOAD_PRESET=your-unsigned-upload-preset
+
+# PayOS (Cổng thanh toán thực tế: https://payos.vn)
+# Vào payos.vn -> Đăng ký/Đăng nhập -> Kênh thanh toán -> Tạo kênh thanh toán -> Lấy thông tin kết nối:
+PAYOS_CLIENT_ID=your-payos-client-id
+PAYOS_API_KEY=your-payos-api-key
+PAYOS_CHECKSUM_KEY=your-payos-checksum-key
+

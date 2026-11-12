@@ -274,9 +274,9 @@ fun ProfileScreen(
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
                                         text = if (isPremium) {
-                                            "Thành viên Premium (${profile?.maxDrawers ?: 15} tủ × 1 GB)"
+                                            "Thành viên VIP (${profile?.maxDrawers ?: 15} tủ • Kho VIP Templates)"
                                         } else {
-                                            "Gói Cơ bản • Free (${profile?.maxDrawers ?: 3} tủ × 256 MB)"
+                                            "Gói Cơ bản • Free (${profile?.maxDrawers ?: 3} tủ • 50 ảnh/tủ)"
                                         },
                                         style = MaterialTheme.typography.labelLarge,
                                         fontWeight = FontWeight.Medium,
@@ -319,13 +319,13 @@ fun ProfileScreen(
 
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text(
-                                        text = if (isPremium) "1 GB" else "256 MB",
+                                        text = if (isPremium) "5–20 GB" else "50 ảnh",
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.Bold,
                                         color = PauseColors.Wine
                                     )
                                     Text(
-                                        text = "Mỗi ngăn kéo",
+                                        text = "Giới hạn tủ",
                                         style = MaterialTheme.typography.labelSmall,
                                         color = PauseColors.Muted
                                     )
@@ -376,7 +376,7 @@ fun ProfileScreen(
                             ProfileMenuRow(
                                 icon = Icons.Default.AutoAwesome,
                                 title = "Nâng cấp gói",
-                                subtitle = "Mở khóa Pause Premium, tăng dung lượng & ưu đãi in",
+                                subtitle = "Mở khóa gói Go/Plus/Premium, kho VIP Templates & lưu trữ lớn",
                                 tag = "profile_upgrade_menu",
                                 onClick = onUpgrade
                             )

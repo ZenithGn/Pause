@@ -14,6 +14,7 @@ import com.pause.app.data.remote.CloudinaryUploader
 import com.pause.app.data.repository.AuthRepositoryImpl
 import com.pause.app.data.repository.DrawerRepositoryImpl
 import com.pause.app.data.repository.NotificationRepositoryImpl
+import com.pause.app.data.repository.PaymentRepositoryImpl
 import com.pause.app.data.repository.PhotoRepositoryImpl
 import com.pause.app.data.repository.ProfileRepositoryImpl
 import com.pause.app.data.repository.PhotoboothRepositoryImpl
@@ -23,6 +24,7 @@ import com.pause.app.domain.repository.AuthRepository
 import com.pause.app.domain.repository.DrawerRepository
 import com.pause.app.domain.repository.LoginAttemptStore
 import com.pause.app.domain.repository.NotificationRepository
+import com.pause.app.domain.repository.PaymentRepository
 import com.pause.app.domain.repository.PhotoProcessor
 import com.pause.app.domain.model.PhotoboothRenderer
 import com.pause.app.domain.model.PreviewUploader
@@ -30,6 +32,7 @@ import com.pause.app.domain.repository.PhotoRepository
 import com.pause.app.domain.repository.PhotoboothRepository
 import com.pause.app.domain.repository.ProfileRepository
 import com.pause.app.domain.repository.ShareRepository
+import com.pause.app.presentation.payment.PaymentViewModel
 import com.pause.app.domain.usecase.CreateDrawerUseCase
 import com.pause.app.domain.usecase.DeleteDrawerUseCase
 import com.pause.app.domain.usecase.DeletePhotosUseCase
@@ -168,6 +171,7 @@ val repositoryModule = module {
     single<PhotoboothRenderer> { AndroidPhotoboothRenderer() }
     single<PreviewUploader> { CloudinaryPreviewUploader(client = get(), uploader = get()) }
     single<OrderRepository> { OrderRepositoryImpl(client = get()) }
+    single<PaymentRepository> { PaymentRepositoryImpl(client = get(), httpClient = get()) }
 }
 
 val useCaseModule = module {
@@ -280,6 +284,11 @@ val viewModelModule = module {
     viewModel {
         NotificationViewModel(
             notificationRepository = get(),
+        )
+    }
+    viewModel {
+        PaymentViewModel(
+            paymentRepository = get(),
         )
     }
 }

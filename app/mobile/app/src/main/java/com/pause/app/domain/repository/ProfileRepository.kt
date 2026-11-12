@@ -25,10 +25,16 @@ interface ProfileRepository {
     /** Exchanges the stored object path for a short-lived signed URL. */
     suspend fun signedAvatarUrl(path: String, expiresInSeconds: Long = 3_600): String?
 
-    /** FR-04.1 / FR-04.2 – upgrades the user's membership to Pause Premium (15 drawers). */
-    suspend fun upgradeMembership(userId: String, isYearly: Boolean): UserProfile {
+    /** FR-04.1 / FR-04.2 – upgrades the user's membership (PAUSE Go: 10, Plus: 25, Premium: 50). */
+    suspend fun upgradeMembership(userId: String, isYearly: Boolean = true, planType: String? = null): UserProfile {
         val current = getProfile(userId)
-        return current.copy(maxDrawers = maxOf(current.maxDrawers, 15))
+        val target = when (planType) {
+            "pause_go" -> 10
+            "pause_plus" -> 25
+            "pause_premium" -> 50
+            else -> 15
+        }
+        return current.copy(maxDrawers = maxOf(current.maxDrawers, target))
     }
 
     /** FR-04.3 – purchases +1 permanent extra drawer (29,000 VND). */

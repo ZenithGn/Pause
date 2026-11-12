@@ -145,7 +145,7 @@ fun DrawerListScreen(
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "Quản lý dung lượng (256 MB/ngăn kéo) & phân quyền chia sẻ",
+                        text = "Quản lý (tối đa 50 ảnh/ngăn kéo) & phân quyền chia sẻ",
                         style = MaterialTheme.typography.bodySmall,
                         color = PauseColors.Muted,
                     )
@@ -253,43 +253,22 @@ fun DrawerListScreen(
 
                                     Spacer(modifier = Modifier.height(14.dp))
 
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    Button(
+                                        onClick = onUpgradeClick,
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = PauseColors.Ink,
+                                            contentColor = Color.White,
+                                        ),
+                                        shape = RoundedCornerShape(10.dp),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(44.dp),
                                     ) {
-                                        OutlinedButton(
-                                            onClick = onUpgradeClick,
-                                            shape = RoundedCornerShape(10.dp),
-                                            border = androidx.compose.foundation.BorderStroke(1.dp, PauseColors.Line),
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .height(44.dp),
-                                        ) {
-                                            Text(
-                                                text = "Mua lẻ +1 Tủ (29k)",
-                                                color = PauseColors.Ink,
-                                                style = MaterialTheme.typography.labelMedium,
-                                                fontWeight = FontWeight.SemiBold,
-                                            )
-                                        }
-
-                                        Button(
-                                            onClick = onUpgradeClick,
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = PauseColors.Ink,
-                                                contentColor = Color.White,
-                                            ),
-                                            shape = RoundedCornerShape(10.dp),
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .height(44.dp),
-                                        ) {
-                                            Text(
-                                                text = "Nâng cấp Premium",
-                                                style = MaterialTheme.typography.labelMedium,
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                        }
+                                        Text(
+                                            text = "Nâng cấp gói Hội viên (chỉ từ 30k/năm)",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            fontWeight = FontWeight.Bold,
+                                        )
                                     }
                                 }
                             }

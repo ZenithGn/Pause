@@ -360,6 +360,7 @@ fun PauseNavGraph(
                     onDeleteDrawer = detailViewModel::deleteDrawer,
                     onLoadMore = detailViewModel::loadMore,
                     onConsumeToast = detailViewModel::consumeToast,
+                    onSetAsCover = detailViewModel::setAsCover,
                     onDeleted = {
                         drawerListViewModel.onDrawerDeleted(drawerId)
                         navController.popBackStack()
@@ -417,15 +418,9 @@ fun PauseNavGraph(
                     isPremium = profileState.profile?.isPremium == true,
                     maxDrawers = profileState.profile?.maxDrawers ?: 3,
                     onBack = { navController.popBackStack() },
-                    onUpgradeClick = { isYearly ->
-                        val paymentType = if (isYearly) "membership_yearly" else "membership_monthly"
-                        val amount = if (isYearly) 499_000 else 59_000
+                    onSelectPlan = { plan ->
                         val refId = (authState.session?.user?.id ?: "VIP").take(8)
-                        navController.navigate(Routes.paymentQr(paymentType, refId, amount))
-                    },
-                    onBuySingleDrawerClick = {
-                        val refId = (authState.session?.user?.id ?: "DRAWER").take(8)
-                        navController.navigate(Routes.paymentQr("single_drawer", refId, 29_000))
+                        navController.navigate(Routes.paymentQr(plan.id, refId, plan.priceVnd))
                     },
                 )
             }
@@ -480,17 +475,22 @@ fun PauseNavGraph(
                     isProcessing = profileState.isSaving,
                     onConfirmPayment = {
                         when (paymentType) {
-                            "membership_yearly", "membership_monthly" -> {
-                                val isYearly = paymentType == "membership_yearly"
-                                profileViewModel.upgradeToPremium(isYearly = isYearly) { updatedProfile ->
+                            "pause_go", "pause_plus", "pause_premium", "membership_yearly", "membership_monthly" -> {
+                                val planTitle = when (paymentType) {
+                                    "pause_go" -> "PAUSE Go (5GB/năm)"
+                                    "pause_plus" -> "PAUSE Plus (10GB/năm)"
+                                    "pause_premium" -> "PAUSE Premium (20GB/năm)"
+                                    else -> "Pause VIP"
+                                }
+                                profileViewModel.upgradeToPremium(isYearly = true, planType = paymentType) { updatedProfile ->
                                     drawerListViewModel.dismissQuotaDialog()
                                     notificationViewModel.pushNotification(
                                         type = "membership",
-                                        title = "Kích hoạt Pause Premium thành công!",
-                                        body = "Tài khoản của bạn đã mở khóa ${updatedProfile.maxDrawers} Ngăn kéo Kỷ niệm (1 GB/tủ) và toàn bộ mẫu thiết kế Premium.",
+                                        title = "Kích hoạt $planTitle thành công!",
+                                        body = "Tài khoản của bạn đã nâng cấp thành công $planTitle: Mở khóa 100% VIP Templates và mở rộng lưu trữ đám mây (${updatedProfile.maxDrawers} ngăn kéo).",
                                     )
                                     toast = UiText.Dynamic(
-                                        "Đã kích hoạt gói Pause Premium! (Tối đa ${updatedProfile.maxDrawers} ngăn kéo)",
+                                        "Đã kích hoạt $planTitle thành công!",
                                     )
                                     navController.popBackStack()
                                 }
@@ -500,11 +500,11 @@ fun PauseNavGraph(
                                     drawerListViewModel.dismissQuotaDialog()
                                     notificationViewModel.pushNotification(
                                         type = "membership",
-                                        title = "Đã mở thêm +1 Ngăn kéo Kỷ niệm",
+                                        title = "Đã mở thêm ngăn kéo",
                                         body = "Hạn mức ngăn kéo của bạn đã tăng lên ${updatedProfile.maxDrawers} ngăn kéo.",
                                     )
                                     toast = UiText.Dynamic(
-                                        "Đã mua thêm +1 Ngăn kéo! (Hiện có tối đa ${updatedProfile.maxDrawers} ngăn kéo)",
+                                        "Đã mở thêm ngăn kéo thành công!",
                                     )
                                     navController.popBackStack()
                                 }

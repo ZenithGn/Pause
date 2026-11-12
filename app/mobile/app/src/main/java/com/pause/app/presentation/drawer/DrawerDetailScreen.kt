@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -70,8 +71,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.pause.app.R
+import com.pause.app.domain.model.Photo
 import com.pause.app.domain.repository.RawPhoto
 import com.pause.app.presentation.common.UiText
 import com.pause.app.presentation.common.components.PauseErrorBanner
@@ -104,6 +107,7 @@ fun DrawerDetailScreen(
     onLoadMore: () -> Unit,
     onConsumeToast: () -> Unit,
     onDeleted: () -> Unit,
+    onSetAsCover: (Photo) -> Unit = {},
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -250,6 +254,24 @@ fun DrawerDetailScreen(
                         color = PauseColors.Ink,
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        if (state.selectionCount == 1 && state.canWrite) {
+                            val selectedId = state.selectedPhotoIds.firstOrNull()
+                            val selectedPhoto = state.photos.firstOrNull { it.id == selectedId }
+                            if (selectedPhoto != null) {
+                                TextButton(
+                                    onClick = {
+                                        onSetAsCover(selectedPhoto)
+                                        onExitSelection()
+                                    }
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.drawer_set_cover),
+                                        color = PauseColors.Wine,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                }
+                            }
+                        }
                         TextButton(onClick = onExitSelection) {
                             Text(text = stringResource(R.string.cancel))
                         }
@@ -353,8 +375,8 @@ fun DrawerDetailScreen(
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         StorageIndicator(
-                            usedBytes = drawer.storageUsedBytes,
-                            limitBytes = drawer.storageLimitBytes,
+                            photoCount = drawer.photoCount,
+                            maxPhotos = 50,
                         )
 
                         Spacer(modifier = Modifier.height(14.dp))
@@ -485,6 +507,37 @@ fun DrawerDetailScreen(
                                     )
                                 }
                             }
+                            val isCover = state.drawer?.coverPhotoPath != null &&
+                                (photo.thumbnailPath == state.drawer.coverPhotoPath || photo.originalPath == state.drawer.coverPhotoPath)
+                            if (isCover) {
+                                Surface(
+                                    modifier = Modifier
+                                        .align(Alignment.TopStart)
+                                        .padding(6.dp),
+                                    shape = RoundedCornerShape(4.dp),
+                                    color = PauseColors.Ink.copy(alpha = 0.85f),
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Star,
+                                            contentDescription = null,
+                                            tint = PauseColors.GoldAccent,
+                                            modifier = Modifier.size(11.dp),
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.drawer_cover_badge),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 10.sp,
+                                        )
+                                    }
+                                }
+                            }
                             if (state.isSelectionMode) {
                                 Box(
                                     modifier = Modifier
@@ -519,10 +572,19 @@ fun DrawerDetailScreen(
         val urls = state.photos.map { photo ->
             state.originalUrls[photo.id] ?: state.thumbnailUrls[photo.id].orEmpty()
         }
+        val currentCoverIndex = state.photos.indexOfFirst {
+            val cover = state.drawer?.coverPhotoPath
+            cover != null && (it.thumbnailPath == cover || it.originalPath == cover)
+        }.takeIf { it >= 0 }
         PhotoViewerScreen(
             photoUrls = urls.filter { it.isNotBlank() },
             initialIndex = viewerIndex,
             onClose = { viewerIndex = -1 },
+            canSetCover = state.canWrite,
+            currentCoverIndex = currentCoverIndex,
+            onSetCover = { index ->
+                state.photos.getOrNull(index)?.let(onSetAsCover)
+            },
         )
     }
 

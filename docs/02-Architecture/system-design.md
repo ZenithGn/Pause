@@ -9,10 +9,11 @@
 │     📱 Mobile App          │        🌐 Web App                       │
 │     (Kotlin – Android)     │        (Next.js)                        │
 │                            │                                         │
-│  • Ngăn kéo kỷ niệm       │  • Landing page                        │
+│  • Ngăn kéo (Drawers)      │  • Landing page                        │
 │  • Photobooth builder      │  • Thông tin sản phẩm                  │
 │  • Đặt in & thanh toán     │  • Admin dashboard                     │
-│  • Gói hội viên            │  • Download app CTA                    │
+│  • Gói hội viên (Go/Plus/  │  • Download app CTA                    │
+│    Premium)                │                                        │
 │  • Profile & settings      │                                        │
 ├────────────────────────────┴─────────────────────────────────────────┤
 │                         HTTPS / REST API                             │
@@ -20,20 +21,20 @@
 │                     BACKEND LAYER (Supabase)                         │
 ├──────────────┬──────────────┬──────────────┬─────────────────────────┤
 │  🔐 Auth     │  🗄️ Database │  📦 Storage   │  ⚡ Edge Functions      │
-│              │  (PostgreSQL)│  (S3-compat) │  (Deno runtime)        │
+│              │  (PostgreSQL)│  (S3/Cloudin.)│  (Deno runtime)        │
 │  • Email/PW  │              │              │                         │
-│  • Google    │  • Users     │  • Ảnh gốc   │  • Tạo thumbnail       │
-│  • JWT       │  • Drawers   │  • Thumbnails│  • Xử lý đơn hàng     │
-│  • RLS       │  • Photos    │  • Templates │  • Webhook callback    │
-│              │  • Orders    │              │  • Nén ảnh             │
+│  • Google    │  • Users     │  • Cloudinary│  • Tạo thumbnail       │
+│  • JWT       │  • Drawers   │    ảnh drawer│  • Webhook PayOS       │
+│  • RLS       │  • Photos    │  • Supabase  │  • Xử lý đơn hàng      │
+│              │  • Orders    │    avatars   │  • Nén ảnh             │
 │              │  • Plans     │              │                         │
 ├──────────────┴──────────────┴──────────────┴─────────────────────────┤
 │                      EXTERNAL SERVICES                               │
 ├──────────────┬──────────────┬────────────────────────────────────────┤
 │  💳 Payment  │  🔔 FCM      │  🖨️ Đối tác in ấn                     │
 │  Gateway     │  Push Notif  │  (API / Manual)                       │
-│  (VNPay/     │              │                                        │
-│   MoMo)      │              │                                        │
+│  (PayOS /    │              │                                        │
+│   VietQR)    │              │                                        │
 └──────────────┴──────────────┴────────────────────────────────────────┘
 ```
 
@@ -66,7 +67,7 @@
 |---|---|---|
 | UI | Jetpack Compose | Declarative UI |
 | Navigation | Compose Navigation | Điều hướng màn hình |
-| DI | Hilt / Koin | Dependency Injection |
+| DI | Koin / Hilt | Dependency Injection |
 | Networking | Supabase Kotlin SDK | Gọi API Supabase |
 | Image loading | Coil | Load & cache ảnh |
 | Local storage | Room / DataStore | Cache offline, settings |
@@ -135,7 +136,7 @@ Luồng upload ảnh ngăn kéo:
 ```
 User chọn ảnh → app nén (2048px, q82) + đọc kích thước
       → upload Cloudinary (unsigned preset) → secure_url
-      → insert row `photos` (URL + size) → trigger enforce_photo_quota (quota 256MB)
+      → insert row `photos` (URL + size) → trigger enforce_photo_quota (quota 50 ảnh/ngăn kéo)
 ```
 
 Chi tiết & trade-off bảo mật: [storage-strategy.md](../03-References/storage-strategy.md).
@@ -145,28 +146,31 @@ Chi tiết & trade-off bảo mật: [storage-strategy.md](../03-References/stora
 ### 3.1 Upload ảnh vào ngăn kéo
 
 ```
-User chọn ảnh     App kiểm tra      Upload lên         Edge Function
-từ gallery    →   dung lượng    →   Supabase Storage →  tạo thumbnail
-                  ngăn kéo                              + insert metadata
-                                                        vào DB
-                                    ↓
-                              Cập nhật dung lượng
-                              đã dùng của ngăn kéo
+User chọn ảnh     App kiểm tra       Upload lên       Client sinh thumbnail
+từ gallery    →   giới hạn 50 ảnh → Cloudinary   →   + insert metadata vào
+                  /ngăn kéo                           bảng `photos` (Supabase)
+                                      ↓
+                                Cập nhật số ảnh
+                                đã dùng của ngăn kéo
 ```
 
-### 3.2 Tạo & đặt in Photobooth
+### 3.2 Tạo & đặt in Photobooth (kèm PayOS App-to-App)
 
 ```
-User chọn      User fill ảnh     App render         User đặt in
-template   →   từ ngăn kéo  →   preview local  →   
+User chọn      User fill ảnh     App render         User đặt in &
+template   →   từ ngăn kéo  →   preview local  →   chọn VietQR
                                                      ↓
-                                              Edge Function tạo
-                                              order + redirect
-                                              payment gateway
+                                              App sinh VietQR Napas
+                                              + nút mở App Ngân hàng
                                                      ↓
-                                              Payment callback →
-                                              cập nhật order status →
-                                              thông báo user
+                                              Người dùng chuyển khoản
+                                              trên Mobile Banking
+                                                     ↓
+                                              Edge Function nhận webhook PayOS
+                                              HOẶC App tự động bắt ON_RESUME
+                                                     ↓
+                                              Cập nhật status sang processing →
+                                              tự động chuyển trang thành công
 ```
 
 ### 3.3 Chia sẻ ngăn kéo (Mô hình lời mời Pending / Accepted)

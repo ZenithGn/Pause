@@ -237,7 +237,7 @@ class DrawerDetailViewModel(
     fun updateDrawer(name: String, description: String?) {
         val drawer = _state.value.drawer ?: return
         viewModelScope.launch {
-            updateDrawerUseCase(drawer, name, description)
+            updateDrawerUseCase(drawer, name, description, coverPhotoPath = drawer.coverPhotoPath)
                 .onSuccess { updated ->
                     _state.update {
                         it.copy(drawer = updated, toast = UiText.Resource(R.string.drawer_updated))
@@ -248,6 +248,29 @@ class DrawerDetailViewModel(
                         it.copy(error = DrawerFailureMapper.toUiText(error.asDrawerFailure()))
                     }
                 }
+        }
+    }
+
+    /** Set a photo as drawer thumbnail / cover. */
+    fun setAsCover(photo: Photo) {
+        val drawer = _state.value.drawer ?: return
+        if (!drawer.canWrite) return
+        viewModelScope.launch {
+            val path = photo.thumbnailPath ?: photo.originalPath
+            updateDrawerUseCase(
+                drawer = drawer,
+                name = drawer.name,
+                description = drawer.description,
+                coverPhotoPath = path,
+            ).onSuccess { updated ->
+                _state.update {
+                    it.copy(drawer = updated, toast = UiText.Resource(R.string.drawer_cover_updated))
+                }
+            }.onFailure { error ->
+                _state.update {
+                    it.copy(error = DrawerFailureMapper.toUiText(error.asDrawerFailure()))
+                }
+            }
         }
     }
 

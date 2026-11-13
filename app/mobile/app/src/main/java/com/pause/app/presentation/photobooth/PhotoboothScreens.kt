@@ -18,22 +18,31 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.WorkspacePremium
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -42,6 +51,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -57,17 +67,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.pause.app.R
 import com.pause.app.domain.model.CAPTION_BOTTOM_OFFSET_PX
@@ -550,6 +563,11 @@ private fun TemplateCard(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+/**
+ * Step 2/3 of the print flow – pick photos for each template slot.
+ * Layout follows Figma node 156:7851 ("Custom & Print (Choose photo)"),
+ * recoloured with the Pause wine palette.
+ */
 @Composable
 fun SelectPhotosScreen(
     state: PhotoboothUiState,
@@ -558,101 +576,489 @@ fun SelectPhotosScreen(
     onPhotoToggled: (Photo) -> Unit,
     onContinue: () -> Unit,
 ) {
+    val remaining = (state.requiredSlots - state.selectedPhotoIds.size).coerceAtLeast(0)
+    val isFull = state.requiredSlots > 0 && remaining == 0
+    val photosById = remember(state.photos) { state.photos.associateBy { it.id } }
+
     Scaffold(
-        topBar = { PhotoboothTopBar(title = stringResource(R.string.photobooth_select_photos_title), onBack = onBack) },
+        topBar = { SelectPhotosTopBar(onBack = onBack) },
         bottomBar = {
-            Button(
-                onClick = onContinue,
-                enabled = state.canPreview,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = PauseColors.Wine),
-            ) { Text(stringResource(R.string.photobooth_view_preview)) }
+            SelectPhotosBottomBar(
+                remaining = remaining,
+                canContinue = state.canPreview,
+                onContinue = onContinue,
+            )
         },
         containerColor = PauseColors.Paper,
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            Text(
-                text = stringResource(R.string.photobooth_select_photos_hint, state.selectedPhotoIds.size, state.requiredSlots),
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
-                style = MaterialTheme.typography.bodyMedium,
-                color = PauseColors.Muted,
-            )
+            state.selectedTemplate?.let { template ->
+                MiniStripCard(
+                    templateName = template.name,
+                    slotCount = state.requiredSlots,
+                    selectedPhotoIds = state.selectedPhotoIds,
+                    photoUrls = state.photoUrls,
+                    onSlotCleared = { photoId -> photosById[photoId]?.let(onPhotoToggled) },
+                    modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 12.dp),
+                )
+            }
             state.error?.let { PauseErrorBanner(it, Modifier.padding(horizontal = 20.dp, vertical = 4.dp)) }
-            DrawerPicker(state.drawers, state.selectedDrawerId, onDrawerSelected)
-            when {
-                state.isLoadingPhotos -> LoadingBody()
-                state.drawers.isEmpty() -> EmptyBody(R.string.photobooth_drawers_empty)
-                state.photos.isEmpty() -> EmptyBody(R.string.photobooth_photos_empty)
-                else -> PhotoPickerGrid(state, onPhotoToggled)
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                if (state.drawers.isEmpty()) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        SelectPhotosMessage(stringResource(R.string.photobooth_drawers_empty))
+                    }
+                    return@LazyVerticalGrid
+                }
+
+                item(span = { GridItemSpan(maxLineSpan) }) { DrawerSectionHeader() }
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    val activeFallbackUrl = state.photos.firstOrNull()?.id?.let { state.photoUrls[it] }
+                    DrawerSourceCarousel(
+                        drawers = state.drawers,
+                        selectedDrawerId = state.selectedDrawerId,
+                        activeCoverFallbackUrl = activeFallbackUrl,
+                        onDrawerSelected = onDrawerSelected,
+                    )
+                }
+
+                when {
+                    state.isLoadingPhotos -> item(span = { GridItemSpan(maxLineSpan) }) {
+                        Box(Modifier.fillMaxWidth().height(160.dp), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(color = PauseColors.Wine)
+                        }
+                    }
+
+                    state.photos.isEmpty() -> item(span = { GridItemSpan(maxLineSpan) }) {
+                        SelectPhotosMessage(stringResource(R.string.photobooth_photos_empty))
+                    }
+
+                    else -> items(state.photos, key = { it.id }) { photo ->
+                        val selected = photo.id in state.selectedPhotoIds
+                        PhotoPickerTile(
+                            url = state.photoUrls[photo.id],
+                            selected = selected,
+                            dimmed = isFull && !selected,
+                            onClick = { onPhotoToggled(photo) },
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SelectPhotosTopBar(onBack: () -> Unit) {
+    TopAppBar(
+        title = {
+            Column {
+                Text(
+                    text = stringResource(R.string.photobooth_progress_label),
+                    style = MaterialTheme.typography.labelSmall,
+                    letterSpacing = 0.5.sp,
+                    color = PauseColors.Muted,
+                )
+                Text(
+                    text = stringResource(R.string.photobooth_select_photos_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = PauseColors.Ink,
+                )
+            }
+        },
+        navigationIcon = {
+            IconButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back), tint = PauseColors.Ink)
+            }
+        },
+        actions = {
+            Box(
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .background(PauseColors.WineLight, CircleShape)
+                    .padding(horizontal = 12.dp, vertical = 4.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.photobooth_step, 2, 3),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = PauseColors.Wine,
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = PauseColors.Paper),
+    )
+}
+
+/** Sticky preview of the template slots – shows which photo lands in which slot. */
+@Composable
+private fun MiniStripCard(
+    templateName: String,
+    slotCount: Int,
+    selectedPhotoIds: List<String>,
+    photoUrls: Map<String, String>,
+    onSlotCleared: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = PauseColors.Surface,
+        shadowElevation = 1.dp,
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Filled.PhotoLibrary,
+                    contentDescription = null,
+                    tint = PauseColors.Wine,
+                    modifier = Modifier.size(16.dp),
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = templateName,
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = PauseColors.Ink,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(Modifier.width(8.dp))
+                Box(
+                    Modifier
+                        .background(PauseColors.GoldLight, CircleShape)
+                        .padding(horizontal = 8.dp, vertical = 2.dp),
+                ) {
+                    Text(
+                        text = stringResource(R.string.photobooth_slot_count, slotCount),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = PauseColors.GoldAccent,
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(PauseColors.Paper, RoundedCornerShape(48.dp))
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            ) {
+                repeat(slotCount) { index ->
+                    val photoId = selectedPhotoIds.getOrNull(index)
+                    MiniStripSlot(
+                        index = index,
+                        url = photoId?.let { photoUrls[it] },
+                        filled = photoId != null,
+                        onClick = { photoId?.let(onSlotCleared) },
+                        modifier = Modifier
+                            .weight(1f, fill = false)
+                            .widthIn(max = 70.dp)
+                            .aspectRatio(3f / 4f),
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.photobooth_slots_assigned, selectedPhotoIds.size, slotCount),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = PauseColors.Muted,
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    repeat(slotCount) { index ->
+                        Box(
+                            Modifier
+                                .size(8.dp)
+                                .background(
+                                    if (index < selectedPhotoIds.size) PauseColors.Wine else PauseColors.Line,
+                                    CircleShape,
+                                ),
+                        )
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun DrawerPicker(drawers: List<Drawer>, selectedDrawerId: String?, onDrawerSelected: (String) -> Unit) {
+private fun MiniStripSlot(
+    index: Int,
+    url: String?,
+    filled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val shape = RoundedCornerShape(32.dp)
+    Box(
+        modifier = modifier
+            .clip(shape)
+            .background(if (filled) PauseColors.WineLight else PauseColors.Surface)
+            .clickable(enabled = filled, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (filled) {
+            url?.let { AsyncImage(it, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
+            Box(
+                Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = 8.dp, top = 8.dp)
+                    .size(16.dp)
+                    .background(PauseColors.Wine, CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = (index + 1).toString(),
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = PauseColors.Surface,
+                )
+            }
+        } else {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = null,
+                    tint = PauseColors.Muted,
+                    modifier = Modifier.size(14.dp),
+                )
+                Text(
+                    text = stringResource(R.string.photobooth_slot_label, index + 1),
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = PauseColors.Muted,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DrawerSectionHeader() {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = Icons.Filled.FolderOpen,
+            contentDescription = null,
+            tint = PauseColors.Wine,
+            modifier = Modifier.size(18.dp),
+        )
+        Spacer(Modifier.width(6.dp))
+        Text(
+            text = stringResource(R.string.photobooth_drawers_section),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = PauseColors.Ink,
+        )
+    }
+}
+
+/** Horizontal album carousel that bleeds past the grid's 20dp side padding. */
+@Composable
+private fun DrawerSourceCarousel(
+    drawers: List<Drawer>,
+    selectedDrawerId: String?,
+    activeCoverFallbackUrl: String?,
+    onDrawerSelected: (String) -> Unit,
+) {
+    val bleed = 20.dp
     LazyRow(
-        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
+        modifier = Modifier.layout { measurable, constraints ->
+            val extra = bleed.roundToPx() * 2
+            val placeable = measurable.measure(
+                constraints.copy(
+                    minWidth = constraints.maxWidth + extra,
+                    maxWidth = constraints.maxWidth + extra,
+                ),
+            )
+            layout(constraints.maxWidth, placeable.height) { placeable.place(-extra / 2, 0) }
+        },
+        contentPadding = PaddingValues(horizontal = bleed, vertical = 2.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        items(drawers.size) { index ->
-            val drawer = drawers[index]
-            FilterChip(
-                selected = drawer.id == selectedDrawerId,
+        items(drawers, key = { it.id }) { drawer ->
+            val isSelected = drawer.id == selectedDrawerId
+            DrawerSourceCard(
+                drawer = drawer,
+                selected = isSelected,
+                fallbackCoverUrl = if (isSelected) activeCoverFallbackUrl else null,
                 onClick = { onDrawerSelected(drawer.id) },
-                label = { Text(drawer.name, maxLines = 1) },
             )
         }
     }
 }
 
 @Composable
-private fun PhotoPickerGrid(state: PhotoboothUiState, onPhotoToggled: (Photo) -> Unit) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
-        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+private fun DrawerSourceCard(
+    drawer: Drawer,
+    selected: Boolean,
+    fallbackCoverUrl: String?,
+    onClick: () -> Unit,
+) {
+    val coverUrl = drawer.coverPhotoPath?.takeIf { it.isNotBlank() } ?: fallbackCoverUrl
+    Surface(
+        modifier = Modifier
+            .width(176.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        color = if (selected) PauseColors.Surface else PauseColors.CategoryBg,
+        border = if (selected) BorderStroke(1.dp, PauseColors.Wine) else null,
+        shadowElevation = if (selected) 1.dp else 0.dp,
     ) {
-        items(state.photos, key = { it.id }) { photo ->
-            val selectedIndex = state.selectedPhotoIds.indexOf(photo.id)
-            val selected = selectedIndex >= 0
+        Column(Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Box(
-                modifier = Modifier
-                    .aspectRatio(1f)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(PauseColors.CategoryBg)
-                    .border(if (selected) 3.dp else 0.dp, PauseColors.Wine, RoundedCornerShape(10.dp))
-                    .clickable { onPhotoToggled(photo) },
+                Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .clip(RoundedCornerShape(48.dp))
+                    .background(if (selected) PauseColors.WineLight else PauseColors.Line),
+                contentAlignment = Alignment.Center,
             ) {
-                state.photoUrls[photo.id]?.let { url ->
-                    AsyncImage(url, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-                } ?: Icon(
-                    Icons.Filled.Image,
-                    null,
-                    tint = PauseColors.Muted,
-                    modifier = Modifier.align(Alignment.Center),
-                )
+                if (!coverUrl.isNullOrBlank()) {
+                    AsyncImage(coverUrl, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                } else {
+                    Icon(
+                        imageVector = Icons.Filled.PhotoLibrary,
+                        contentDescription = null,
+                        tint = if (selected) PauseColors.Wine else PauseColors.Muted,
+                        modifier = Modifier.size(28.dp),
+                    )
+                }
                 if (selected) {
-                    Box(
-                        Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(6.dp)
-                            .size(26.dp)
-                            .background(PauseColors.Wine, RoundedCornerShape(99.dp))
-                            .border(1.5.dp, PauseColors.Surface, RoundedCornerShape(99.dp)),
-                        contentAlignment = Alignment.Center,
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(top = 8.dp)
+                            .background(PauseColors.Wine, CircleShape)
+                            .padding(horizontal = 8.dp, vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
+                        Icon(Icons.Filled.Check, null, tint = PauseColors.Surface, modifier = Modifier.size(10.dp))
+                        Spacer(Modifier.width(4.dp))
                         Text(
-                            text = (selectedIndex + 1).toString(),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
+                            text = stringResource(R.string.photobooth_drawer_selected),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Medium,
                             color = PauseColors.Surface,
                         )
                     }
                 }
             }
+            Text(
+                text = drawer.name,
+                modifier = Modifier.padding(horizontal = 4.dp),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = PauseColors.Ink,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = stringResource(R.string.photobooth_drawer_photo_count, drawer.photoCount),
+                modifier = Modifier.padding(horizontal = 4.dp),
+                fontSize = 10.sp,
+                color = PauseColors.Muted,
+            )
+        }
+    }
+}
+
+@Composable
+private fun PhotoPickerTile(url: String?, selected: Boolean, dimmed: Boolean, onClick: () -> Unit) {
+    val shape = RoundedCornerShape(24.dp)
+    Box(
+        modifier = Modifier
+            .aspectRatio(1f)
+            .alpha(if (dimmed) 0.4f else 1f)
+            .clip(shape)
+            .background(PauseColors.CategoryBg)
+            .then(if (selected) Modifier.border(2.dp, PauseColors.Wine, shape) else Modifier)
+            .clickable(onClick = onClick),
+    ) {
+        url?.let { AsyncImage(it, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
+            ?: Icon(Icons.Filled.Image, null, tint = PauseColors.Muted, modifier = Modifier.align(Alignment.Center))
+        if (selected) {
+            Box(
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp)
+                    .size(22.dp)
+                    .background(PauseColors.Wine, CircleShape)
+                    .border(1.5.dp, PauseColors.Surface, CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(Icons.Filled.Check, null, tint = PauseColors.Surface, modifier = Modifier.size(14.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun SelectPhotosMessage(message: String) {
+    Box(Modifier.fillMaxWidth().padding(vertical = 40.dp, horizontal = 12.dp), contentAlignment = Alignment.Center) {
+        Text(message, color = PauseColors.Muted, textAlign = TextAlign.Center)
+    }
+}
+
+@Composable
+private fun SelectPhotosBottomBar(remaining: Int, canContinue: Boolean, onContinue: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(PauseColors.Paper)
+            .navigationBarsPadding()
+            .padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = if (remaining > 0) {
+                stringResource(R.string.photobooth_missing_photos, remaining)
+            } else {
+                stringResource(R.string.photobooth_strip_ready)
+            },
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.Medium,
+            color = if (remaining > 0) PauseColors.Muted else PauseColors.Wine,
+        )
+        Button(
+            onClick = onContinue,
+            enabled = canContinue,
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            shape = CircleShape,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = PauseColors.Wine,
+                contentColor = PauseColors.Surface,
+                disabledContainerColor = PauseColors.Wine.copy(alpha = 0.35f),
+                disabledContentColor = PauseColors.Surface,
+            ),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp, disabledElevation = 0.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.photobooth_preview_continue),
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(Modifier.width(8.dp))
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, null, modifier = Modifier.size(16.dp))
         }
     }
 }
@@ -851,7 +1257,7 @@ private fun parseHexColor(value: String, fallback: Int): Int =
 private fun PhotoboothTopBar(title: String, onBack: () -> Unit) {
     TopAppBar(
         title = { Text(title, fontWeight = FontWeight.SemiBold) },
-        navigationIcon = { Icon(Icons.Filled.ArrowBack, stringResource(R.string.back), Modifier.padding(start = 12.dp).clickable(onClick = onBack)) },
+        navigationIcon = { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back), Modifier.padding(start = 12.dp).clickable(onClick = onBack)) },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = PauseColors.Paper),
     )
 }
@@ -1015,6 +1421,40 @@ private fun PhotoboothDarkPreviewScreenPreview() {
             onBack = {},
             onEditPhotos = {},
             onSave = {},
+        )
+    }
+}
+
+@Preview(name = "4. Chọn ảnh cho khung 4 ảnh", showBackground = true, widthDp = 390, heightDp = 860)
+@Composable
+private fun SelectPhotosScreenPreview() {
+    PauseTheme {
+        val photos = (1..7).map { index ->
+            Photo(
+                id = "p$index",
+                drawerId = "d1",
+                uploadedBy = "u1",
+                originalPath = "",
+                sizeBytes = 0,
+            )
+        }
+        SelectPhotosScreen(
+            state = PhotoboothUiState(
+                isLoadingTemplates = false,
+                templates = PREVIEW_TEMPLATES,
+                selectedTemplate = PREVIEW_TEMPLATES[3],
+                drawers = listOf(
+                    Drawer(id = "d1", ownerId = "u1", ownerName = "Pause", name = "Kỷ niệm Đà Lạt 2024", photoCount = 7),
+                    Drawer(id = "d2", ownerId = "u1", ownerName = "Pause", name = "Ảnh Kỷ Niệm Gia Đình", photoCount = 12),
+                ),
+                selectedDrawerId = "d1",
+                photos = photos,
+                selectedPhotoIds = listOf("p1", "p2"),
+            ),
+            onBack = {},
+            onDrawerSelected = {},
+            onPhotoToggled = {},
+            onContinue = {},
         )
     }
 }

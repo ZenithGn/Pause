@@ -275,6 +275,16 @@
     <string name="photobooth_drawers_empty">Bạn cần tạo ngăn kéo và thêm ảnh trước khi tạo photobooth.</string>
     <string name="photobooth_photos_empty">Ngăn kéo này chưa có ảnh để chọn.</string>
     <string name="photobooth_view_preview">Xem trước</string>
+    <string name="photobooth_progress_label">TIẾN TRÌNH IN</string>
+    <string name="photobooth_step">Bước %1$d/%2$d</string>
+    <string name="photobooth_slot_label">Ô %1$d</string>
+    <string name="photobooth_slots_assigned">Đã gán %1$d/%2$d ô ảnh vào dải in</string>
+    <string name="photobooth_drawers_section">Ngăn kéo kỷ niệm của bạn</string>
+    <string name="photobooth_drawer_selected">Đang chọn</string>
+    <string name="photobooth_drawer_photo_count">%1$d ảnh lưu trữ</string>
+    <string name="photobooth_missing_photos">Còn thiếu %1$d ảnh để hoàn thiện dải in</string>
+    <string name="photobooth_strip_ready">Dải in đã sẵn sàng!</string>
+    <string name="photobooth_preview_continue">Xem trước dải in &amp; Tiếp tục</string>
     <string name="photobooth_preview_title">Xem trước photobooth</string>
     <string name="photobooth_preview_hint">Ảnh sẽ được căn chỉnh và crop theo từng khung khi in.</string>
     <string name="photobooth_edit_photos">Chỉnh sửa ảnh</string>

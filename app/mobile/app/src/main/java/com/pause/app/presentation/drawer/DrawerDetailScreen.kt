@@ -58,7 +58,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
@@ -328,100 +331,185 @@ fun DrawerDetailScreen(
             }
 
             state.drawer?.let { drawer ->
+                val coverUrl = drawer.coverPhotoPath?.takeIf { it.isNotBlank() }
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(20.dp),
                     color = PauseColors.Surface,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, PauseColors.Line),
+                    shadowElevation = 2.dp,
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        // ── Editorial Cover Banner Header ──
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(160.dp)
+                                .background(PauseColors.CategoryBg),
                         ) {
-                            Text(
-                                text = listOfNotNull(
-                                    stringResource(R.string.drawers_photo_count, drawer.photoCount),
-                                    if (!drawer.isOwner) stringResource(R.string.drawers_owner_label, drawer.ownerName) else null,
-                                ).joinToString(" · "),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = PauseColors.Ink,
-                            )
-                            if (!drawer.isOwner) {
-                                Surface(
-                                    color = PauseColors.WineLight,
-                                    shape = RoundedCornerShape(6.dp),
+                            if (coverUrl != null) {
+                                AsyncImage(
+                                    model = coverUrl,
+                                    contentDescription = drawer.name,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize(),
+                                )
+                                // Gradient Scrim for contrast
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(
+                                            Brush.verticalGradient(
+                                                listOf(
+                                                    Color.Transparent,
+                                                    Color.Black.copy(alpha = 0.45f),
+                                                    Color.Black.copy(alpha = 0.85f),
+                                                )
+                                            )
+                                        )
+                                )
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(
+                                            Brush.verticalGradient(
+                                                listOf(
+                                                    PauseColors.WineLight,
+                                                    PauseColors.CategoryBg,
+                                                )
+                                            )
+                                        ),
+                                    contentAlignment = Alignment.Center,
                                 ) {
-                                    Text(
-                                        text = if (drawer.canWrite) "Chỉnh sửa" else "Chỉ xem",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = PauseColors.Wine,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                    Icon(
+                                        painter = painterResource(R.drawable.pause_mark),
+                                        contentDescription = null,
+                                        tint = PauseColors.Wine.copy(alpha = 0.4f),
+                                        modifier = Modifier.size(64.dp),
                                     )
                                 }
                             }
-                        }
-                        if (!drawer.description.isNullOrBlank()) {
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = drawer.description,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = PauseColors.Muted,
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(12.dp))
-                        StorageIndicator(
-                            photoCount = drawer.photoCount,
-                            maxPhotos = 50,
-                        )
 
-                        Spacer(modifier = Modifier.height(14.dp))
-
-                        // Quick action buttons: Photobooth print, Upload, Share
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            if (state.canWrite) {
-                                Button(
-                                    onClick = {
-                                        picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                            // Role Pill Top Right
+                            Surface(
+                                color = if (coverUrl != null) Color.Black.copy(alpha = 0.6f) else PauseColors.WineLight,
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(12.dp),
+                            ) {
+                                Text(
+                                    text = if (drawer.isOwner) {
+                                        stringResource(R.string.drawers_role_owner)
+                                    } else if (drawer.canWrite) {
+                                        stringResource(R.string.drawers_role_edit)
+                                    } else {
+                                        stringResource(R.string.drawers_role_view)
                                     },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = PauseColors.Ink,
-                                        contentColor = Color.White,
-                                    ),
-                                    shape = RoundedCornerShape(10.dp),
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .height(40.dp),
-                                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                                ) {
-                                    Icon(Icons.Filled.AddPhotoAlternate, contentDescription = null, modifier = Modifier.size(16.dp))
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text("Thêm ảnh", style = MaterialTheme.typography.labelMedium)
-                                }
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (coverUrl != null) Color.White else PauseColors.Wine,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                )
                             }
 
-                            Button(
-                                onClick = onStartPhotobooth,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = PauseColors.Wine,
-                                    contentColor = Color.White,
-                                ),
-                                shape = RoundedCornerShape(10.dp),
+                            // Title & photo count overlayed bottom of banner
+                            Column(
                                 modifier = Modifier
-                                    .weight(1f)
-                                    .height(40.dp),
-                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                                    .align(Alignment.BottomStart)
+                                    .padding(16.dp),
                             ) {
-                                Icon(painterResource(R.drawable.pause_mark_white), contentDescription = null, modifier = Modifier.size(14.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text("In Photobooth", style = MaterialTheme.typography.labelMedium)
+                                Text(
+                                    text = drawer.name,
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (coverUrl != null) Color.White else PauseColors.Ink,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = listOfNotNull(
+                                        stringResource(R.string.drawer_detail_photos_count_format, drawer.photoCount),
+                                        if (!drawer.isOwner) stringResource(R.string.drawer_detail_owner_format, drawer.ownerName) else null,
+                                    ).joinToString(" • "),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (coverUrl != null) Color.White.copy(alpha = 0.85f) else PauseColors.Muted,
+                                )
+                            }
+                        }
+
+                        // ── Sub-info & Actions Section ──
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            if (!drawer.description.isNullOrBlank()) {
+                                Text(
+                                    text = drawer.description,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = PauseColors.Muted,
+                                )
+                                Spacer(modifier = Modifier.height(10.dp))
+                            }
+
+                            StorageIndicator(
+                                photoCount = drawer.photoCount,
+                                maxPhotos = 50,
+                            )
+
+                            Spacer(modifier = Modifier.height(14.dp))
+
+                            // Action buttons: Thêm ảnh & In Photobooth
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            ) {
+                                if (state.canWrite) {
+                                    Button(
+                                        onClick = {
+                                            picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                                        },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = PauseColors.Ink,
+                                            contentColor = Color.White,
+                                        ),
+                                        shape = RoundedCornerShape(999.dp),
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(48.dp),
+                                        contentPadding = PaddingValues(horizontal = 14.dp),
+                                    ) {
+                                        Icon(Icons.Filled.AddPhotoAlternate, contentDescription = null, modifier = Modifier.size(18.dp))
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(
+                                            text = "Thêm ảnh",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                    }
+                                }
+
+                                Button(
+                                    onClick = onStartPhotobooth,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = PauseColors.Wine,
+                                        contentColor = Color.White,
+                                    ),
+                                    shape = RoundedCornerShape(999.dp),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(48.dp),
+                                    contentPadding = PaddingValues(horizontal = 14.dp),
+                                ) {
+                                    Icon(painterResource(R.drawable.pause_mark_white), contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "In Photobooth",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                }
                             }
                         }
                     }
@@ -510,16 +598,27 @@ fun DrawerDetailScreen(
                     state = gridState,
                     columns = GridCells.Fixed(3),
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     itemsIndexed(state.photos, key = { _, photo -> photo.id }) { index, photo ->
                         val selected = photo.id in state.selectedPhotoIds
+                        val isCover = state.drawer?.coverPhotoPath != null &&
+                            (photo.thumbnailPath == state.drawer.coverPhotoPath || photo.originalPath == state.drawer.coverPhotoPath)
+
                         Box(
                             modifier = Modifier
                                 .aspectRatio(1f)
-                                .background(PauseColors.Surface, RoundedCornerShape(8.dp))
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(PauseColors.Surface)
+                                .then(
+                                    if (selected) {
+                                        Modifier.border(2.5.dp, PauseColors.Wine, RoundedCornerShape(12.dp))
+                                    } else {
+                                        Modifier.border(0.5.dp, PauseColors.Line, RoundedCornerShape(12.dp))
+                                    }
+                                )
                                 .combinedClickable(
                                     onClick = {
                                         if (state.isSelectionMode) {
@@ -537,15 +636,13 @@ fun DrawerDetailScreen(
                                     model = url,
                                     contentDescription = stringResource(R.string.drawer_photo_open),
                                     contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .background(PauseColors.Surface, RoundedCornerShape(8.dp)),
+                                    modifier = Modifier.fillMaxSize(),
                                 )
                             } else {
                                 Box(
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .background(PauseColors.Paper, RoundedCornerShape(8.dp)),
+                                        .background(PauseColors.Paper),
                                     contentAlignment = Alignment.Center,
                                 ) {
                                     Text(
@@ -555,53 +652,68 @@ fun DrawerDetailScreen(
                                     )
                                 }
                             }
-                            val isCover = state.drawer?.coverPhotoPath != null &&
-                                (photo.thumbnailPath == state.drawer.coverPhotoPath || photo.originalPath == state.drawer.coverPhotoPath)
+
+                            // Dark tint overlay when selected
+                            if (selected) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(PauseColors.Wine.copy(alpha = 0.3f))
+                                )
+                            }
+
+                            // Star Badge for Cover Photo
                             if (isCover) {
                                 Surface(
                                     modifier = Modifier
                                         .align(Alignment.TopStart)
                                         .padding(6.dp),
-                                    shape = RoundedCornerShape(4.dp),
-                                    color = PauseColors.Ink.copy(alpha = 0.85f),
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = Color.Black.copy(alpha = 0.7f),
                                 ) {
                                     Row(
-                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                        modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(3.dp),
                                     ) {
                                         Icon(
                                             imageVector = Icons.Filled.Star,
                                             contentDescription = null,
                                             tint = PauseColors.GoldAccent,
-                                            modifier = Modifier.size(11.dp),
+                                            modifier = Modifier.size(12.dp),
                                         )
                                         Text(
                                             text = stringResource(R.string.drawer_cover_badge),
                                             style = MaterialTheme.typography.labelSmall,
                                             color = Color.White,
                                             fontWeight = FontWeight.Bold,
-                                            fontSize = 10.sp,
+                                            fontSize = 9.sp,
                                         )
                                     }
                                 }
                             }
+
+                            // Selection Indicator
                             if (state.isSelectionMode) {
                                 Box(
                                     modifier = Modifier
                                         .align(Alignment.TopEnd)
                                         .padding(6.dp)
+                                        .size(24.dp)
                                         .background(
-                                            if (selected) PauseColors.Ink else Color.White,
+                                            if (selected) PauseColors.Wine else Color.Black.copy(alpha = 0.4f),
                                             CircleShape,
                                         ),
+                                    contentAlignment = Alignment.Center,
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.CheckCircle,
-                                        contentDescription = null,
-                                        tint = if (selected) Color.White else PauseColors.Line,
-                                        modifier = Modifier.padding(2.dp),
-                                    )
+                                    if (selected) {
+                                        Icon(
+                                            imageVector = Icons.Filled.CheckCircle,
+                                            contentDescription = null,
+                                            tint = Color.White,
+                                            modifier = Modifier.size(18.dp),
+                                        )
+                                    }
                                 }
                             }
                         }

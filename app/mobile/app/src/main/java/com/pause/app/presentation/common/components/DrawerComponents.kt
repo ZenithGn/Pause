@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -42,6 +43,122 @@ import com.pause.app.R
 import com.pause.app.domain.model.Drawer
 import com.pause.app.presentation.common.StorageFormat
 import com.pause.app.presentation.theme.PauseColors
+
+/** Editorial Grid Card for Memories tab (2 columns layout) */
+@Composable
+fun DrawerGridCard(
+    drawer: Drawer,
+    thumbnailUrl: String?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val fraction = (drawer.photoCount.toFloat() / 50f).coerceIn(0f, 1f)
+
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(18.dp),
+        color = PauseColors.Surface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, PauseColors.Line),
+        shadowElevation = 1.dp,
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // Photo Cover Thumbnail
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1.05f)
+                    .background(PauseColors.CategoryBg),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (!thumbnailUrl.isNullOrBlank()) {
+                    AsyncImage(
+                        model = thumbnailUrl,
+                        contentDescription = drawer.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(54.dp)
+                            .background(PauseColors.WineLight, RoundedCornerShape(16.dp)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.pause_mark),
+                            contentDescription = null,
+                            modifier = Modifier.size(28.dp),
+                            tint = PauseColors.Wine,
+                        )
+                    }
+                }
+
+                // Badge top-end
+                Surface(
+                    color = if (drawer.isOwner) Color.Black.copy(alpha = 0.55f) else PauseColors.Wine.copy(alpha = 0.85f),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp),
+                ) {
+                    Text(
+                        text = if (drawer.isOwner) {
+                            stringResource(R.string.drawers_role_owner)
+                        } else if (drawer.canWrite) {
+                            stringResource(R.string.drawers_role_edit)
+                        } else {
+                            stringResource(R.string.drawers_role_view)
+                        },
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp),
+                    )
+                }
+            }
+
+            // Information bottom section
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(
+                    text = drawer.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = PauseColors.Ink,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                Spacer(modifier = Modifier.height(3.dp))
+
+                Text(
+                    text = if (drawer.isOwner) {
+                        "${drawer.photoCount}/50 ảnh"
+                    } else {
+                        "Từ ${drawer.ownerName} • ${drawer.photoCount} ảnh"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = PauseColors.Muted,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LinearProgressIndicator(
+                    progress = { fraction },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(4.dp)
+                        .clip(RoundedCornerShape(2.dp)),
+                    color = if (fraction > 0.85f) PauseColors.Error else PauseColors.Wine,
+                    trackColor = PauseColors.Line,
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun DrawerCard(

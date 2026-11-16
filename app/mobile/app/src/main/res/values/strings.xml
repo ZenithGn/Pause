@@ -130,6 +130,12 @@
     <string name="drawers_owner_label">của %1$s</string>
     <string name="drawers_storage_usage">%1$s / %2$s</string>
     <string name="drawers_storage_remaining">Còn %1$s</string>
+    <string name="drawers_quota_summary_title">Hạn mức Ngăn kéo</string>
+    <string name="drawers_quota_summary_subtitle">%1$d / %2$d ngăn kéo đang mở</string>
+    <string name="drawers_quota_upgrade_cta">Mở rộng ngăn kéo &amp; VIP Templates →</string>
+    <string name="drawers_role_owner">Của tôi</string>
+    <string name="drawers_role_edit">Chia sẻ (Sửa)</string>
+    <string name="drawers_role_view">Chia sẻ (Xem)</string>
     <string name="drawers_quota_title">Đã đạt giới hạn ngăn kéo</string>
     <string name="drawers_quota_message">Bạn đã dùng hết %1$d ngăn kéo miễn phí. Nâng cấp hội viên để mở thêm ngăn kéo và dung lượng.</string>
     <string name="drawers_quota_action">Nâng cấp gói</string>
@@ -153,6 +159,8 @@
 
     <!-- Drawer detail / photos -->
     <string name="drawer_detail_photos_section">Ảnh kỷ niệm</string>
+    <string name="drawer_detail_photos_count_format">%1$d/50 ảnh kỷ niệm</string>
+    <string name="drawer_detail_owner_format">Từ %1$s</string>
     <string name="drawer_detail_empty_title">Bắt đầu lưu giữ ảnh kỷ niệm</string>
     <string name="drawer_detail_empty_message">Chọn 3–5 bức ảnh đẹp nhất từ thư viện máy để gom vào ngăn kéo này và sẵn sàng ghép dải in Photobooth.</string>
     <string name="drawer_add_photos">Thêm ảnh</string>

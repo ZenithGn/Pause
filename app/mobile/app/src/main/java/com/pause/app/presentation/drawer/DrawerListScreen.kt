@@ -14,8 +14,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -56,6 +58,7 @@ import com.pause.app.domain.model.ShareInvitation
 import com.pause.app.presentation.common.StorageFormat
 import com.pause.app.presentation.common.UiText
 import com.pause.app.presentation.common.components.DrawerCard
+import com.pause.app.presentation.common.components.DrawerGridCard
 import com.pause.app.presentation.common.components.DrawerEmptyState
 import com.pause.app.presentation.common.components.PauseBottomBar
 import com.pause.app.presentation.common.components.PauseTab
@@ -206,17 +209,23 @@ fun DrawerListScreen(
                 }
 
                 else -> {
-                    LazyColumn(
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalArrangement = Arrangement.spacedBy(14.dp),
                     ) {
-                        // ── Storage Quota Summary Card ──
-                        item {
+                        // ── Minimal Warmth Storage Quota Summary Card ──
+                        item(span = { GridItemSpan(maxLineSpan) }) {
                             Surface(
                                 color = PauseColors.Surface,
-                                shape = RoundedCornerShape(16.dp),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, PauseColors.Line),
+                                shape = RoundedCornerShape(18.dp),
+                                border = androidx.compose.foundation.BorderStroke(
+                                    1.dp,
+                                    if (totalFraction > 0.85f) PauseColors.Wine.copy(alpha = 0.5f) else PauseColors.Line
+                                ),
+                                shadowElevation = 1.dp,
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
@@ -225,29 +234,44 @@ fun DrawerListScreen(
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically,
                                     ) {
-                                        Text(
-                                            text = "Hạn mức Ngăn kéo: $ownedCount / $maxDrawers tủ",
-                                            style = MaterialTheme.typography.titleSmall,
-                                            fontWeight = FontWeight.Bold,
-                                            color = PauseColors.Ink,
-                                        )
-                                        Text(
-                                            text = "Tổng đã dùng: ${StorageFormat.bytes(totalUsedBytes)}",
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = PauseColors.Wine,
-                                            fontWeight = FontWeight.Medium,
-                                        )
+                                        Column {
+                                            Text(
+                                                text = stringResource(R.string.drawers_quota_summary_title),
+                                                style = MaterialTheme.typography.titleSmall,
+                                                fontWeight = FontWeight.Bold,
+                                                color = PauseColors.Ink,
+                                            )
+                                            Spacer(modifier = Modifier.height(2.dp))
+                                            Text(
+                                                text = stringResource(R.string.drawers_quota_summary_subtitle, ownedCount, maxDrawers),
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = PauseColors.Muted,
+                                            )
+                                        }
+
+                                        Surface(
+                                            color = PauseColors.WineLight,
+                                            shape = RoundedCornerShape(999.dp),
+                                        ) {
+                                            Text(
+                                                text = StorageFormat.bytes(totalUsedBytes),
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = PauseColors.Wine,
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                            )
+                                        }
                                     }
 
-                                    Spacer(modifier = Modifier.height(10.dp))
+                                    Spacer(modifier = Modifier.height(12.dp))
 
                                     LinearProgressIndicator(
                                         progress = { totalFraction },
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .height(8.dp)
-                                            .clip(RoundedCornerShape(4.dp)),
-                                        color = if (totalFraction > 0.85f) PauseColors.Error else PauseColors.Ink,
+                                            .height(6.dp)
+                                            .clip(RoundedCornerShape(3.dp)),
+                                        color = if (totalFraction > 0.85f) PauseColors.Error else PauseColors.Wine,
                                         trackColor = PauseColors.CategoryBg,
                                     )
 
@@ -256,16 +280,16 @@ fun DrawerListScreen(
                                     Button(
                                         onClick = onUpgradeClick,
                                         colors = ButtonDefaults.buttonColors(
-                                            containerColor = PauseColors.Ink,
+                                            containerColor = PauseColors.Wine,
                                             contentColor = Color.White,
                                         ),
-                                        shape = RoundedCornerShape(10.dp),
+                                        shape = RoundedCornerShape(999.dp),
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .height(44.dp),
+                                            .height(48.dp),
                                     ) {
                                         Text(
-                                            text = "Nâng cấp gói Hội viên (chỉ từ 30k/năm)",
+                                            text = stringResource(R.string.drawers_quota_upgrade_cta),
                                             style = MaterialTheme.typography.labelMedium,
                                             fontWeight = FontWeight.Bold,
                                         )
@@ -275,7 +299,7 @@ fun DrawerListScreen(
                         }
 
                         // ── Filter Chips: Tất cả, Của tôi, Được chia sẻ ──
-                        item {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 listOf(
                                     "all" to "Tất cả (${allDrawers.size})",
@@ -293,13 +317,13 @@ fun DrawerListScreen(
                                             )
                                         },
                                         colors = FilterChipDefaults.filterChipColors(
-                                            selectedContainerColor = PauseColors.Ink,
+                                            selectedContainerColor = PauseColors.Wine,
                                             selectedLabelColor = Color.White,
                                             containerColor = PauseColors.Surface,
                                             labelColor = PauseColors.Ink,
                                         ),
                                         border = FilterChipDefaults.filterChipBorder(
-                                            borderColor = if (isSelected) PauseColors.Ink else PauseColors.Line,
+                                            borderColor = if (isSelected) PauseColors.Wine else PauseColors.Line,
                                             enabled = true,
                                             selected = isSelected,
                                         ),
@@ -311,7 +335,7 @@ fun DrawerListScreen(
 
                         // ── Lời mời chia sẻ (nếu có) ──
                         if (state.invitations.isNotEmpty() && (filterMode == "all" || filterMode == "shared")) {
-                            items(state.invitations, key = { "invitation-${it.id}" }) { invitation ->
+                            items(state.invitations, key = { "invitation-${it.id}" }, span = { GridItemSpan(maxLineSpan) }) { invitation ->
                                 Surface(
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(16.dp),
@@ -356,16 +380,18 @@ fun DrawerListScreen(
                             }
                         }
 
-                        // ── Danh sách Drawer Cards ──
+                        // ── Editorial Magazine 2-Column Grid Cards ──
                         items(filteredDrawers, key = { it.id }) { drawer ->
-                            DrawerCard(
+                            DrawerGridCard(
                                 drawer = drawer,
                                 thumbnailUrl = drawer.coverPhotoPath?.takeIf { it.isNotBlank() },
                                 onClick = { onDrawerClick(drawer) },
                             )
                         }
 
-                        item { Spacer(modifier = Modifier.height(32.dp)) }
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            Spacer(modifier = Modifier.height(32.dp))
+                        }
                     }
                 }
             }

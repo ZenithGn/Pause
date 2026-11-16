@@ -200,7 +200,7 @@ fun DrawerListScreen(
                     DrawerEmptyState(
                         title = stringResource(R.string.drawers_empty_title),
                         message = stringResource(R.string.drawers_empty_message),
-                        actionLabel = stringResource(R.string.drawers_create),
+                        actionLabel = stringResource(R.string.drawers_create_first),
                         onAction = onCreateClick,
                     )
                 }
@@ -360,7 +360,7 @@ fun DrawerListScreen(
                         items(filteredDrawers, key = { it.id }) { drawer ->
                             DrawerCard(
                                 drawer = drawer,
-                                thumbnailUrl = null,
+                                thumbnailUrl = drawer.coverPhotoPath?.takeIf { it.isNotBlank() },
                                 onClick = { onDrawerClick(drawer) },
                             )
                         }

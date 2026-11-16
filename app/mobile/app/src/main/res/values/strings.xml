@@ -119,9 +119,10 @@
     <string name="drawers_title">Tủ kỷ niệm</string>
     <string name="drawers_owned_section">Của tôi</string>
     <string name="drawers_shared_section">Được chia sẻ</string>
-    <string name="drawers_empty_title">Chưa có ngăn kéo nào</string>
-    <string name="drawers_empty_message">Tạo ngăn kéo đầu tiên để bắt đầu lưu giữ kỷ niệm.</string>
+    <string name="drawers_empty_title">Bắt đầu không gian kỷ niệm</string>
+    <string name="drawers_empty_message">Mỗi ngăn kéo lưu giữ tối đa 50 bức ảnh riêng tư. Tạo ngăn kéo đầu tiên để gom ảnh và sẵn sàng in photobooth.</string>
     <string name="drawers_create">Tạo ngăn kéo</string>
+    <string name="drawers_create_first">Tạo ngăn kéo đầu tiên</string>
     <string name="drawers_shared_badge">Được chia sẻ</string>
     <string name="drawers_view_only_badge">Chỉ xem</string>
     <string name="drawers_purchased_badge">Đã mua</string>
@@ -152,8 +153,8 @@
 
     <!-- Drawer detail / photos -->
     <string name="drawer_detail_photos_section">Ảnh kỷ niệm</string>
-    <string name="drawer_detail_empty_title">Ngăn kéo còn trống</string>
-    <string name="drawer_detail_empty_message">Thêm ảnh đầu tiên từ thư viện hoặc camera.</string>
+    <string name="drawer_detail_empty_title">Bắt đầu lưu giữ ảnh kỷ niệm</string>
+    <string name="drawer_detail_empty_message">Chọn 3–5 bức ảnh đẹp nhất từ thư viện máy để gom vào ngăn kéo này và sẵn sàng ghép dải in Photobooth.</string>
     <string name="drawer_add_photos">Thêm ảnh</string>
     <string name="drawer_uploading">Đang tải %1$d/%2$d ảnh…</string>
     <string name="drawer_upload_done">Đã tải %1$d ảnh</string>
@@ -176,6 +177,9 @@
     <!-- Photo viewer -->
     <string name="photo_viewer_title">%1$d / %2$d</string>
     <string name="photo_viewer_close">Đóng</string>
+    <string name="photo_viewer_cover_active">Đang là ảnh bìa</string>
+    <string name="photo_viewer_print">In Photobooth</string>
+    <string name="photo_viewer_uploaded_at">Tải lên %1$s</string>
 
     <!-- Share (FR-02.7) -->
     <string name="share_title">Chia sẻ ngăn kéo</string>
@@ -229,18 +233,24 @@
     <string name="home_banner_cta">Bắt đầu in →</string>
     <string name="home_drawers_title">Ngăn kéo</string>
     <string name="home_drawers_see_all">Xem tất cả</string>
+    <string name="home_drawers_empty_title">Chưa có ngăn kéo nào</string>
+    <string name="home_drawers_empty_hint">Tạo ngăn kéo đầu tiên để lưu giữ ảnh và in photobooth</string>
     <string name="home_category_birthday">sinh nhật</string>
     <string name="home_category_family">gia đình</string>
     <string name="home_category_travel">du lịch</string>
     <string name="home_category_more">thêm</string>
     <string name="home_products_title">Sản phẩm in</string>
     <string name="home_products_count">%1$d loại</string>
-    <string name="home_product_polaroid">Polaroid</string>
-    <string name="home_product_polaroid_price">từ 25.000đ</string>
-    <string name="home_product_photostrip">Photostrip</string>
-    <string name="home_product_photostrip_price">từ 18.000đ</string>
-    <string name="home_product_photobook">Photobook</string>
-    <string name="home_product_photobook_price">từ 120.000đ</string>
+    <string name="home_product_polaroid">Polaroid Cổ Điển</string>
+    <string name="home_product_polaroid_price">từ 20.000đ</string>
+    <string name="home_product_duo">Khung Đôi Cân Đối</string>
+    <string name="home_product_duo_price">từ 30.000đ</string>
+    <string name="home_product_photostrip">Dải Photostrip</string>
+    <string name="home_product_photostrip_price">từ 35.000đ</string>
+    <string name="home_product_photobook">Photobooth 4 Khung</string>
+    <string name="home_product_photobook_price">từ 45.000đ</string>
+    <string name="home_product_create_cta">Tạo ngay</string>
+    <string name="home_product_slot_badge">%1$d ảnh</string>
     <string name="home_orders_title">Đơn hàng gần đây</string>
     <string name="home_orders_see_all">Xem tất cả</string>
 
@@ -272,7 +282,8 @@
     <string name="photobooth_slot_count">%1$d khung ảnh</string>
     <string name="photobooth_select_photos_title">Chọn ảnh</string>
     <string name="photobooth_select_photos_hint">Đã chọn %1$d/%2$d ảnh</string>
-    <string name="photobooth_drawers_empty">Bạn cần tạo ngăn kéo và thêm ảnh trước khi tạo photobooth.</string>
+    <string name="photobooth_drawers_empty_title">Chưa có ngăn kéo nào</string>
+    <string name="photobooth_drawers_empty">Hãy tạo một ngăn kéo kỷ niệm và thêm ảnh để bắt đầu ghép dải in photobooth.</string>
     <string name="photobooth_photos_empty">Ngăn kéo này chưa có ảnh để chọn.</string>
     <string name="photobooth_view_preview">Xem trước</string>
     <string name="photobooth_progress_label">TIẾN TRÌNH IN</string>

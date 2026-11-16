@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,7 +41,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -69,6 +74,7 @@ import com.pause.app.presentation.theme.PauseColors
  * Greeting header, search bar, photobooth banner, category row,
  * print products carousel, recent orders section.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     displayName: String?,
@@ -76,7 +82,10 @@ fun HomeScreen(
     maxDrawers: Int = 3,
     ownedDrawerCount: Int = 0,
     recentDrawers: List<Drawer>,
-    hasError: Boolean,
+    hasError: Boolean = false,
+    onRetry: () -> Unit = {},
+    isRefreshing: Boolean = false,
+    onRefresh: () -> Unit = {},
     pendingInvitationCount: Int,
     unreadNotificationCount: Int = 0,
     onOpenInvitations: () -> Unit,
@@ -90,6 +99,18 @@ fun HomeScreen(
     onOrderClick: (String) -> Unit = { onViewOrders() },
     onNavigate: (PauseTab) -> Unit,
 ) {
+    val pullToRefreshState = rememberPullToRefreshState()
+    if (pullToRefreshState.isRefreshing) {
+        LaunchedEffect(true) {
+            onRefresh()
+        }
+    }
+    LaunchedEffect(isRefreshing) {
+        if (!isRefreshing && pullToRefreshState.isRefreshing) {
+            pullToRefreshState.endRefresh()
+        }
+    }
+
     var searchQuery by remember { mutableStateOf("") }
     val filteredDrawers = remember(recentDrawers, searchQuery) {
         if (searchQuery.isBlank()) {
@@ -107,12 +128,17 @@ fun HomeScreen(
             PauseBottomBar(selected = PauseTab.HOME, onSelect = onNavigate)
         },
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState()),
+                .nestedScroll(pullToRefreshState.nestedScrollConnection),
         ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
+            ) {
             // ── Top Header: Avatar + Greeting + Tier Badge + Notification ──
             Row(
                 modifier = Modifier
@@ -414,13 +440,14 @@ fun HomeScreen(
             MemoryDrawerRow(
                 drawers = filteredDrawers,
                 hasError = hasError,
+                onRetry = onRetry,
                 onOpenDrawer = onOpenDrawer,
                 onCreateDrawer = onCreateDrawer,
             )
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            // ── Sản phẩm in ──
+            // ── Sản phẩm in (Featured Print Carousel) ──
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -432,37 +459,52 @@ fun HomeScreen(
                     text = stringResource(R.string.home_products_title),
                     style = MaterialTheme.typography.titleLarge,
                     color = PauseColors.Ink,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    text = stringResource(R.string.home_products_count, 3),
+                    text = stringResource(R.string.home_products_count, 4),
                     style = MaterialTheme.typography.bodyMedium,
                     color = PauseColors.Muted,
                 )
             }
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(14.dp))
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 20.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
             ) {
                 item {
-                    ProductCard(
+                    FeaturedProductCard(
+                        slotCount = 1,
                         name = stringResource(R.string.home_product_polaroid),
                         price = stringResource(R.string.home_product_polaroid_price),
+                        description = stringResource(R.string.photobooth_category_1_desc),
                         onClick = { onStartPhotoboothWithSlot(1) },
                     )
                 }
                 item {
-                    ProductCard(
+                    FeaturedProductCard(
+                        slotCount = 2,
+                        name = stringResource(R.string.home_product_duo),
+                        price = stringResource(R.string.home_product_duo_price),
+                        description = stringResource(R.string.photobooth_category_2_desc),
+                        onClick = { onStartPhotoboothWithSlot(2) },
+                    )
+                }
+                item {
+                    FeaturedProductCard(
+                        slotCount = 3,
                         name = stringResource(R.string.home_product_photostrip),
                         price = stringResource(R.string.home_product_photostrip_price),
+                        description = stringResource(R.string.photobooth_category_3_desc),
                         onClick = { onStartPhotoboothWithSlot(3) },
                     )
                 }
                 item {
-                    ProductCard(
+                    FeaturedProductCard(
+                        slotCount = 4,
                         name = stringResource(R.string.home_product_photobook),
                         price = stringResource(R.string.home_product_photobook_price),
+                        description = stringResource(R.string.photobooth_category_4_desc),
                         onClick = { onStartPhotoboothWithSlot(4) },
                     )
                 }
@@ -513,7 +555,15 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
         }
+
+        PullToRefreshContainer(
+            state = pullToRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter),
+            containerColor = PauseColors.Surface,
+            contentColor = PauseColors.Wine,
+        )
     }
+}
 }
 
 // ─────────────────────────── Sub-components ───────────────────────────
@@ -526,162 +576,392 @@ fun HomeScreen(
 private fun MemoryDrawerRow(
     drawers: List<Drawer>,
     hasError: Boolean,
+    onRetry: () -> Unit,
     onOpenDrawer: (Drawer) -> Unit,
     onCreateDrawer: () -> Unit,
 ) {
-    LazyRow(
-        contentPadding = PaddingValues(horizontal = 20.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        items(drawers, key = { it.id }) { drawer ->
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .width(72.dp)
-                    .clickable { onOpenDrawer(drawer) },
+    if (drawers.isEmpty() && hasError) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 6.dp),
+            shape = RoundedCornerShape(14.dp),
+            color = PauseColors.WineLight,
+            border = androidx.compose.foundation.BorderStroke(1.dp, PauseColors.Error.copy(alpha = 0.25f)),
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(56.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(if (drawer.isOwner) PauseColors.CategoryBg else PauseColors.WineLight),
-                    contentAlignment = Alignment.Center,
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    if (!drawer.coverPhotoPath.isNullOrBlank()) {
-                        AsyncImage(
-                            model = drawer.coverPhotoPath,
-                            contentDescription = drawer.name,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                    } else {
-                        Text(
-                            text = drawer.name.trim().firstOrNull()?.uppercase() ?: "P",
-                            fontWeight = FontWeight.Bold,
-                            color = PauseColors.Wine,
-                        )
-                    }
-                    if (!drawer.isOwner) {
-                        Surface(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(2.dp),
-                            shape = CircleShape,
-                            color = PauseColors.Wine,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Group,
-                                contentDescription = "Chia sẻ",
-                                tint = Color.White,
-                                modifier = Modifier
-                                    .size(14.dp)
-                                    .padding(2.dp),
-                            )
-                        }
-                    }
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = null,
+                        tint = PauseColors.Error,
+                        modifier = Modifier.size(16.dp),
+                    )
+                    Text(
+                        text = stringResource(R.string.error_network),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = PauseColors.Error,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                 }
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = drawer.name,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = PauseColors.Ink,
-                    fontSize = 12.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    text = if (drawer.isOwner) {
-                        stringResource(R.string.drawers_photo_count, drawer.photoCount)
-                    } else {
-                        "Chia sẻ • ${drawer.photoCount}"
-                    },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (drawer.isOwner) PauseColors.Muted else PauseColors.Wine,
-                    fontSize = 10.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                TextButton(
+                    onClick = onRetry,
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                ) {
+                    Text(
+                        text = stringResource(R.string.drawers_retry),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = PauseColors.Wine,
+                    )
+                }
             }
         }
-        item {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .width(72.dp)
-                    .clickable(onClick = onCreateDrawer),
+    } else if (drawers.isEmpty()) {
+        Surface(
+            onClick = onCreateDrawer,
+            shape = RoundedCornerShape(16.dp),
+            color = PauseColors.BannerBg,
+            border = androidx.compose.foundation.BorderStroke(1.dp, PauseColors.Line),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .height(84.dp),
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
             ) {
                 Box(
                     modifier = Modifier
-                        .size(56.dp)
-                        .background(PauseColors.WineLight, RoundedCornerShape(16.dp)),
+                        .size(48.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(PauseColors.Wine),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Add,
-                        contentDescription = stringResource(R.string.drawers_create),
-                        tint = PauseColors.Wine,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp),
                     )
                 }
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = stringResource(R.string.home_category_more),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = PauseColors.Wine,
-                    fontSize = 12.sp,
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.home_drawers_empty_title),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = PauseColors.Ink,
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = stringResource(R.string.home_drawers_empty_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = PauseColors.Muted,
+                        fontSize = 11.sp,
+                    )
+                }
             }
         }
-    }
-    if (drawers.isEmpty() && hasError) {
-        Text(
-            text = stringResource(R.string.error_network),
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
-            style = MaterialTheme.typography.bodyMedium,
-            color = PauseColors.Error,
-        )
+    } else {
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            items(drawers, key = { it.id }) { drawer ->
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .width(76.dp)
+                        .clickable { onOpenDrawer(drawer) },
+                ) {
+                    Surface(
+                        modifier = Modifier.size(64.dp),
+                        shape = RoundedCornerShape(18.dp),
+                        color = if (drawer.isOwner) PauseColors.CategoryBg else PauseColors.WineLight,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, PauseColors.Line),
+                        shadowElevation = 1.dp,
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            if (!drawer.coverPhotoPath.isNullOrBlank()) {
+                                AsyncImage(
+                                    model = drawer.coverPhotoPath,
+                                    contentDescription = drawer.name,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize(),
+                                )
+                            } else {
+                                Text(
+                                    text = drawer.name.trim().firstOrNull()?.uppercase() ?: "P",
+                                    fontWeight = FontWeight.Bold,
+                                    color = PauseColors.Wine,
+                                    fontSize = 18.sp,
+                                )
+                            }
+                            if (!drawer.isOwner) {
+                                Surface(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .padding(3.dp),
+                                    shape = CircleShape,
+                                    color = PauseColors.Wine,
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Group,
+                                        contentDescription = "Chia sẻ",
+                                        tint = Color.White,
+                                        modifier = Modifier
+                                            .size(14.dp)
+                                            .padding(2.dp),
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = drawer.name,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = PauseColors.Ink,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        text = if (drawer.isOwner) {
+                            "${drawer.photoCount}/50 ảnh"
+                        } else {
+                            "Chia sẻ • ${drawer.photoCount}"
+                        },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (drawer.isOwner) PauseColors.Muted else PauseColors.Wine,
+                        fontSize = 10.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+            item {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .width(76.dp)
+                        .clickable(onClick = onCreateDrawer),
+                ) {
+                    Surface(
+                        modifier = Modifier.size(64.dp),
+                        shape = RoundedCornerShape(18.dp),
+                        color = PauseColors.Surface,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, PauseColors.Line),
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Add,
+                                contentDescription = stringResource(R.string.drawers_create),
+                                tint = PauseColors.Ink,
+                                modifier = Modifier.size(24.dp),
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = stringResource(R.string.drawers_create),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = PauseColors.Ink,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 11.sp,
+                        maxLines = 1,
+                    )
+                }
+            }
+        }
     }
 }
 
-/** Print product card – thumbnail placeholder + name + price. */
+/** Featured print product card – realistic miniature photobooth strip + pricing + action. */
 @Composable
-private fun ProductCard(
+private fun FeaturedProductCard(
+    slotCount: Int,
     name: String,
     price: String,
+    description: String,
     onClick: () -> Unit,
 ) {
-    Column(
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(18.dp),
+        color = PauseColors.Surface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, PauseColors.Line),
+        shadowElevation = 2.dp,
         modifier = Modifier
-            .width(120.dp)
-            .clickable(onClick = onClick),
+            .width(180.dp)
+            .height(260.dp),
     ) {
-        Surface(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(0.85f),
-            shape = RoundedCornerShape(16.dp),
-            color = PauseColors.CategoryBg,
+                .fillMaxSize()
+                .padding(14.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            // Product image placeholder
-            Box(contentAlignment = Alignment.Center) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(130.dp),
+                shape = RoundedCornerShape(12.dp),
+                color = PauseColors.BannerBg,
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    MiniPhotoboothStrip(slotCount = slotCount)
+
+                    Surface(
+                        color = PauseColors.WineLight,
+                        shape = RoundedCornerShape(6.dp),
+                        border = androidx.compose.foundation.BorderStroke(0.5.dp, PauseColors.Wine.copy(alpha = 0.3f)),
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(8.dp),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.home_product_slot_badge, slotCount),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = PauseColors.Wine,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Column {
                 Text(
-                    text = "📷",
-                    fontSize = 28.sp,
+                    text = name,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = PauseColors.Ink,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = PauseColors.Muted,
+                    fontSize = 11.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = price,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = PauseColors.Wine,
+                    fontWeight = FontWeight.Bold,
                 )
             }
+
+            Surface(
+                color = PauseColors.Wine,
+                shape = RoundedCornerShape(999.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(34.dp),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(R.string.home_product_create_cta),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = Icons.Filled.ChevronRight,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(14.dp),
+                    )
+                }
+            }
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = name,
-            style = MaterialTheme.typography.bodyMedium,
-            color = PauseColors.Ink,
-            fontWeight = FontWeight.Medium,
-        )
-        Text(
-            text = price,
-            style = MaterialTheme.typography.bodyMedium,
-            color = PauseColors.Muted,
-            fontSize = 12.sp,
-        )
+    }
+}
+
+/** Miniature visual mockup of the printed photobooth strip. */
+@Composable
+private fun MiniPhotoboothStrip(slotCount: Int) {
+    Surface(
+        color = Color.White,
+        shape = RoundedCornerShape(4.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, PauseColors.Line),
+        shadowElevation = 1.dp,
+        modifier = Modifier
+            .width(if (slotCount == 1) 70.dp else 52.dp)
+            .height(if (slotCount == 1) 85.dp else 105.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 6.dp, vertical = 6.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(3.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                repeat(slotCount) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .clip(RoundedCornerShape(2.dp))
+                            .background(PauseColors.CategoryBg),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.pause_mark),
+                            contentDescription = null,
+                            tint = PauseColors.Charcoal.copy(alpha = 0.25f),
+                            modifier = Modifier.size(10.dp),
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "PAUSE",
+                fontSize = 6.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp,
+                color = PauseColors.Muted,
+            )
+        }
     }
 }
 
@@ -701,6 +981,8 @@ private fun OrderCardPlaceholder(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         color = PauseColors.Surface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, PauseColors.Line),
+        shadowElevation = 1.dp,
     ) {
         Row(
             modifier = Modifier.padding(14.dp),
@@ -708,11 +990,17 @@ private fun OrderCardPlaceholder(
         ) {
             Box(
                 modifier = Modifier
-                    .size(44.dp)
-                    .background(PauseColors.Ink, CircleShape),
+                    .size(46.dp)
+                    .background(PauseColors.WineLight, CircleShape)
+                    .border(1.dp, PauseColors.Wine.copy(alpha = 0.2f), CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(text = "📸", fontSize = 20.sp)
+                Icon(
+                    painter = painterResource(R.drawable.pause_mark),
+                    contentDescription = null,
+                    tint = PauseColors.Wine,
+                    modifier = Modifier.size(20.dp),
+                )
             }
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -721,58 +1009,51 @@ private fun OrderCardPlaceholder(
                         text = orderCode,
                         style = MaterialTheme.typography.bodyMedium,
                         color = PauseColors.Ink,
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.Bold,
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Box(
-                        modifier = Modifier
-                            .size(6.dp)
-                            .background(Color(0xFF4CAF50), CircleShape),
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = statusLabel,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF4CAF50),
-                        fontSize = 12.sp,
-                    )
+                    Surface(
+                        color = Color(0xFFE8F5E9),
+                        shape = RoundedCornerShape(4.dp),
+                    ) {
+                        Text(
+                            text = statusLabel,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color(0xFF2E7D32),
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(3.dp))
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodySmall,
                     color = PauseColors.Muted,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    fontSize = 13.sp,
                 )
                 Text(
                     text = "Nhấn để xem chi tiết đơn in",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = PauseColors.Muted,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = PauseColors.Wine,
                     fontSize = 11.sp,
                 )
             }
+            Spacer(modifier = Modifier.width(8.dp))
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     text = priceText,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.titleSmall,
                     color = PauseColors.Ink,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    text = "Chi tiết",
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = "Chi tiết →",
+                    style = MaterialTheme.typography.labelSmall,
                     color = PauseColors.Muted,
-                    fontSize = 12.sp,
                 )
             }
-            Icon(
-                imageVector = Icons.Filled.ChevronRight,
-                contentDescription = null,
-                tint = PauseColors.BlueBadge,
-                modifier = Modifier.size(24.dp),
-            )
         }
     }
 }

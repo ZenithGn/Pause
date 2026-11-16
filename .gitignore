@@ -17,6 +17,8 @@ captures/
 *.ipr
 .vscode/
 .agent/
+.agents/
+skills-lock.json
 
 # OS
 .DS_Store

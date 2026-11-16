@@ -74,6 +74,7 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -613,7 +614,46 @@ fun SelectPhotosScreen(
             ) {
                 if (state.drawers.isEmpty()) {
                     item(span = { GridItemSpan(maxLineSpan) }) {
-                        SelectPhotosMessage(stringResource(R.string.photobooth_drawers_empty))
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp, vertical = 40.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Surface(
+                                modifier = Modifier.size(68.dp),
+                                shape = RoundedCornerShape(22.dp),
+                                color = PauseColors.WineLight,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, PauseColors.Wine.copy(alpha = 0.2f)),
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.pause_mark),
+                                        contentDescription = null,
+                                        tint = PauseColors.Wine,
+                                        modifier = Modifier.size(32.dp),
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(18.dp))
+                            Text(
+                                text = stringResource(R.string.photobooth_drawers_empty_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = PauseColors.Ink,
+                                textAlign = TextAlign.Center,
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = stringResource(R.string.photobooth_drawers_empty),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = PauseColors.Muted,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
                     }
                     return@LazyVerticalGrid
                 }

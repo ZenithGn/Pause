@@ -1,8 +1,11 @@
 package com.pause.app.presentation.navigation
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -178,7 +181,34 @@ fun PauseNavGraph(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        NavHost(navController = navController, startDestination = Routes.SPLASH) {
+        NavHost(
+            navController = navController,
+            startDestination = Routes.SPLASH,
+            enterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { fullWidth -> (fullWidth * 0.15f).toInt() },
+                    animationSpec = tween(durationMillis = 280),
+                ) + fadeIn(animationSpec = tween(durationMillis = 280))
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> -(fullWidth * 0.15f).toInt() },
+                    animationSpec = tween(durationMillis = 240),
+                ) + fadeOut(animationSpec = tween(durationMillis = 240))
+            },
+            popEnterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { fullWidth -> -(fullWidth * 0.15f).toInt() },
+                    animationSpec = tween(durationMillis = 280),
+                ) + fadeIn(animationSpec = tween(durationMillis = 280))
+            },
+            popExitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> (fullWidth * 0.15f).toInt() },
+                    animationSpec = tween(durationMillis = 240),
+                ) + fadeOut(animationSpec = tween(durationMillis = 240))
+            },
+        ) {
             composable(Routes.SPLASH) {
                 SplashScreen()
                 LaunchedEffect(signedIn) {

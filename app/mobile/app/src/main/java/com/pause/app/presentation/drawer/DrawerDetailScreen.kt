@@ -441,21 +441,69 @@ fun DrawerDetailScreen(
                 state.photos.isEmpty() -> Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 24.dp),
+                        .padding(horizontal = 24.dp, vertical = 32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Spacer(modifier = Modifier.height(40.dp))
+                    androidx.compose.material3.Surface(
+                        modifier = Modifier.size(72.dp),
+                        shape = RoundedCornerShape(22.dp),
+                        color = PauseColors.WineLight,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, PauseColors.Wine.copy(alpha = 0.2f)),
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.AddPhotoAlternate,
+                                contentDescription = null,
+                                tint = PauseColors.Wine,
+                                modifier = Modifier.size(32.dp),
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(18.dp))
                     Text(
                         text = stringResource(R.string.drawer_detail_empty_title),
                         style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
                         color = PauseColors.Ink,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = stringResource(R.string.drawer_detail_empty_message),
                         style = MaterialTheme.typography.bodyMedium,
                         color = PauseColors.Muted,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 16.dp),
                     )
+                    if (state.canWrite) {
+                        Spacer(modifier = Modifier.height(24.dp))
+                        androidx.compose.material3.Button(
+                            onClick = {
+                                picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                            },
+                            shape = RoundedCornerShape(999.dp),
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                containerColor = PauseColors.Wine,
+                                contentColor = androidx.compose.ui.graphics.Color.White,
+                            ),
+                            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.AddPhotoAlternate,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = stringResource(R.string.drawer_add_photos),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                    }
                 }
 
                 else -> LazyVerticalGrid(
@@ -576,6 +624,13 @@ fun DrawerDetailScreen(
             val cover = state.drawer?.coverPhotoPath
             cover != null && (it.thumbnailPath == cover || it.originalPath == cover)
         }.takeIf { it >= 0 }
+        val dateFormatter = remember {
+            java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                .withZone(java.time.ZoneId.systemDefault())
+        }
+        val photoDates = state.photos.map { photo ->
+            photo.uploadedAt?.let { dateFormatter.format(it) }
+        }
         PhotoViewerScreen(
             photoUrls = urls.filter { it.isNotBlank() },
             initialIndex = viewerIndex,
@@ -585,6 +640,11 @@ fun DrawerDetailScreen(
             onSetCover = { index ->
                 state.photos.getOrNull(index)?.let(onSetAsCover)
             },
+            onStartPhotobooth = {
+                viewerIndex = -1
+                onStartPhotobooth()
+            },
+            photoDates = photoDates,
         )
     }
 

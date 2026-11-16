@@ -1,11 +1,13 @@
 package com.pause.app.presentation.home
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,9 +53,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.painterResource
@@ -67,7 +72,9 @@ import com.pause.app.domain.model.Drawer
 import com.pause.app.domain.model.PrintOrder
 import com.pause.app.presentation.common.components.PauseBottomBar
 import com.pause.app.presentation.common.components.PauseTab
+import com.pause.app.presentation.photobooth.AestheticSlotArt
 import com.pause.app.presentation.theme.PauseColors
+import com.pause.app.presentation.theme.PlayfairDisplayFontFamily
 
 /**
  * Figma Home Page – redesigned to match the provided mockup.
@@ -272,98 +279,18 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            // ── Quick Action Hero Banner (Pause Memory Studio) ──
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
-                shape = RoundedCornerShape(20.dp),
-                color = PauseColors.Ink,
-            ) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "PAUSE MEMORY STUDIO",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = PauseColors.WineLight,
-                                letterSpacing = 1.5.sp,
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "Lưu giữ & In ấn Kỷ niệm",
-                                style = MaterialTheme.typography.titleLarge,
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold,
-                            )
-                        }
-                        Surface(
-                            color = Color.White.copy(alpha = 0.15f),
-                            shape = RoundedCornerShape(10.dp),
-                        ) {
-                            Text(
-                                text = "$ownedDrawerCount/$maxDrawers Tủ",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = Color.White,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(18.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        Button(
-                            onClick = onCreateDrawer,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.White,
-                                contentColor = PauseColors.Ink,
-                            ),
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(46.dp),
-                        ) {
-                            Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = stringResource(R.string.drawers_create),
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1,
-                            )
-                        }
-
-                        Button(
-                            onClick = onStartPhotobooth,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = PauseColors.Wine,
-                                contentColor = Color.White,
-                            ),
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(46.dp),
-                        ) {
-                            Icon(painterResource(R.drawable.pause_mark_white), contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "Photobooth",
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1,
-                            )
-                        }
-                    }
-                }
+            // ── Quick Action Hero Banner (Option 3: Dynamic Memory Cover) ──
+            val heroCoverUrl = remember(recentDrawers) {
+                recentDrawers.firstOrNull { !it.coverPhotoPath.isNullOrBlank() }?.coverPhotoPath
             }
+            MemoryStudioHeroBanner(
+                coverPhotoUrl = heroCoverUrl,
+                ownedDrawerCount = ownedDrawerCount,
+                maxDrawers = maxDrawers,
+                onCreateDrawer = onCreateDrawer,
+                onStartPhotobooth = onStartPhotobooth,
+                modifier = Modifier.padding(horizontal = 20.dp),
+            )
 
             // ── Lời mời chia sẻ (Pending Invitations Alert) ──
             if (pendingInvitationCount > 0) {
@@ -567,6 +494,190 @@ fun HomeScreen(
 }
 
 // ─────────────────────────── Sub-components ───────────────────────────
+
+/**
+ * Option 3 Hero Banner: renders the caller's latest memory cover photo (or a warm
+ * atmospheric sunset backdrop when none exists yet) behind a translucent scrim,
+ * paired with a tilted miniature 3-slot photobooth strip.
+ */
+@Composable
+private fun MemoryStudioHeroBanner(
+    coverPhotoUrl: String?,
+    ownedDrawerCount: Int,
+    maxDrawers: Int,
+    onCreateDrawer: () -> Unit,
+    onStartPhotobooth: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        color = Color(0xFF3E0D12),
+        shadowElevation = 4.dp,
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min),
+        ) {
+            if (!coverPhotoUrl.isNullOrBlank()) {
+                AsyncImage(
+                    model = coverPhotoUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .matchParentSize()
+                        .blur(8.dp),
+                )
+            } else {
+                AestheticSlotArt(
+                    slotIndex = 0,
+                    modifier = Modifier.matchParentSize(),
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(
+                                Color(0xFF2B0B0E).copy(alpha = 0.78f),
+                                Color(0xFF1C0A0C).copy(alpha = 0.58f),
+                            ),
+                        ),
+                    ),
+            )
+
+            Column(modifier = Modifier.padding(20.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.home_studio_overline),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = PauseColors.WineLight,
+                                letterSpacing = 1.4.sp,
+                            )
+                            Surface(
+                                color = Color.White.copy(alpha = 0.20f),
+                                shape = CircleShape,
+                            ) {
+                                Text(
+                                    text = "$ownedDrawerCount/$maxDrawers Tủ",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color.White,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "Lưu giữ & In ấn Kỷ niệm",
+                            fontFamily = PlayfairDisplayFontFamily,
+                            fontSize = 21.sp,
+                            lineHeight = 27.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = stringResource(R.string.home_studio_subtitle),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.86f),
+                        )
+                    }
+
+                    Surface(
+                        modifier = Modifier
+                            .width(58.dp)
+                            .height(88.dp)
+                            .graphicsLayer { rotationZ = 3f },
+                        shape = RoundedCornerShape(10.dp),
+                        color = Color.White,
+                        shadowElevation = 6.dp,
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(5.dp),
+                            verticalArrangement = Arrangement.spacedBy(3.dp),
+                        ) {
+                            listOf(0, 2, 1).forEach { artIdx ->
+                                AestheticSlotArt(
+                                    slotIndex = artIdx,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(3.dp)),
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Button(
+                        onClick = onCreateDrawer,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.White,
+                            contentColor = PauseColors.Ink,
+                        ),
+                        shape = CircleShape,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp),
+                    ) {
+                        Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = stringResource(R.string.drawers_create),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                        )
+                    }
+
+                    Button(
+                        onClick = onStartPhotobooth,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = PauseColors.Wine,
+                            contentColor = Color.White,
+                        ),
+                        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.25f)),
+                        shape = CircleShape,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp),
+                    ) {
+                        Icon(painterResource(R.drawable.pause_mark_white), contentDescription = null, modifier = Modifier.size(15.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Photobooth",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
 
 /**
  * Compact Home representation of the caller's real drawers. The list comes

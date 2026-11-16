@@ -239,6 +239,8 @@
     <string name="home_banner_title">BIẾN ẢNH THÀNH\nPHOTOBOOTH</string>
     <string name="home_banner_desc">Lưu giữ khoảnh khắc thanh xuân với dải photobooth 3-4 khung hình cổ điển, giấy in chất lượng cao sắc nét bền màu.</string>
     <string name="home_banner_cta">Bắt đầu in →</string>
+    <string name="home_studio_overline">PAUSE STUDIO</string>
+    <string name="home_studio_subtitle">Cất giữ ảnh theo từng dịp &amp; ghép dải Photobooth.</string>
     <string name="home_drawers_title">Ngăn kéo</string>
     <string name="home_drawers_see_all">Xem tất cả</string>
     <string name="home_drawers_empty_title">Chưa có ngăn kéo nào</string>
@@ -279,6 +281,9 @@
     <string name="photobooth_category_4_desc">Photobooth 4 khung · 4 khoảnh khắc</string>
     <string name="photobooth_category_template_count">%1$d mẫu</string>
     <string name="photobooth_category_view_templates">Xem mẫu →</string>
+    <string name="photobooth_try_template">Thử →</string>
+    <string name="photobooth_slot_short">%1$d ô</string>
+    <string name="photobooth_studio_overline">PAUSE STUDIO</string>
     <string name="photobooth_templates_by_slot_title">Mẫu khung %1$d ảnh</string>
     <string name="photobooth_templates_by_slot_subtitle">Chọn một mẫu thiết kế cho khung %1$d ảnh của bạn.</string>
     <string name="photobooth_templates_by_slot_empty">Chưa có mẫu nào cho khung %1$d ảnh.</string>

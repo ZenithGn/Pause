@@ -1,7 +1,7 @@
 package com.pause.app.presentation.order
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,10 +11,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -41,6 +43,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -97,65 +100,71 @@ fun OrderFormScreen(
             )
         },
         bottomBar = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(PauseColors.Surface)
-                    .border(1.dp, PauseColors.Line, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                    .padding(horizontal = 20.dp, vertical = 14.dp),
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+                color = PauseColors.Surface,
+                shadowElevation = 8.dp,
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = stringResource(R.string.order_total_amount),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium,
-                        color = PauseColors.Charcoal,
-                    )
-                    Text(
-                        text = stringResource(R.string.order_format_currency, state.grandTotalVnd),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = PauseColors.Wine,
-                    )
-                }
-
-                Spacer(Modifier.height(10.dp))
-
-                Button(
-                    onClick = {
-                        if (onSubmitWithPayment != null) {
-                            onSubmitWithPayment(selectedPaymentMethod == 1)
-                        } else {
-                            onSubmit()
-                        }
-                    },
-                    enabled = !state.isSubmitting,
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = PauseColors.Wine,
-                        disabledContainerColor = PauseColors.Wine.copy(alpha = 0.5f),
-                    ),
+                        .navigationBarsPadding()
+                        .padding(horizontal = 20.dp, vertical = 14.dp),
                 ) {
-                    if (state.isSubmitting) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            color = PauseColors.Surface,
-                            strokeWidth = 2.dp,
-                        )
-                    } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
                         Text(
-                            text = stringResource(R.string.order_submit_button),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            color = Color.White,
+                            text = stringResource(R.string.order_total_amount),
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Medium,
+                            color = PauseColors.Charcoal,
                         )
+                        Text(
+                            text = stringResource(R.string.order_format_currency, state.grandTotalVnd),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = PauseColors.Wine,
+                        )
+                    }
+
+                    Spacer(Modifier.height(10.dp))
+
+                    Button(
+                        onClick = {
+                            if (onSubmitWithPayment != null) {
+                                onSubmitWithPayment(selectedPaymentMethod == 1)
+                            } else {
+                                onSubmit()
+                            }
+                        },
+                        enabled = !state.isSubmitting,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        shape = CircleShape,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = PauseColors.Wine,
+                            disabledContainerColor = PauseColors.Wine.copy(alpha = 0.5f),
+                        ),
+                    ) {
+                        if (state.isSubmitting) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                color = PauseColors.Surface,
+                                strokeWidth = 2.dp,
+                            )
+                        } else {
+                            Text(
+                                text = stringResource(R.string.order_submit_button),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = Color.White,
+                            )
+                        }
                     }
                 }
             }
@@ -175,35 +184,32 @@ fun OrderFormScreen(
 
             // --- Product Summary Card ---
             SectionHeader(title = stringResource(R.string.order_summary_section))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(PauseColors.Surface)
-                    .border(1.dp, PauseColors.Line, RoundedCornerShape(14.dp))
-                    .padding(14.dp),
-            ) {
+            OrderSectionCard {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .size(72.dp)
+                            .width(62.dp)
+                            .height(84.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(PauseColors.CategoryBg),
+                            .background(PauseColors.BannerBg)
+                            .padding(4.dp),
                         contentAlignment = Alignment.Center,
                     ) {
                         if (state.previewUrl != null && state.previewUrl.isNotBlank()) {
                             AsyncImage(
                                 model = state.previewUrl,
                                 contentDescription = null,
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(6.dp)),
                                 contentScale = ContentScale.Crop,
                             )
                         } else {
                             Icon(
                                 Icons.Filled.Image,
                                 contentDescription = null,
-                                tint = PauseColors.Muted,
-                                modifier = Modifier.size(28.dp),
+                                tint = PauseColors.Wine.copy(alpha = 0.55f),
+                                modifier = Modifier.size(26.dp),
                             )
                         }
                     }
@@ -214,7 +220,7 @@ fun OrderFormScreen(
                         Text(
                             text = state.templateName.ifBlank { "Photobooth Strip" },
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
+                            fontWeight = FontWeight.Bold,
                             color = PauseColors.Ink,
                         )
                         Spacer(Modifier.height(4.dp))
@@ -227,7 +233,7 @@ fun OrderFormScreen(
                         Text(
                             text = stringResource(R.string.order_format_currency, state.effectiveUnitPriceVnd),
                             style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.SemiBold,
+                            fontWeight = FontWeight.Bold,
                             color = PauseColors.Wine,
                         )
                     }
@@ -236,9 +242,9 @@ fun OrderFormScreen(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(PauseColors.CategoryBg)
-                            .padding(horizontal = 4.dp, vertical = 2.dp),
+                            .clip(CircleShape)
+                            .background(PauseColors.BannerBg)
+                            .padding(horizontal = 4.dp, vertical = 4.dp),
                     ) {
                         IconButton(
                             onClick = onDecrementQuantity,
@@ -250,7 +256,7 @@ fun OrderFormScreen(
                         Text(
                             text = state.quantity.toString(),
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 6.dp),
+                            modifier = Modifier.padding(horizontal = 8.dp),
                         )
                         IconButton(
                             onClick = onIncrementQuantity,
@@ -309,14 +315,7 @@ fun OrderFormScreen(
 
             // --- Recipient Information ---
             SectionHeader(title = stringResource(R.string.order_recipient_section))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(PauseColors.Surface)
-                    .border(1.dp, PauseColors.Line, RoundedCornerShape(14.dp))
-                    .padding(14.dp),
-            ) {
+            OrderSectionCard {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     OutlinedTextField(
                         value = state.shippingName,
@@ -326,7 +325,7 @@ fun OrderFormScreen(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         colors = outlinedFieldColors(),
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(14.dp),
                     )
 
                     OutlinedTextField(
@@ -338,7 +337,7 @@ fun OrderFormScreen(
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                         colors = outlinedFieldColors(),
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(14.dp),
                     )
 
                     OutlinedTextField(
@@ -349,7 +348,7 @@ fun OrderFormScreen(
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 2,
                         colors = outlinedFieldColors(),
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(14.dp),
                     )
 
                     OutlinedTextField(
@@ -359,7 +358,7 @@ fun OrderFormScreen(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         colors = outlinedFieldColors(),
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(14.dp),
                     )
                 }
             }
@@ -368,14 +367,7 @@ fun OrderFormScreen(
 
             // --- Payment Method ---
             SectionHeader(title = stringResource(R.string.order_payment_section))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(PauseColors.Surface)
-                    .border(1.dp, PauseColors.Line, RoundedCornerShape(14.dp))
-                    .padding(14.dp),
-            ) {
+            OrderSectionCard {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     PaymentOptionRow(
                         title = stringResource(R.string.order_payment_cod),
@@ -397,14 +389,7 @@ fun OrderFormScreen(
 
             // --- Promo Code / Voucher (Figma Screen 9: Check Out) ---
             SectionHeader(title = "Mã ưu đãi / Voucher")
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(PauseColors.Surface)
-                    .border(1.dp, PauseColors.Line, RoundedCornerShape(14.dp))
-                    .padding(14.dp),
-            ) {
+            OrderSectionCard {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     OutlinedTextField(
                         value = state.promoCode,
@@ -414,7 +399,7 @@ fun OrderFormScreen(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         colors = outlinedFieldColors(),
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(14.dp),
                     )
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -445,14 +430,7 @@ fun OrderFormScreen(
             Spacer(Modifier.height(18.dp))
 
             // --- Price Breakdown ---
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(PauseColors.Surface)
-                    .border(1.dp, PauseColors.Line, RoundedCornerShape(14.dp))
-                    .padding(14.dp),
-            ) {
+            OrderSectionCard {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     PriceRow(
                         label = stringResource(R.string.order_subtotal),
@@ -482,6 +460,20 @@ fun OrderFormScreen(
             }
 
             Spacer(Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+private fun OrderSectionCard(content: @Composable () -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        color = PauseColors.Surface,
+        shadowElevation = 1.dp,
+    ) {
+        Box(modifier = Modifier.padding(16.dp)) {
+            content()
         }
     }
 }
@@ -553,25 +545,26 @@ private fun ProductOptionChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(
+    Surface(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(if (selected) PauseColors.WineLight else PauseColors.Surface)
-            .border(
-                width = if (selected) 1.5.dp else 1.dp,
-                color = if (selected) PauseColors.Wine else PauseColors.Line,
-                shape = RoundedCornerShape(12.dp),
-            )
-            .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 12.dp),
-        contentAlignment = Alignment.Center,
+            .clip(RoundedCornerShape(14.dp))
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(14.dp),
+        color = if (selected) PauseColors.WineLight else PauseColors.Surface,
+        border = if (selected) BorderStroke(1.5.dp, PauseColors.Wine) else null,
+        shadowElevation = if (selected) 0.dp else 1.dp,
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
-            color = if (selected) PauseColors.Wine else PauseColors.Ink,
-        )
+        Box(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+                color = if (selected) PauseColors.Wine else PauseColors.Ink,
+            )
+        }
     }
 }
 
@@ -580,4 +573,6 @@ private fun outlinedFieldColors() = OutlinedTextFieldDefaults.colors(
     focusedBorderColor = PauseColors.Wine,
     unfocusedBorderColor = PauseColors.Line,
     focusedLabelColor = PauseColors.Wine,
+    focusedContainerColor = PauseColors.Paper.copy(alpha = 0.4f),
+    unfocusedContainerColor = PauseColors.Paper.copy(alpha = 0.4f),
 )

@@ -50,6 +50,12 @@ class AuthViewModel(
     private val _events = Channel<AuthEvent>(Channel.BUFFERED)
     val events: Flow<AuthEvent> = _events.receiveAsFlow()
 
+    init {
+        viewModelScope.launch {
+            restoreSession()
+        }
+    }
+
     // ---------------------------------------------------------------- input
 
     fun onEmailChange(value: String) {

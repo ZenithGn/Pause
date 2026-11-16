@@ -255,6 +255,7 @@ val viewModelModule = module {
             deletePhotosUseCase = get(),
             updateDrawerUseCase = get(),
             deleteDrawerUseCase = get(),
+            cloudinaryUploader = get(),
         )
     }
     viewModel {

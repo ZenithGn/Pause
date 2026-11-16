@@ -3,6 +3,7 @@ package com.pause.app.presentation.drawer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pause.app.R
+import com.pause.app.data.remote.CloudinaryUploader
 import com.pause.app.domain.model.Drawer
 import com.pause.app.domain.model.DrawerFailure
 import com.pause.app.domain.model.Photo
@@ -33,6 +34,7 @@ class DrawerDetailViewModel(
     private val deletePhotosUseCase: DeletePhotosUseCase,
     private val updateDrawerUseCase: UpdateDrawerUseCase,
     private val deleteDrawerUseCase: DeleteDrawerUseCase,
+    private val cloudinaryUploader: CloudinaryUploader? = null,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DrawerDetailUiState())
@@ -166,6 +168,23 @@ class DrawerDetailViewModel(
                             },
                         )
                     }
+                    // Auto-set the first uploaded photo as cover if drawer currently has no cover
+                    if (drawer.coverPhotoPath.isNullOrBlank() && result.uploaded.isNotEmpty()) {
+                        val firstPhoto = result.uploaded.first()
+                        val coverUrl = urls.firstOrNull { it.photoId == firstPhoto.id }?.thumbnailUrl
+                            ?: firstPhoto.thumbnailPath
+                            ?: firstPhoto.originalPath
+                        if (!coverUrl.isNullOrBlank()) {
+                            updateDrawerUseCase(
+                                drawer = drawer,
+                                name = drawer.name,
+                                description = drawer.description,
+                                coverPhotoPath = coverUrl,
+                            ).onSuccess { updated ->
+                                _state.update { it.copy(drawer = updated) }
+                            }
+                        }
+                    }
                     refreshDrawer()
                 }
                 .onFailure { error ->
@@ -269,6 +288,48 @@ class DrawerDetailViewModel(
             }.onFailure { error ->
                 _state.update {
                     it.copy(error = DrawerFailureMapper.toUiText(error.asDrawerFailure()))
+                }
+            }
+        }
+    }
+
+    /** Upload a custom cover image directly from user gallery. */
+    fun uploadCoverPhoto(rawPhoto: RawPhoto) {
+        val drawer = _state.value.drawer ?: return
+        val uploader = cloudinaryUploader ?: return
+        if (!drawer.canWrite || _state.value.isUploadingCover) return
+        viewModelScope.launch {
+            _state.update { it.copy(isUploadingCover = true, error = null) }
+            runCatching {
+                val folder = "pause/photos/${drawer.id}"
+                val publicId = "cover_${java.util.UUID.randomUUID()}"
+                val result = uploader.upload(
+                    bytes = rawPhoto.bytes,
+                    folder = folder,
+                    publicId = publicId,
+                    mimeType = rawPhoto.mimeType,
+                )
+                val thumbnailUrl = CloudinaryUploader.thumbnailUrl(result.secureUrl)
+                updateDrawerUseCase(
+                    drawer = drawer,
+                    name = drawer.name,
+                    description = drawer.description,
+                    coverPhotoPath = thumbnailUrl,
+                ).getOrThrow()
+            }.onSuccess { updated ->
+                _state.update {
+                    it.copy(
+                        isUploadingCover = false,
+                        drawer = updated,
+                        toast = UiText.Resource(R.string.drawer_cover_updated),
+                    )
+                }
+            }.onFailure { error ->
+                _state.update {
+                    it.copy(
+                        isUploadingCover = false,
+                        error = DrawerFailureMapper.toUiText(error.asDrawerFailure()),
+                    )
                 }
             }
         }

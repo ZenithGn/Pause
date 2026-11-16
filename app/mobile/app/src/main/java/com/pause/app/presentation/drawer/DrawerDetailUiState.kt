@@ -15,6 +15,7 @@ data class DrawerDetailUiState(
     val originalUrls: Map<String, String> = emptyMap(),
     val error: UiText? = null,
     val toast: UiText? = null,
+    val isUploadingCover: Boolean = false,
     val isUploading: Boolean = false,
     val uploadCompleted: Int = 0,
     val uploadTotal: Int = 0,

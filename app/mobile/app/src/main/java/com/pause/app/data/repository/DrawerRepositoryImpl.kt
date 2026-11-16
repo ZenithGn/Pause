@@ -129,19 +129,36 @@ class DrawerRepositoryImpl(
         description: String?,
         coverPhotoPath: String?,
     ): Drawer = withContext(ioDispatcher) {
+        val userId = currentUserId()
+        if (drawerId.startsWith("local_")) {
+            val existing = userId?.let { id -> drawerDao.getById(id, drawerId) }?.toDomain()
+                ?: throw DrawerFailure.NotFound
+            val updated = existing.copy(
+                name = name,
+                description = description,
+                coverPhotoPath = coverPhotoPath ?: existing.coverPhotoPath,
+                updatedAt = java.time.Instant.now(),
+            )
+            userId.let { id -> drawerDao.upsertAll(listOf(updated.toEntity(id))) }
+            return@withContext updated
+        }
         call {
-            client.from(TABLE).update(
-                if (coverPhotoPath != null) {
+            if (coverPhotoPath != null) {
+                client.from(TABLE).update(
                     DrawerUpdateWithCoverDto(
                         name = name,
                         description = description,
                         coverPhotoUrl = coverPhotoPath,
-                    )
-                } else {
-                    DrawerUpdateDto(name = name, description = description)
-                },
-            ) {
-                filter { eq("id", drawerId) }
+                    ),
+                ) {
+                    filter { eq("id", drawerId) }
+                }
+            } else {
+                client.from(TABLE).update(
+                    DrawerUpdateDto(name = name, description = description),
+                ) {
+                    filter { eq("id", drawerId) }
+                }
             }
             fetchDrawer(drawerId)
         }

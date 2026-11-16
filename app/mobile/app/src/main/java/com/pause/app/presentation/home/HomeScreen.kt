@@ -85,6 +85,7 @@ import com.pause.app.presentation.theme.PlayfairDisplayFontFamily
 @Composable
 fun HomeScreen(
     displayName: String?,
+    avatarUrl: String? = null,
     isPremium: Boolean = false,
     maxDrawers: Int = 3,
     ownedDrawerCount: Int = 0,
@@ -161,15 +162,25 @@ fun HomeScreen(
                     Box(
                         modifier = Modifier
                             .size(46.dp)
-                            .background(PauseColors.Ink, CircleShape),
+                            .clip(CircleShape)
+                            .background(PauseColors.Ink),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(
-                            text = (displayName?.trim()?.firstOrNull() ?: 'P').uppercase().toString(),
-                            color = Color.White,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                        )
+                        if (!avatarUrl.isNullOrBlank()) {
+                            AsyncImage(
+                                model = avatarUrl,
+                                contentDescription = displayName,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        } else {
+                            Text(
+                                text = (displayName?.trim()?.firstOrNull() ?: 'P').uppercase().toString(),
+                                color = Color.White,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {

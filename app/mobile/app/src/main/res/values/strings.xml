@@ -178,6 +178,8 @@
     <string name="drawer_delete_confirm">Xoá ngăn kéo</string>
     <string name="drawer_share_action">Chia sẻ</string>
     <string name="drawer_create_photobooth">Tạo photobooth từ ảnh này</string>
+    <string name="drawer_change_cover">Đổi ảnh bìa</string>
+    <string name="drawer_tap_to_add_cover">Nhấn để chọn ảnh bìa</string>
     <string name="drawer_edit_action">Chỉnh sửa</string>
     <string name="drawer_menu_more">Tuỳ chọn khác</string>
     <string name="drawer_photo_open">Xem ảnh</string>

@@ -272,18 +272,31 @@ fun PauseNavGraph(
 
             composable(Routes.HOME) {
                 LaunchedEffect(Unit) {
-                    drawerListViewModel.loadIfNeeded()
+                    profileViewModel.load()
+                    drawerListViewModel.load()
                     notificationViewModel.loadNotifications()
                     orderViewModel.loadOrders()
                 }
                 HomeScreen(
                     displayName = profileState.profile?.displayName
                         ?: authState.session?.user?.email?.substringBefore('@'),
+                    avatarUrl = profileState.avatarUrl,
                     isPremium = profileState.profile?.isPremium ?: false,
                     maxDrawers = profileState.profile?.maxDrawers ?: 3,
                     ownedDrawerCount = drawerState.owned.size,
                     recentDrawers = drawerState.recent,
                     hasError = drawerState.error != null,
+                    onRetry = {
+                        profileViewModel.load(force = true)
+                        drawerListViewModel.load()
+                    },
+                    isRefreshing = drawerState.isLoading || profileState.isLoading,
+                    onRefresh = {
+                        profileViewModel.load(force = true)
+                        drawerListViewModel.load()
+                        notificationViewModel.loadNotifications()
+                        orderViewModel.loadOrders()
+                    },
                     pendingInvitationCount = drawerState.pendingInvitationCount,
                     unreadNotificationCount = notificationState.unreadCount,
                     onOpenInvitations = { onTabSelected(PauseTab.MEMORIES) },
@@ -349,7 +362,7 @@ fun PauseNavGraph(
             }
 
             composable(Routes.MEMORIES) {
-                LaunchedEffect(Unit) { drawerListViewModel.loadIfNeeded() }
+                LaunchedEffect(Unit) { drawerListViewModel.load() }
                 DrawerListScreen(
                     state = drawerState,
                     maxDrawers = profileState.profile?.maxDrawers ?: 3,
@@ -376,7 +389,10 @@ fun PauseNavGraph(
 
                 DrawerDetailScreen(
                     state = detailState,
-                    onBack = { navController.popBackStack() },
+                    onBack = {
+                        drawerListViewModel.load()
+                        navController.popBackStack()
+                    },
                     onShare = { navController.navigate(Routes.shareDrawer(drawerId)) },
                     onStartPhotobooth = {
                         photoboothViewModel.start(drawerId)
@@ -390,7 +406,14 @@ fun PauseNavGraph(
                     onDeleteDrawer = detailViewModel::deleteDrawer,
                     onLoadMore = detailViewModel::loadMore,
                     onConsumeToast = detailViewModel::consumeToast,
-                    onSetAsCover = detailViewModel::setAsCover,
+                    onSetAsCover = { photo ->
+                        detailViewModel.setAsCover(photo)
+                        drawerListViewModel.load()
+                    },
+                    onUploadCoverPhoto = { rawPhoto ->
+                        detailViewModel.uploadCoverPhoto(rawPhoto)
+                        drawerListViewModel.load()
+                    },
                     onDeleted = {
                         drawerListViewModel.onDrawerDeleted(drawerId)
                         navController.popBackStack()

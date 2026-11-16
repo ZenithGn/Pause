@@ -7,6 +7,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -111,6 +112,7 @@ fun DrawerDetailScreen(
     onConsumeToast: () -> Unit,
     onDeleted: () -> Unit,
     onSetAsCover: (Photo) -> Unit = {},
+    onUploadCoverPhoto: (RawPhoto) -> Unit = {},
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -128,8 +130,21 @@ fun DrawerDetailScreen(
     ) { uris ->
         if (uris.isNotEmpty()) {
             scope.launch {
-                val raw = withContext(Dispatchers.IO) { uris.mapNotNull { readRawPhoto(context, it) } }
+                val raw = withContext(Dispatchers.IO) { uris.mapNotNull { uri -> readRawPhoto(context, uri) } }
                 onPhotosPicked(raw)
+            }
+        }
+    }
+
+    val coverPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+    ) { uri ->
+        if (uri != null) {
+            scope.launch {
+                val raw = withContext(Dispatchers.IO) { readRawPhoto(context, uri) }
+                if (raw != null) {
+                    onUploadCoverPhoto(raw)
+                }
             }
         }
     }
@@ -196,6 +211,17 @@ fun DrawerDetailScreen(
                                 )
                             }
                             DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                                if (state.canWrite) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.drawer_change_cover)) },
+                                        onClick = {
+                                            menuOpen = false
+                                            coverPicker.launch(
+                                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                                            )
+                                        },
+                                    )
+                                }
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.drawer_create_photobooth)) },
                                     onClick = {
@@ -381,15 +407,79 @@ fun DrawerDetailScreen(
                                                     PauseColors.CategoryBg,
                                                 )
                                             )
+                                        )
+                                        .then(
+                                            if (state.canWrite) {
+                                                Modifier.clickable {
+                                                    coverPicker.launch(
+                                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                                                    )
+                                                }
+                                            } else Modifier
                                         ),
                                     contentAlignment = Alignment.Center,
                                 ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.pause_mark),
-                                        contentDescription = null,
-                                        tint = PauseColors.Wine.copy(alpha = 0.4f),
-                                        modifier = Modifier.size(64.dp),
-                                    )
+                                    if (state.isUploadingCover) {
+                                        CircularProgressIndicator(
+                                            color = PauseColors.Wine,
+                                            modifier = Modifier.size(28.dp),
+                                        )
+                                    } else {
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Filled.AddPhotoAlternate,
+                                                contentDescription = null,
+                                                tint = PauseColors.Wine.copy(alpha = 0.6f),
+                                                modifier = Modifier.size(36.dp),
+                                            )
+                                            if (state.canWrite) {
+                                                Text(
+                                                    text = stringResource(R.string.drawer_tap_to_add_cover),
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    color = PauseColors.Wine,
+                                                    fontWeight = FontWeight.SemiBold,
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Quick button to change cover on banner
+                            if (state.canWrite && coverUrl != null) {
+                                Surface(
+                                    onClick = {
+                                        coverPicker.launch(
+                                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                                        )
+                                    },
+                                    shape = CircleShape,
+                                    color = Color.Black.copy(alpha = 0.65f),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.4f)),
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .padding(12.dp)
+                                        .size(36.dp),
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        if (state.isUploadingCover) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.size(18.dp),
+                                                color = Color.White,
+                                                strokeWidth = 2.dp,
+                                            )
+                                        } else {
+                                            Icon(
+                                                imageVector = Icons.Filled.AddPhotoAlternate,
+                                                contentDescription = stringResource(R.string.drawer_change_cover),
+                                                tint = Color.White,
+                                                modifier = Modifier.size(18.dp),
+                                            )
+                                        }
+                                    }
                                 }
                             }
 

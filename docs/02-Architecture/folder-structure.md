@@ -1,6 +1,6 @@
 # Cấu trúc thư mục dự án (Folder Structure)
 
-> Cập nhật lần cuối: sau khi hoàn thành **FR-01 – Authentication & Account**.
+> Cập nhật lần cuối: sau khi hoàn thành **FR-06 – Admin Dashboard (Web Next.js + Supabase Backend)**.
 > Cấu trúc dưới đây phản ánh code thực tế trong repo.
 
 ## Tổng quan Monorepo
@@ -22,15 +22,16 @@ Pause/
 │
 ├── 📂 supabase/                    # 🗄️ Backend (migrations, config, email templates)
 │   ├── config.toml                 # Auth providers, email templates, rate limit
-│   ├── migrations/                 # SQL migrations (profiles, drawers, photos, shares, RLS)
+│   ├── migrations/                 # SQL migrations (profiles, drawers, photos, shares, FR-04..FR-07, FR-06 admin)
+│   ├── seed/                       # admin_seed.sql (dữ liệu mẫu local/staging)
 │   ├── templates/                  # Email xác nhận + khôi phục mật khẩu
-│   ├── functions/create-thumbnail/ # (tuỳ chọn) Edge Function backfill thumbnail
-│   ├── tests/                      # validate_migrations.py (chạy SQL trên Postgres embedded)
+│   ├── functions/                  # Edge Functions (create-thumbnail, payos-webhook, send-notification, ...)
+│   ├── tests/                      # validate_migrations.py (146 checks trên Postgres embedded)
 │   └── README.md                   # Hướng dẫn setup project Supabase
 │
 └── 📂 app/
-    ├── 📂 mobile/                  # 📱 Android app (Kotlin + Compose) — đã khởi tạo
-    └── 📂 web/                     # 🌐 Next.js (landing + admin) — chưa khởi tạo
+    ├── 📂 mobile/                  # 📱 Android app (Kotlin + Compose)
+    └── 📂 web/                     # 🌐 Next.js 15 App Router (Admin Dashboard + landing placeholder)
 ```
 
 > **Ghi chú**: `supabase/` đặt ở root (không phải `app/web/supabase/`) vì migration
@@ -109,26 +110,76 @@ Khi làm FR-02+ sẽ bổ sung các package `drawer/`, `photo/`, `photobooth/`, 
 
 ---
 
-## Chi tiết Web App (Next.js – dự kiến)
+## Chi tiết Web App (Next.js App Router – FR-06 Admin)
 
-> Sẽ được khởi tạo khi bắt đầu module FR-06 (Admin).
+> Đã triển khai trên nhánh `webapp-dev`: TypeScript strict, Vanilla CSS / CSS Modules (MD3 tokens), không dùng TailwindCSS.
 
 ```
 app/web/
-├── 📄 package.json
-├── 📄 next.config.ts
-├── 📄 tsconfig.json
+├── 📄 .env.example
+├── 📄 .gitignore
+├── 📄 eslint.config.mjs
+├── 📄 next.config.ts                       # Security headers (X-Frame-Options, nosniff, Referrer-Policy) + remotePatterns
+├── 📄 package.json · package-lock.json
+├── 📄 playwright.config.ts                 # Cấu hình E2E 4 trình duyệt (chromium, firefox, webkit, msedge)
+├── 📄 README.md                            # Setup, env, deploy Vercel, hướng dẫn UI kit
+├── 📄 tsconfig.json                        # strict: true, @/* -> ./src/*
+├── 📄 vitest.config.ts · vitest.setup.ts   # Vitest + React Testing Library (jsdom)
 ├── 📂 src/
+│   ├── 📄 middleware.ts                    # Refresh Supabase session + chặn /admin/** (trừ /admin/login, /admin/forbidden)
 │   ├── 📂 app/
-│   │   ├── layout.tsx
-│   │   ├── page.tsx                  # Landing page
-│   │   ├── about/page.tsx
-│   │   ├── download/page.tsx
-│   │   └── admin/                    # Dashboard, users, templates, orders, membership
-│   ├── 📂 components/                # ui/, layout/, admin/
+│   │   ├── 📄 layout.tsx                   # Root layout + ToastProvider
+│   │   ├── 📄 page.tsx · page.module.css   # Landing placeholder dẫn tới /admin/login
+│   │   ├── 📂 (admin-auth)/admin/login/
+│   │   │   ├── 📄 page.tsx · LoginForm.tsx · login.module.css
+│   │   │   └── 📄 actions.ts               # signInAdminAction (kiểm tra is_admin() & is_locked), signOutAdminAction
+│   │   ├── 📂 (admin)/admin/
+│   │   │   ├── 📄 layout.tsx               # requireAdmin() + AdminShell
+│   │   │   ├── 📄 page.tsx                 # FR-06.5 Dashboard thống kê (Suspense + ErrorBoundary từng widget)
+│   │   │   ├── 📄 error.tsx · loading.tsx · not-found.tsx
+│   │   │   ├── 📂 forbidden/page.tsx
+│   │   │   ├── 📂 users/
+│   │   │   │   ├── 📄 page.tsx · loading.tsx
+│   │   │   │   └── 📂 [id]/ (page.tsx, loading.tsx, not-found.tsx)
+│   │   │   ├── 📂 templates/
+│   │   │   │   ├── 📄 page.tsx · loading.tsx
+│   │   │   │   ├── 📂 new/page.tsx
+│   │   │   │   └── 📂 [id]/page.tsx
+│   │   │   ├── 📂 orders/
+│   │   │   │   ├── 📄 page.tsx · loading.tsx
+│   │   │   │   └── 📂 [id]/ (page.tsx, not-found.tsx, print/page.tsx)
+│   │   │   ├── 📂 membership/
+│   │   │   │   ├── 📄 page.tsx             # Redirect sang /admin/membership/plans
+│   │   │   │   ├── 📂 plans/ (page.tsx, new/page.tsx, [id]/page.tsx)
+│   │   │   │   └── 📂 subscribers/page.tsx
+│   │   │   └── 📂 transactions/page.tsx    # FR-05.2 đối soát giao dịch phía admin
+│   │   └── 📂 api/admin/orders/[id]/print-pack/
+│   │       └── 📄 route.ts                 # GET zip gói in (requireAdmin + JSZip)
+│   ├── 📂 components/
+│   │   ├── 📂 layout/                      # AdminShell, AdminSidebar, AdminHeader, PageHeader (+ .module.css)
+│   │   └── 📂 ui/                          # MD3 UI Kit: Button, IconButton, TextField, Textarea, Select, Switch,
+│   │                                       # Checkbox, Card, StatusChip, DataTable, Pagination, SearchInput, FilterBar,
+│   │                                       # DateRangePicker, Dialog, ConfirmDialog, Toast, EmptyState, ErrorState,
+│   │                                       # Skeleton (+ .module.css & ui.test.tsx)
+│   ├── 📂 features/
+│   │   ├── 📂 dashboard/                   # analytics.ts, date-range.ts, queries.ts, components/ (KPI, RevenueChart, OrderStatus, MembershipDistribution, TopTemplates, RecentActivity, Skeletons, ErrorBoundary)
+│   │   ├── 📂 users/                       # queries.ts, actions.ts (khóa/mở khóa + rollback Auth), schemas.ts, components/ (UsersFilters, UsersTable, UserDetailView, UserLockButton, UserAvatar, UserTierChip)
+│   │   ├── 📂 templates/                   # queries.ts, actions.ts, schemas.ts, mock-store.ts, layout/ (presets, json-line-map), components/ (TemplatesListView, TemplateForm, TemplateImageUploader, VisualLayoutEditor, MobileTemplatePreview)
+│   │   ├── 📂 orders/                      # queries.ts, actions.ts, schemas.ts, status-machine.ts, csv.ts, print-pack.ts, components/ (OrdersListView, OrderStatusPanel, OrderNotesEditor, ShippingInfoCard, PrintShippingSlip, SafeOrderImage)
+│   │   ├── 📂 membership/                  # queries.ts, actions.ts, schemas.ts, mock-store.ts, components/ (PlansView, MembershipPlanForm, SubscribersView)
+│   │   └── 📂 transactions/                # queries.ts, components/ (TransactionsView)
 │   ├── 📂 lib/
-│   │   └── supabase.ts
-│   └── 📂 styles/globals.css
+│   │   ├── 📂 auth/require-admin.ts        # Guard server: auth.getUser() + RPC is_admin() + is_locked
+│   │   ├── 📂 cloudinary/sign-upload.ts    # server-only: ký upload Cloudinary pause/templates + fallback Supabase bucket templates
+│   │   ├── 📂 supabase/ (client.ts, server.ts, admin.ts)   # admin.ts = service role, server-only
+│   │   ├── 📄 public-env.ts                # Chỉ NEXT_PUBLIC_* (an toàn cho Client Components)
+│   │   ├── 📄 env.ts                       # Validation biến môi trường server + re-export public-env
+│   │   ├── 📄 action-result.ts · errors.ts · format.ts · pagination.ts · nav.ts · mock-data.ts
+│   ├── 📂 styles/ (tokens.css, globals.css)
+│   └── 📂 types/ (admin.ts, database.ts)
+└── 📂 tests/
+    ├── 📂 unit/                            # auth-guard.test.ts, dashboard.test.ts, membership.test.ts, orders.test.ts, templates.test.ts, users.test.ts
+    └── 📂 e2e/                             # playwright.d.ts, auth.spec.ts, admin-flows.spec.ts
 ```
 
 ---

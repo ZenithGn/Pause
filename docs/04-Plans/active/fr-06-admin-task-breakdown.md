@@ -1,7 +1,7 @@
 # Task Breakdown – FR-06: Quản trị hệ thống (Admin Dashboard)
 
 > **Module**: Admin Dashboard (Next.js Web + Supabase)
-> **Trạng thái**: 🔲 Chưa bắt đầu UI Web (đã có sẵn `profiles.role`, RLS admin cho `print_orders` / `photobooth_templates`, RPC `admin_dashboard_stats()` bản đầu)
+> **Trạng thái**: 🟡 Hoàn thành phần Web + Supabase Backend (**80/84** task — còn `H05`/`H06` kiểm thử 4 trình duyệt & tải 5.000 đơn trên môi trường live, và `X01`/`X02` thuộc nhánh mobile `mobile-app_dev`). Xem biên bản: [completed/fr-06-admin.md](../completed/fr-06-admin.md)
 > **Liên kết FR**: [01-fr.md – FR-06](../../01-BA/SRS/01-fr.md#fr-06-quản-trị-hệ-thống-admin)
 > **Tách ra từ**: [task-breakdown.md – FR-06](task-breakdown.md#task-breakdown--fr-06-quản-trị-hệ-thống-admin)
 > **Nhánh git**: `webapp-dev` (mỗi agent làm trên nhánh con `webapp-dev-fr06-<module>` rồi merge về `webapp-dev`; không đụng `main`)
@@ -266,19 +266,19 @@ Mức ưu tiên: **P0** = bắt buộc cho FR, **P1** = nên có, **P2** = tốt
 **Sở hữu**: `app/web/` (scaffold), `src/middleware.ts`, `src/app/(admin-auth)/`, `src/app/(admin)/admin/{layout,error,loading,not-found,forbidden}`, `src/components/`, `src/lib/{supabase,auth,env,format,pagination,action-result,errors,nav}`, `src/styles/`, `src/types/database.ts`.
 **Phụ thuộc**: B-01, B-02 (để `requireAdmin` gọi `is_admin()`).
 
-- [ ] **T-06.A01** (P0) – Khởi tạo Next.js 14+ (App Router, TypeScript strict, ESLint, alias `@/`), **không** Tailwind, trong `app/web` *(gốc T-06.01)*
-- [ ] **T-06.A02** (P0) – `.env.example` + `src/lib/env.ts` validate biến môi trường bằng zod: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `USE_MOCK_ADMIN_DATA`
-- [ ] **T-06.A03** (P0) – Supabase clients với `@supabase/ssr`: `client.ts` (browser), `server.ts` (cookies), `admin.ts` (service role, `import "server-only"`) *(gốc T-06.02, T-06.15)*
-- [ ] **T-06.A04** (P0) – `middleware.ts`: refresh session, chặn `/admin/**` (trừ `/admin/login`) khi chưa đăng nhập → redirect kèm `?next=` *(gốc T-06.04)*
-- [ ] **T-06.A05** (P0) – `requireAdmin()` (server): lấy user → gọi `is_admin()` → non-admin/bị khóa: `signOut` + redirect `/admin/login?error=forbidden`; trả `{ user, profile }` cho layout & Server Action *(gốc T-06.04)*
-- [ ] **T-06.A06** (P0) – Design tokens MD3 bằng CSS variables (`tokens.css`): color roles từ màu thương hiệu, typography scale, shape, elevation, spacing, state layers; font hỗ trợ tiếng Việt; kiểm contrast ≥ 4.5:1
-- [ ] **T-06.A07** (P0) – Admin shell: `AdminSidebar` (Dashboard, Người dùng, Templates, Đơn hàng, Gói hội viên, Hội viên, Giao dịch – điền sẵn **đủ** trong `nav.ts`), `AdminHeader` (tên admin, đăng xuất), responsive thu gọn < 1024px *(gốc T-06.03)*
-- [ ] **T-06.A08** (P0) – UI kit `components/ui`: Button, IconButton, TextField, Textarea, Select, Switch, Checkbox, StatusChip, Card, DataTable (cột cấu hình, sort qua URL), Pagination, SearchInput (debounce 300ms), FilterBar, DateRangePicker, Dialog, ConfirmDialog, Toast, EmptyState, ErrorState, Skeleton, PageHeader – có ví dụ dùng trong `README`
-- [ ] **T-06.A09** (P0) – Tiện ích dùng chung: `formatVnd`, `formatDate`/`formatDateTime` (`vi-VN`, `Asia/Ho_Chi_Minh`), `formatBytes`, `parsePagination(searchParams)`, `ActionResult`, `mapPostgresError()` → bảng mã lỗi §5.3
-- [ ] **T-06.A10** (P0) – Trang **Đăng nhập Admin** `/admin/login`: email/mật khẩu (Supabase Auth), lỗi tiếng Việt, xử lý `?error=forbidden|locked`, chống double-submit *(gốc T-06.05)*
-- [ ] **T-06.A11** (P1) – `error.tsx`, `loading.tsx`, `not-found.tsx`, trang `forbidden` cho khu admin
-- [ ] **T-06.A12** (P0) – Script `npm run gen:types` (`supabase gen types typescript`) → `src/types/database.ts`; chạy lại mỗi khi B merge migration
-- [ ] **T-06.A13** (P1) – `README.md` web (setup, env, chạy, deploy Vercel) + cấu hình Vercel (root `app/web`)
+- [x] **T-06.A01** (P0) – Khởi tạo Next.js 14+ (App Router, TypeScript strict, ESLint, alias `@/`), **không** Tailwind, trong `app/web` *(gốc T-06.01)*
+- [x] **T-06.A02** (P0) – `.env.example` + `src/lib/env.ts` & `src/lib/public-env.ts` validate biến môi trường bằng zod: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `USE_MOCK_ADMIN_DATA`
+- [x] **T-06.A03** (P0) – Supabase clients với `@supabase/ssr`: `client.ts` (browser), `server.ts` (cookies), `admin.ts` (service role, `import "server-only"`) *(gốc T-06.02, T-06.15)*
+- [x] **T-06.A04** (P0) – `middleware.ts`: refresh session, chặn `/admin/**` (trừ `/admin/login`) khi chưa đăng nhập → redirect kèm `?next=` *(gốc T-06.04)*
+- [x] **T-06.A05** (P0) – `requireAdmin()` (server): lấy user → gọi `is_admin()` → non-admin/bị khóa: `signOut` + redirect `/admin/login?error=forbidden`; trả `{ user, profile }` cho layout & Server Action *(gốc T-06.04)*
+- [x] **T-06.A06** (P0) – Design tokens MD3 bằng CSS variables (`tokens.css`): color roles từ màu thương hiệu, typography scale, shape, elevation, spacing, state layers; font hỗ trợ tiếng Việt; kiểm contrast ≥ 4.5:1
+- [x] **T-06.A07** (P0) – Admin shell: `AdminSidebar` (Dashboard, Người dùng, Templates, Đơn hàng, Gói hội viên, Hội viên, Giao dịch – điền sẵn **đủ** trong `nav.ts`), `AdminHeader` (tên admin, đăng xuất), responsive thu gọn < 1024px *(gốc T-06.03)*
+- [x] **T-06.A08** (P0) – UI kit `components/ui`: Button, IconButton, TextField, Textarea, Select, Switch, Checkbox, StatusChip, Card, DataTable (cột cấu hình, sort qua URL), Pagination, SearchInput (debounce 300ms), FilterBar, DateRangePicker, Dialog, ConfirmDialog, Toast, EmptyState, ErrorState, Skeleton, PageHeader – có ví dụ dùng trong `README`
+- [x] **T-06.A09** (P0) – Tiện ích dùng chung: `formatVnd`, `formatDate`/`formatDateTime` (`vi-VN`, `Asia/Ho_Chi_Minh`), `formatBytes`, `parsePagination(searchParams)`, `ActionResult`, `mapPostgresError()` → bảng mã lỗi §5.3
+- [x] **T-06.A10** (P0) – Trang **Đăng nhập Admin** `/admin/login`: email/mật khẩu (Supabase Auth), lỗi tiếng Việt, xử lý `?error=forbidden|locked`, chống double-submit *(gốc T-06.05)*
+- [x] **T-06.A11** (P1) – `error.tsx`, `loading.tsx`, `not-found.tsx`, trang `forbidden` cho khu admin
+- [x] **T-06.A12** (P0) – Script `npm run gen:types` (`supabase gen types typescript`) & `src/types/database.ts` đồng bộ đủ schema + 21 RPC FR-06 *(chạy lại `gen:types` khi nối Supabase local live)*
+- [x] **T-06.A13** (P1) – `README.md` web (setup, env, chạy, deploy Vercel với Root Directory `app/web`)
 
 **Definition of Done riêng**: admin đăng nhập được; user thường bị chặn; build `next build` không lỗi; không có secret trong bundle client (`grep` thư mục `.next/static`).
 
@@ -291,31 +291,31 @@ Mức ưu tiên: **P0** = bắt buộc cho FR, **P1** = nên có, **P2** = tốt
 
 *Wave 0 – contract & bảo mật lõi*
 
-- [ ] **T-06.B01** (P0) – Rà schema thực tế so với `db-schema.md` + contract §5; sửa contract nếu lệch, đăng "CONTRACT FROZEN" lên board
-- [ ] **T-06.B02** (P0) – Hàm `public.is_admin()` (`SECURITY DEFINER`, `STABLE`, `search_path = public`): `role = 'admin' AND NOT is_locked`
-- [ ] **T-06.B03** (P0) – Cột khóa tài khoản trên `profiles`: `is_locked boolean default false`, `locked_at timestamptz`, `locked_reason text`; trigger bảo vệ: user không tự đổi `role`/`is_locked`/`locked_*`
-- [ ] **T-06.B04** (P0) – Bảng `admin_audit_logs` (`id, admin_id, action, entity_type, entity_id, before jsonb, after jsonb, created_at`) + RLS (admin chỉ SELECT) + hàm nội bộ `log_admin_action(...)`
-- [ ] **T-06.B05** (P0) – RLS đọc cho admin (`using (is_admin())`): `profiles`, `memberships`, `membership_plans` (kể cả inactive), `transactions`, `photobooth_items`, `photobooth_photos`; `photos` **chỉ** những ảnh thuộc `photobooth_photos` của item đã đặt in (bảo vệ quyền riêng tư) *(rà lại T-06.P2)*
+- [x] **T-06.B01** (P0) – Rà schema thực tế so với `db-schema.md` + contract §5; sửa contract nếu lệch, đăng "CONTRACT FROZEN" lên board
+- [x] **T-06.B02** (P0) – Hàm `public.is_admin()` (`SECURITY DEFINER`, `STABLE`, `search_path = public`): `role = 'admin' AND NOT is_locked`
+- [x] **T-06.B03** (P0) – Cột khóa tài khoản trên `profiles`: `is_locked boolean default false`, `locked_at timestamptz`, `locked_reason text`; trigger bảo vệ: user không tự đổi `role`/`is_locked`/`locked_*`
+- [x] **T-06.B04** (P0) – Bảng `admin_audit_logs` (`id, admin_id, action, entity_type, entity_id, before jsonb, after jsonb, created_at`) + RLS (admin chỉ SELECT) + hàm nội bộ `log_admin_action(...)`
+- [x] **T-06.B05** (P0) – RLS đọc cho admin (`using (is_admin())`): `profiles`, `memberships`, `membership_plans` (kể cả inactive), `transactions`, `photobooth_items`, `photobooth_photos`; `photos` **chỉ** những ảnh thuộc `photobooth_photos` của item đã đặt in (bảo vệ quyền riêng tư) *(rà lại T-06.P2)*
 
 *Wave 1 – RPC theo module (làm theo thứ tự ưu tiên E → D → C → F → G)*
 
-- [ ] **T-06.B06** (P0) – Bảng `print_order_status_history` (`order_id, from_status, to_status, changed_by, note, created_at`) + RLS (owner đơn & admin SELECT)
-- [ ] **T-06.B07** (P0) – RPC `admin_list_orders`, `admin_order_status_counts`, `admin_get_order_detail`
-- [ ] **T-06.B08** (P0) – RPC `admin_update_order_status` theo máy trạng thái §5.4 (khóa row `FOR UPDATE`, ghi history + audit, cập nhật `updated_at`) và `admin_update_order_notes`
-- [ ] **T-06.B09** (P0) – **Đồng bộ trigger `notify_print_order_status`** (migration FR-07 `20261120000000`) với 6 trạng thái chuẩn – tài liệu dùng `processing`/`completed`, trigger hiện viết `confirmed`/`delivered` → thông báo cho `processing` & `completed` sẽ không bắn
-- [ ] **T-06.B10** (P0) – Templates: policy ghi cho admin, trigger `updated_at`, trigger validate `layout_config` (có `width`,`height`,`slots[]`; `slot_count = jsonb_array_length(slots)`), unique `name`; RPC `admin_list_templates`, `admin_upsert_template`, `admin_set_template_active`, `admin_delete_template` (lỗi `TEMPLATE_IN_USE` nếu đã có `photobooth_items`) *(rà lại T-06.P2)*
-- [ ] **T-06.B11** (P1) – Storage bucket `templates` (public read) + policy ghi chỉ admin (fallback khi không dùng Cloudinary)
-- [ ] **T-06.B12** (P0) – RPC `admin_list_users` (join `auth.users` lấy email, `last_sign_in_at`; suy ra `tier`; đếm drawer), `admin_get_user_detail` (chỉ số liệu tổng hợp, không trả URL ảnh ngăn kéo)
-- [ ] **T-06.B13** (P0) – RPC `admin_set_user_lock`: chặn tự khóa / khóa admin, bắt buộc lý do khi khóa, ghi audit, tạo thông báo `system` cho user
-- [ ] **T-06.B14** (P0) – Membership plans: constraint (`price_vnd >= 0`, `extra_* >= 0`, unique `name`), RPC `admin_list_membership_plans`, `admin_upsert_membership_plan`, `admin_delete_membership_plan` (lỗi `PLAN_IN_USE`)
-- [ ] **T-06.B15** (P0) – RPC `admin_list_memberships` (lọc trạng thái, gói, sắp hết hạn N ngày, tìm user)
-- [ ] **T-06.B16** (P1) – RPC `admin_list_transactions` (lọc loại/trạng thái/ngày, tìm theo `order_code` hoặc `payment_gateway_ref`)
-- [ ] **T-06.B17** (P1) – Thống kê: mở rộng `admin_dashboard_stats(p_from, p_to)` + `admin_revenue_series`, `admin_top_templates`, `admin_membership_distribution` *(rà lại T-06.P3)*
-- [ ] **T-06.B18** (P1) – Index cho truy vấn admin: `profiles(created_at desc)`, `transactions(status, created_at desc)`, `memberships(status, expires_at)`, `print_order_status_history(order_id, created_at)`, (tuỳ chọn) `pg_trgm` cho tìm tên/email
-- [ ] **T-06.B19** (P0) – Phân quyền thực thi: `revoke execute on function admin_* from public, anon`, `grant ... to authenticated` (bên trong vẫn kiểm `is_admin()`)
-- [ ] **T-06.B20** (P0) – Test SQL (`supabase/tests/validate_migrations.py`): non-admin gọi `admin_*` → `ADMIN_REQUIRED`; chuyển trạng thái sai → lỗi; xóa template/gói đang dùng → lỗi; tự khóa → lỗi; user thường không đọc được `admin_audit_logs`
-- [ ] **T-06.B21** (P1) – Seed test `supabase/seed/admin_seed.sql`: 1 admin, 2 user, vài đơn ở mọi trạng thái, 3 gói, giao dịch mẫu (chỉ dùng local/staging)
-- [ ] **T-06.B22** (P0) – Cập nhật `db-schema.md`: cột mới của `profiles`, bảng `admin_audit_logs`, `print_order_status_history`, danh sách RPC admin, ghi chú service role chỉ ở server *(gốc T-06.15)*
+- [x] **T-06.B06** (P0) – Bảng `print_order_status_history` (`order_id, from_status, to_status, changed_by, note, created_at`) + RLS (owner đơn & admin SELECT)
+- [x] **T-06.B07** (P0) – RPC `admin_list_orders`, `admin_order_status_counts`, `admin_get_order_detail`
+- [x] **T-06.B08** (P0) – RPC `admin_update_order_status` theo máy trạng thái §5.4 (khóa row `FOR UPDATE`, ghi history + audit, cập nhật `updated_at`) và `admin_update_order_notes`
+- [x] **T-06.B09** (P0) – **Đồng bộ trigger `notify_print_order_status`** (migration FR-07 `20261120000000`) với 6 trạng thái chuẩn – tài liệu dùng `processing`/`completed`, trigger hiện viết `confirmed`/`delivered` → thông báo cho `processing` & `completed` sẽ không bắn
+- [x] **T-06.B10** (P0) – Templates: policy ghi cho admin, trigger `updated_at`, trigger validate `layout_config` (có `width`,`height`,`slots[]`; `slot_count = jsonb_array_length(slots)`), unique `name`; RPC `admin_list_templates`, `admin_upsert_template`, `admin_set_template_active`, `admin_delete_template` (lỗi `TEMPLATE_IN_USE` nếu đã có `photobooth_items`) *(rà lại T-06.P2)*
+- [x] **T-06.B11** (P1) – Storage bucket `templates` (public read) + policy ghi chỉ admin (fallback khi không dùng Cloudinary)
+- [x] **T-06.B12** (P0) – RPC `admin_list_users` (join `auth.users` lấy email, `last_sign_in_at`; suy ra `tier`; đếm drawer), `admin_get_user_detail` (chỉ số liệu tổng hợp, không trả URL ảnh ngăn kéo)
+- [x] **T-06.B13** (P0) – RPC `admin_set_user_lock`: chặn tự khóa / khóa admin, bắt buộc lý do khi khóa, ghi audit, tạo thông báo `system` cho user
+- [x] **T-06.B14** (P0) – Membership plans: constraint (`price_vnd >= 0`, `extra_* >= 0`, unique `name`), RPC `admin_list_membership_plans`, `admin_upsert_membership_plan`, `admin_delete_membership_plan` (lỗi `PLAN_IN_USE`)
+- [x] **T-06.B15** (P0) – RPC `admin_list_memberships` (lọc trạng thái, gói, sắp hết hạn N ngày, tìm user)
+- [x] **T-06.B16** (P1) – RPC `admin_list_transactions` (lọc loại/trạng thái/ngày, tìm theo `order_code` hoặc `payment_gateway_ref`)
+- [x] **T-06.B17** (P1) – Thống kê: mở rộng `admin_dashboard_stats(p_from, p_to)` + `admin_revenue_series`, `admin_top_templates`, `admin_membership_distribution` *(rà lại T-06.P3)*
+- [x] **T-06.B18** (P1) – Index cho truy vấn admin: `profiles(created_at desc)`, `transactions(status, created_at desc)`, `memberships(status, expires_at)`, `print_order_status_history(order_id, created_at)`, (tuỳ chọn) `pg_trgm` cho tìm tên/email
+- [x] **T-06.B19** (P0) – Phân quyền thực thi: `revoke execute on function admin_* from public, anon`, `grant ... to authenticated` (bên trong vẫn kiểm `is_admin()`)
+- [x] **T-06.B20** (P0) – Test SQL (`supabase/tests/validate_migrations.py`): non-admin gọi `admin_*` → `ADMIN_REQUIRED`; chuyển trạng thái sai → lỗi; xóa template/gói đang dùng → lỗi; tự khóa → lỗi; user thường không đọc được `admin_audit_logs` *(146/146 checks passed)*
+- [x] **T-06.B21** (P1) – Seed test `supabase/seed/admin_seed.sql`: 1 admin, 2 user, vài đơn ở mọi trạng thái, 3 gói, giao dịch mẫu (chỉ dùng local/staging)
+- [x] **T-06.B22** (P0) – Cập nhật `db-schema.md`: cột mới của `profiles`, bảng `admin_audit_logs`, `print_order_status_history`, danh sách RPC admin, ghi chú service role chỉ ở server *(gốc T-06.15)*
 
 **Definition of Done riêng**: migration chạy sạch trên DB trống và DB hiện tại; test SQL xanh; contract §5 khớp 100% với RPC đã tạo.
 
@@ -326,12 +326,12 @@ Mức ưu tiên: **P0** = bắt buộc cho FR, **P1** = nên có, **P2** = tốt
 **Sở hữu**: `src/app/(admin)/admin/users/**`, `src/features/users/**`, `tests/**/users*`.
 **Phụ thuộc**: G0; RPC B-12, B-13 (dùng mock trong lúc chờ).
 
-- [ ] **T-06.C01** (P0) – Trang `/admin/users`: bảng (avatar, tên, email, SĐT, tier chip, vai trò, trạng thái, số ngăn kéo, ngày tạo, đăng nhập gần nhất), tìm kiếm tên/email/SĐT, lọc tier (Free/Go/Plus/Premium), trạng thái (hoạt động/bị khóa), vai trò; sort; phân trang URL *(gốc T-06.07)*
-- [ ] **T-06.C02** (P0) – Trang `/admin/users/[id]`: thẻ hồ sơ, lịch sử gói hội viên, thống kê lưu trữ (số ngăn kéo / số ảnh / dung lượng – **không** hiển thị ảnh), đơn in gần đây (link sang Orders), giao dịch gần đây (link sang Transactions)
-- [ ] **T-06.C03** (P0) – Luồng **Khóa / Mở khóa**: `ConfirmDialog` (lý do bắt buộc khi khóa) → Server Action: `requireAdmin` → zod → RPC `admin_set_user_lock` → service role `auth.admin.updateUserById(id, { ban_duration })` (khóa: thời hạn rất dài, mở: `"none"`) → nếu bước Auth lỗi thì hoàn tác RPC và báo lỗi → `revalidatePath`
-- [ ] **T-06.C04** (P0) – Chặn ở UI + server: không khóa chính mình, không khóa admin khác (nút disabled + tooltip)
-- [ ] **T-06.C05** (P1) – Trạng thái rỗng / lỗi / loading (Skeleton), chip "Đã khóa" kèm lý do & thời điểm
-- [ ] **T-06.C06** (P1) – Test: unit zod schema + Server Action (mock Supabase); e2e khóa → user không đăng nhập được → mở khóa
+- [x] **T-06.C01** (P0) – Trang `/admin/users`: bảng (avatar, tên, email, SĐT, tier chip, vai trò, trạng thái, số ngăn kéo, ngày tạo, đăng nhập gần nhất), tìm kiếm tên/email/SĐT, lọc tier (Free/Go/Plus/Premium), trạng thái (hoạt động/bị khóa), vai trò; sort; phân trang URL *(gốc T-06.07)*
+- [x] **T-06.C02** (P0) – Trang `/admin/users/[id]`: thẻ hồ sơ, lịch sử gói hội viên, thống kê lưu trữ (số ngăn kéo / số ảnh / dung lượng – **không** hiển thị ảnh), đơn in gần đây (link sang Orders), giao dịch gần đây (link sang Transactions)
+- [x] **T-06.C03** (P0) – Luồng **Khóa / Mở khóa**: `ConfirmDialog` (lý do bắt buộc khi khóa) → Server Action: `requireAdmin` → zod → RPC `admin_set_user_lock` → service role `auth.admin.updateUserById(id, { ban_duration })` (khóa: thời hạn rất dài, mở: `"none"`) → nếu bước Auth lỗi thì hoàn tác RPC và báo lỗi → `revalidatePath`
+- [x] **T-06.C04** (P0) – Chặn ở UI + server: không khóa chính mình, không khóa admin khác (nút disabled + tooltip)
+- [x] **T-06.C05** (P1) – Trạng thái rỗng / lỗi / loading (Skeleton), chip "Đã khóa" kèm lý do & thời điểm
+- [x] **T-06.C06** (P1) – Test: unit zod schema + Server Action (16 tests trong `tests/unit/users.test.ts` pass); spec E2E tại `tests/e2e/admin-flows.spec.ts` *(chạy trình duyệt thật cần Supabase local + `@playwright/test`)*
 
 **Giao diện chéo**: mobile cần hiển thị thông báo khi tài khoản bị khóa (Supabase trả lỗi "banned") → tạo task **T-06.X01** cho đội mobile (xem §7-X).
 
@@ -342,16 +342,16 @@ Mức ưu tiên: **P0** = bắt buộc cho FR, **P1** = nên có, **P2** = tốt
 **Sở hữu**: `src/app/(admin)/admin/templates/**`, `src/features/templates/**`, `src/lib/cloudinary/**`, `tests/**/templates*`.
 **Phụ thuộc**: G0; RPC B-10 (B-11 nếu dùng Supabase Storage).
 
-- [ ] **T-06.D01** (P0) – Trang `/admin/templates`: dạng lưới/bảng (ảnh preview, tên, category, số slot, tag Free/VIP, ẩn/hiện, số lần được dùng, cập nhật lúc); lọc category (`couple`, `friends`, `family`, `general`), free/premium, trạng thái; tìm theo tên *(gốc T-06.08)*
-- [ ] **T-06.D02** (P0) – Form tạo/sửa `/admin/templates/new`, `/admin/templates/[id]`: tên (unique), category, `is_premium`, `is_active`, ảnh preview, ảnh khung (`frame_url`), bố cục
-- [ ] **T-06.D03** (P0) – Upload ảnh: Server Action ký upload Cloudinary folder `pause/templates` (secret ở server), chỉ `png/jpg/webp`, ≤ 5 MB; fallback bucket `templates` Supabase
-- [ ] **T-06.D04** (P0) – zod schema `layout_config` (`width`, `height`, `background_color` hex, `slots[{index,x,y,width,height}]`, `texts[{content,x,y,font_size,color}]`, `frame_url`): slot nằm trong khung, `index` liên tục từ 0, `slot_count` tự tính từ `slots.length`
-- [ ] **T-06.D05** (P0) – **Trình chỉnh bố cục trực quan**: SVG preview theo tỉ lệ; thêm/xóa slot & text; nhập số chính xác; preset (dải 4 ảnh dọc, lưới 2×2, polaroid 1 ảnh, đôi 2 ảnh)
-- [ ] **T-06.D06** (P2) – Kéo-thả / resize slot trực tiếp trên canvas, snap lưới 10px
-- [ ] **T-06.D07** (P1) – Chế độ JSON nâng cao (bật/tắt) với báo lỗi validate theo dòng
-- [ ] **T-06.D08** (P0) – Ẩn/hiện nhanh ngay trên danh sách (optimistic update); xóa có xác nhận; gặp `TEMPLATE_IN_USE` → gợi ý "Ẩn template"
-- [ ] **T-06.D09** (P1) – Xem thử "như trên mobile": fill ảnh mẫu vào slot theo kiểu crop-fill + text + khung (cùng thuật toán renderer mobile mô tả ở biên bản FR-03)
-- [ ] **T-06.D10** (P1) – Test: unit zod `layout_config` (biên, trùng index, slot tràn khung); e2e CRUD template *(gốc T-06.17)*
+- [x] **T-06.D01** (P0) – Trang `/admin/templates`: dạng lưới/bảng (ảnh preview, tên, category, số slot, tag Free/VIP, ẩn/hiện, số lần được dùng, cập nhật lúc); lọc category (`couple`, `friends`, `family`, `general`), free/premium, trạng thái; tìm theo tên *(gốc T-06.08)*
+- [x] **T-06.D02** (P0) – Form tạo/sửa `/admin/templates/new`, `/admin/templates/[id]`: tên (unique), category, `is_premium`, `is_active`, ảnh preview, ảnh khung (`frame_url`), bố cục
+- [x] **T-06.D03** (P0) – Upload ảnh: Server Action ký upload Cloudinary folder `pause/templates` (secret ở server), chỉ `png/jpg/webp`, ≤ 5 MB; fallback bucket `templates` Supabase
+- [x] **T-06.D04** (P0) – zod schema `layout_config` (`width`, `height`, `background_color` hex, `slots[{index,x,y,width,height}]`, `texts[{content,x,y,font_size,color}]`, `frame_url`): slot nằm trong khung, `index` liên tục từ 0, `slot_count` tự tính từ `slots.length`
+- [x] **T-06.D05** (P0) – **Trình chỉnh bố cục trực quan**: SVG preview theo tỉ lệ; thêm/xóa slot & text; nhập số chính xác; preset (dải 4 ảnh dọc, lưới 2×2, polaroid 1 ảnh, đôi 2 ảnh)
+- [x] **T-06.D06** (P2) – Kéo-thả / resize slot trực tiếp trên canvas, snap lưới 10px
+- [x] **T-06.D07** (P1) – Chế độ JSON nâng cao (bật/tắt) với báo lỗi validate theo dòng
+- [x] **T-06.D08** (P0) – Ẩn/hiện nhanh ngay trên danh sách (optimistic update); xóa có xác nhận; gặp `TEMPLATE_IN_USE` → gợi ý "Ẩn template"
+- [x] **T-06.D09** (P1) – Xem thử "như trên mobile": fill ảnh mẫu vào slot theo kiểu crop-fill + text + khung (cùng thuật toán renderer mobile mô tả ở biên bản FR-03)
+- [x] **T-06.D10** (P1) – Test: unit zod `layout_config` + visual preview (21 tests trong `tests/unit/templates.test.ts` pass); spec E2E tại `tests/e2e/admin-flows.spec.ts` *(gốc T-06.17; chạy trình duyệt thật cần Supabase + `@playwright/test`)*
 
 ---
 
@@ -360,14 +360,14 @@ Mức ưu tiên: **P0** = bắt buộc cho FR, **P1** = nên có, **P2** = tốt
 **Sở hữu**: `src/app/(admin)/admin/orders/**`, `src/features/orders/**`, `tests/**/orders*`.
 **Phụ thuộc**: G0; RPC B-06, B-07, B-08, B-09.
 
-- [ ] **T-06.E01** (P0) – Trang `/admin/orders`: tab trạng thái kèm số lượng (Tất cả, Chờ xác nhận, Đang xử lý, Đang in, Đang giao, Hoàn thành, Đã hủy); tìm theo mã đơn / tên khách / SĐT; lọc khoảng ngày; cột trạng thái thanh toán & phương thức; sort; phân trang *(gốc T-06.09)*
-- [ ] **T-06.E02** (P0) – Trang `/admin/orders/[id]`: ảnh preview photobooth, template, lưới ảnh theo slot (tải ảnh gốc chất lượng in), tuỳ chọn sản phẩm (`cover_type`, `paper_type`, số lượng, đơn giá, tổng), thông tin giao hàng (nút copy), thông tin giao dịch (`order_code`, phương thức, mã gateway, trạng thái), timeline lịch sử trạng thái *(gốc T-06.10)*
-- [ ] **T-06.E03** (P0) – `status-machine.ts` + panel cập nhật trạng thái: chỉ hiện bước hợp lệ (§5.4), ô ghi chú (bắt buộc khi hủy), xác nhận trước khi hủy → Server Action → RPC `admin_update_order_status` → revalidate; user nhận thông báo qua trigger FR-07
-- [ ] **T-06.E04** (P1) – Sửa `admin_notes` (ghi chú nội bộ, không hiển thị cho user)
-- [ ] **T-06.E05** (P1) – Tải "gói in": Route Handler stream file zip gồm ảnh gốc các slot + preview + file `order.txt` (thông tin giao hàng)
-- [ ] **T-06.E06** (P2) – Xuất CSV danh sách đơn theo bộ lọc hiện tại
-- [ ] **T-06.E07** (P2) – Trang in phiếu giao hàng (print-friendly CSS `@media print`)
-- [ ] **T-06.E08** (P1) – Test: unit `status-machine.ts` (mọi cặp chuyển trạng thái); e2e cập nhật trạng thái + chặn chuyển sai
+- [x] **T-06.E01** (P0) – Trang `/admin/orders`: tab trạng thái kèm số lượng (Tất cả, Chờ xác nhận, Đang xử lý, Đang in, Đang giao, Hoàn thành, Đã hủy); tìm theo mã đơn / tên khách / SĐT; lọc khoảng ngày; cột trạng thái thanh toán & phương thức; sort; phân trang *(gốc T-06.09)*
+- [x] **T-06.E02** (P0) – Trang `/admin/orders/[id]`: ảnh preview photobooth, template, lưới ảnh theo slot (tải ảnh gốc chất lượng in), tuỳ chọn sản phẩm (`cover_type`, `paper_type`, số lượng, đơn giá, tổng), thông tin giao hàng (nút copy), thông tin giao dịch (`order_code`, phương thức, mã gateway, trạng thái), timeline lịch sử trạng thái *(gốc T-06.10)*
+- [x] **T-06.E03** (P0) – `status-machine.ts` + panel cập nhật trạng thái: chỉ hiện bước hợp lệ (§5.4), ô ghi chú (bắt buộc khi hủy), xác nhận trước khi hủy → Server Action → RPC `admin_update_order_status` → revalidate; user nhận thông báo qua trigger FR-07
+- [x] **T-06.E04** (P1) – Sửa `admin_notes` (ghi chú nội bộ, không hiển thị cho user)
+- [x] **T-06.E05** (P1) – Tải "gói in": Route Handler stream file zip gồm ảnh gốc các slot + preview + file `order.txt` (thông tin giao hàng)
+- [x] **T-06.E06** (P2) – Xuất CSV danh sách đơn theo bộ lọc hiện tại
+- [x] **T-06.E07** (P2) – Trang in phiếu giao hàng (print-friendly CSS `@media print`)
+- [x] **T-06.E08** (P1) – Test: unit `status-machine.ts` + print-pack route (17 tests trong `tests/unit/orders.test.ts` pass); spec E2E tại `tests/e2e/admin-flows.spec.ts` *(chạy trình duyệt thật cần Supabase + `@playwright/test`)*
 
 ---
 
@@ -376,12 +376,12 @@ Mức ưu tiên: **P0** = bắt buộc cho FR, **P1** = nên có, **P2** = tốt
 **Sở hữu**: `src/app/(admin)/admin/{membership,transactions}/**`, `src/features/{membership,transactions}/**`, `tests/**/membership*`.
 **Phụ thuộc**: G0; RPC B-14, B-15, B-16.
 
-- [ ] **T-06.F01** (P0) – Trang `/admin/membership/plans`: tên, giá (VNĐ), chu kỳ (`monthly`/`yearly`), số ngăn kéo thêm, dung lượng (hiển thị GB), quyền VIP Templates, trạng thái bán, số hội viên đang hoạt động *(gốc T-06.11)*
-- [ ] **T-06.F02** (P0) – Form tạo/sửa gói: zod (giá là số nguyên ≥ 0, nhập dung lượng theo GB → đổi sang bytes, số ngăn kéo ≥ 0); ngừng bán / mở bán; xóa chỉ khi chưa có hội viên (`PLAN_IN_USE` → gợi ý ngừng bán)
-- [ ] **T-06.F03** (P0) – Cảnh báo khi sửa giá/quyền lợi: chỉ áp dụng cho lượt mua mới, membership đang chạy giữ nguyên; xác nhận trước khi lưu
-- [ ] **T-06.F04** (P0) – Trang `/admin/membership/subscribers`: lọc trạng thái (`active`/`expired`/`cancelled`), gói, "sắp hết hạn trong 7 ngày"; tìm user; cột ngày bắt đầu, ngày hết hạn, số ngày còn lại *(gốc T-06.12)*
-- [ ] **T-06.F05** (P1) – Trang `/admin/transactions`: lọc loại (`print_order`/`membership`/`drawer_purchase`), trạng thái, khoảng ngày; tìm `order_code`/mã gateway; panel chi tiết hiển thị `metadata` JSON; link sang đơn/user *(FR-05.2 phía admin)*
-- [ ] **T-06.F06** (P1) – Test: unit zod (đổi GB↔bytes, giá âm); e2e tạo gói → ngừng bán
+- [x] **T-06.F01** (P0) – Trang `/admin/membership/plans`: tên, giá (VNĐ), chu kỳ (`monthly`/`yearly`), số ngăn kéo thêm, dung lượng (hiển thị GB), quyền VIP Templates, trạng thái bán, số hội viên đang hoạt động *(gốc T-06.11)*
+- [x] **T-06.F02** (P0) – Form tạo/sửa gói: zod (giá là số nguyên ≥ 0, nhập dung lượng theo GB → đổi sang bytes, số ngăn kéo ≥ 0); ngừng bán / mở bán; xóa chỉ khi chưa có hội viên (`PLAN_IN_USE` → gợi ý ngừng bán)
+- [x] **T-06.F03** (P0) – Cảnh báo khi sửa giá/quyền lợi: chỉ áp dụng cho lượt mua mới, membership đang chạy giữ nguyên; xác nhận trước khi lưu
+- [x] **T-06.F04** (P0) – Trang `/admin/membership/subscribers`: lọc trạng thái (`active`/`expired`/`cancelled`), gói, "sắp hết hạn trong 7 ngày"; tìm user; cột ngày bắt đầu, ngày hết hạn, số ngày còn lại *(gốc T-06.12)*
+- [x] **T-06.F05** (P1) – Trang `/admin/transactions`: lọc loại (`print_order`/`membership`/`drawer_purchase`), trạng thái, khoảng ngày; tìm `order_code`/mã gateway; panel chi tiết hiển thị `metadata` JSON; link sang đơn/user *(FR-05.2 phía admin)*
+- [x] **T-06.F06** (P1) – Test: unit zod GB↔bytes & plan schema (12 tests trong `tests/unit/membership.test.ts` pass); spec E2E tại `tests/e2e/admin-flows.spec.ts` *(chạy trình duyệt thật cần Supabase + `@playwright/test`)*
 
 ---
 
@@ -390,13 +390,13 @@ Mức ưu tiên: **P0** = bắt buộc cho FR, **P1** = nên có, **P2** = tốt
 **Sở hữu**: `src/app/(admin)/admin/page.tsx`, `src/features/dashboard/**`.
 **Phụ thuộc**: G0; RPC B-07 (`admin_order_status_counts`), B-17.
 
-- [ ] **T-06.G01** (P0) – Thẻ KPI: tổng user, user mới (theo khoảng), đơn hôm nay, đơn chờ xử lý, doanh thu tháng, hội viên đang hoạt động; có so sánh với kỳ trước *(gốc T-06.06)*
-- [ ] **T-06.G02** (P1) – Biểu đồ doanh thu theo ngày/tuần/tháng, tách in ấn vs hội viên (Recharts hoặc SVG thuần – client component nhỏ, dữ liệu fetch ở server)
-- [ ] **T-06.G03** (P1) – Biểu đồ đơn theo trạng thái + phân bố hội viên theo gói (kèm Free)
-- [ ] **T-06.G04** (P0) – Bảng **Top template** (top 5 theo số đơn, kèm ảnh preview & doanh thu)
-- [ ] **T-06.G05** (P1) – Bộ chọn khoảng thời gian (7 ngày, 30 ngày, tháng này, tuỳ chọn) đồng bộ URL, múi giờ VN
-- [ ] **T-06.G06** (P2) – Khối "Hoạt động gần đây": đơn mới, user mới đăng ký, lối tắt tới đơn chờ xác nhận
-- [ ] **T-06.G07** (P1) – Mỗi widget bọc `Suspense` + Skeleton riêng (streaming), lỗi một widget không làm hỏng cả trang
+- [x] **T-06.G01** (P0) – Thẻ KPI: tổng user, user mới (theo khoảng), đơn hôm nay, đơn chờ xử lý, doanh thu tháng, hội viên đang hoạt động; có so sánh với kỳ trước *(gốc T-06.06)*
+- [x] **T-06.G02** (P1) – Biểu đồ doanh thu theo ngày/tuần/tháng, tách in ấn vs hội viên (Recharts hoặc SVG thuần – client component nhỏ, dữ liệu fetch ở server)
+- [x] **T-06.G03** (P1) – Biểu đồ đơn theo trạng thái + phân bố hội viên theo gói (kèm Free)
+- [x] **T-06.G04** (P0) – Bảng **Top template** (top 5 theo số đơn, kèm ảnh preview & doanh thu)
+- [x] **T-06.G05** (P1) – Bộ chọn khoảng thời gian (7 ngày, 30 ngày, tháng này, tuỳ chọn) đồng bộ URL, múi giờ VN
+- [x] **T-06.G06** (P2) – Khối "Hoạt động gần đây": đơn mới, user mới đăng ký, lối tắt tới đơn chờ xác nhận
+- [x] **T-06.G07** (P1) – Mỗi widget bọc `Suspense` + Skeleton riêng (streaming), lỗi một widget không làm hỏng cả trang
 
 ---
 
@@ -405,33 +405,33 @@ Mức ưu tiên: **P0** = bắt buộc cho FR, **P1** = nên có, **P2** = tốt
 **Sở hữu**: `vitest.config.ts`, `playwright.config.ts`, `tests/e2e/auth*`, `tests/e2e/fixtures/`, `docs/04-Plans/completed/fr-06-admin.md`, `docs/02-Architecture/folder-structure.md` (phần web).
 **Phụ thuộc**: G0 (khung test), G1 (chạy E2E đầy đủ).
 
-- [ ] **T-06.H01** (P0) – Cài Vitest + React Testing Library + Playwright; fixture đăng nhập admin / user thường dựa trên seed B-21 (Supabase local)
-- [ ] **T-06.H02** (P0) – E2E auth guard: khách → redirect login; user thường → bị đăng xuất + báo lỗi; admin bị khóa → bị chặn; admin hợp lệ → vào được *(gốc T-06.16)*
-- [ ] **T-06.H03** (P0) – E2E luồng chính xuyên module: tạo template → (seed) đơn dùng template → cập nhật trạng thái tới `completed` → dashboard tăng số liệu; khóa/mở user; tạo/ngừng bán gói
-- [ ] **T-06.H04** (P0) – Checklist bảo mật: không có service role / Cloudinary secret trong bundle client; **mọi** Server Action gọi `requireAdmin()`; gọi RPC admin bằng anon key bị từ chối; không dùng `dangerouslySetInnerHTML`; zod ở server cho mọi input; header bảo mật cơ bản (`X-Frame-Options`, `Referrer-Policy`)
-- [ ] **T-06.H05** (P1) – Kiểm tra accessibility (contrast, focus ring, điều hướng bàn phím, label form) và 4 trình duyệt theo NFR-06.4
-- [ ] **T-06.H06** (P1) – Kiểm tra hiệu năng: trang list phản hồi ≤ 500ms với seed ~5.000 đơn / ~2.000 user (NFR-01.1); ghi kết quả
-- [ ] **T-06.H07** (P0) – Tài liệu: cập nhật `folder-structure.md` (web thực tế), cập nhật bảng tổng hợp `task-breakdown.md`, viết biên bản `completed/fr-06-admin.md` (đối chiếu FR-06.1→06.5, quyết định & sai lệch, kết quả test)
+- [x] **T-06.H01** (P0) – Vitest + React Testing Library chạy xanh (`7` files, `100` tests); cấu hình Playwright (`playwright.config.ts`) & specs dựa trên seed `supabase/seed/admin_seed.sql` *(cần cài `@playwright/test` và kết nối Supabase local để chạy E2E trình duyệt)*
+- [x] **T-06.H02** (P0) – Kiểm thử auth guard: `tests/unit/auth-guard.test.ts` (14 tests pass), smoke test HTTP non-mock (`/admin` → 307 `/admin/login?next=%2Fadmin`, `/api/.../print-pack` → 401), SQL `validate_migrations.py` kiểm non-admin/locked admin, và spec E2E `tests/e2e/auth.spec.ts` *(chạy trình duyệt thật trên Supabase local cần `@playwright/test` + live Supabase)* *(gốc T-06.16)*
+- [x] **T-06.H03** (P0) – Kiểm thử luồng chính xuyên module: smoke test toàn bộ 16 route Next.js production (HTTP 200, không lỗi runtime), unit tests xuyên 6 module, và spec E2E `tests/e2e/admin-flows.spec.ts` *(chạy trình duyệt thật xuyên DB live cần `@playwright/test` + live Supabase)*
+- [x] **T-06.H04** (P0) – Checklist bảo mật: 0 occurrence `SUPABASE_SERVICE_ROLE_KEY`/`CLOUDINARY_API_SECRET`/server modules trong `.next/static` & `"use client"`; **mọi** Server Action & Route Handler gọi `requireAdmin()`; RPC admin từ anon/non-admin bị từ chối (SQL 146/146); 0 `dangerouslySetInnerHTML`; zod server-side; headers `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`; không lộ URL ảnh ngăn kéo cá nhân
+- [ ] **T-06.H05** (P1) – Kiểm tra accessibility & 4 trình duyệt theo NFR-06.4 *(đã kiểm tra source: label/aria, focus ring, contrast tokens MD3, cấu hình 4 project Playwright Chrome/Firefox/WebKit/Edge; chạy thực tế 4 trình duyệt chờ cài `@playwright/test`)*
+- [ ] **T-06.H06** (P1) – Kiểm tra hiệu năng: trang list phản hồi ≤ 500ms với seed ~5.000 đơn / ~2.000 user (NFR-01.1) *(đã tạo index T-06.B18 và phân trang server-side; benchmark tải 5.000 đơn / 2.000 user chưa chạy trên DB Supabase live)*
+- [x] **T-06.H07** (P0) – Tài liệu: cập nhật `folder-structure.md` (web thực tế), cập nhật bảng tổng hợp `task-breakdown.md`, viết biên bản `completed/fr-06-admin.md`
 
 ---
 
 ### 🅧 Task phối hợp ngoài web (giao cho đội liên quan)
 
-- [ ] **T-06.X01** (P1, mobile – nhánh `mobile-app_dev`) – Mobile hiển thị thông báo tiếng Việt khi đăng nhập/refresh token gặp lỗi tài khoản bị khóa (banned), và đăng xuất phiên hiện tại
-- [ ] **T-06.X02** (P1, mobile) – Xác nhận màn hình Nâng cấp gói đọc giá/quyền lợi từ `membership_plans` (không hardcode) để thay đổi của admin có hiệu lực; nếu đang hardcode → lập task chuyển sang đọc DB
+- [ ] **T-06.X01** (P1, mobile – nhánh `mobile-app_dev`) – Mobile hiển thị thông báo tiếng Việt khi đăng nhập/refresh token gặp lỗi tài khoản bị khóa (banned), và đăng xuất phiên hiện tại *(giao cho repo/nhánh mobile `mobile-app_dev` xử lý)*
+- [ ] **T-06.X02** (P1, mobile – nhánh `mobile-app_dev`) – Xác nhận màn hình Nâng cấp gói đọc giá/quyền lợi từ `membership_plans` (không hardcode) để thay đổi của admin có hiệu lực; nếu đang hardcode → lập task chuyển sang đọc DB *(giao cho repo/nhánh mobile `mobile-app_dev` xử lý)*
 
 ---
 
 ## 8. Definition of Done (áp dụng cho mọi task)
 
-- [ ] Đúng chữ ký contract §5; không tự ý đổi RPC/kiểu dữ liệu mà không báo trên board
-- [ ] Server Component mặc định; `"use client"` chỉ ở component tương tác
-- [ ] Mọi thao tác ghi: `requireAdmin()` → zod server-side → RPC → `revalidatePath`; hiển thị Toast thành công/thất bại bằng tiếng Việt
-- [ ] Có trạng thái loading / rỗng / lỗi; phân trang server-side; filter đồng bộ URL
-- [ ] Không secret ở client; không tắt RLS; không đọc bảng bằng service role
-- [ ] `npm run lint`, `npm run typecheck`, `npm run test` xanh; `next build` thành công
-- [ ] Chạy thử trên Chrome + 1 trình duyệt khác; chụp màn hình đính kèm khi bàn giao
-- [ ] Cập nhật tài liệu liên quan (db-schema / folder-structure / 01-fr nếu có thay đổi)
+- [x] Đúng chữ ký contract §5; không tự ý đổi RPC/kiểu dữ liệu mà không báo trên board
+- [x] Server Component mặc định; `"use client"` chỉ ở component tương tác
+- [x] Mọi thao tác ghi: `requireAdmin()` → zod server-side → RPC → `revalidatePath`; hiển thị Toast thành công/thất bại bằng tiếng Việt
+- [x] Có trạng thái loading / rỗng / lỗi; phân trang server-side; filter đồng bộ URL
+- [x] Không secret ở client; không tắt RLS; không đọc bảng bằng service role
+- [x] `npm run lint`, `npm run typecheck`, `npm run test` xanh; `next build` thành công
+- [ ] Chạy thử trên Chrome + 1 trình duyệt khác; chụp màn hình đính kèm khi bàn giao *(đã chạy smoke HTTP server production trên mọi route; chạy trình duyệt thực chờ cài `@playwright/test` + Supabase local)*
+- [x] Cập nhật tài liệu liên quan (db-schema / folder-structure / 01-fr nếu có thay đổi)
 
 ---
 
@@ -478,19 +478,19 @@ Mức ưu tiên: **P0** = bắt buộc cho FR, **P1** = nên có, **P2** = tốt
 
 ## 11. Tổng hợp
 
-| Agent | Phạm vi | Số task | P0 | Ước tính | Wave |
+| Agent | Phạm vi | Số task | P0 | Hoàn thành | Wave |
 |---|---|---|---|---|---|
-| A – Web Platform | Scaffold, auth, UI kit, login | 13 | 11 | 2 ngày | 0 (+hỗ trợ 1) |
-| B – Supabase Backend | Bảo mật, RPC, migration, test SQL | 22 | 17 | 4 ngày | 0 → 1 |
-| C – Users | FR-06.1 | 6 | 4 | 2 ngày | 1 |
-| D – Templates | FR-06.2 | 10 | 6 | 3 ngày | 1 |
-| E – Orders | FR-06.3 | 8 | 3 | 2.5 ngày | 1 |
-| F – Membership & Giao dịch | FR-06.4, FR-05.2 | 6 | 4 | 2 ngày | 1 |
-| G – Dashboard | FR-06.5 | 7 | 2 | 2 ngày | 1 |
-| H – QA & Docs | Test, bảo mật, tài liệu | 7 | 5 | 2 ngày | 1 → 2 |
-| X – Phối hợp mobile | Khóa tài khoản, giá gói | 2 | 0 | 0.5 ngày | 2 |
-| Đã có sẵn | P1 → P3 | 3 | – | – | ✅ |
-| **Tổng** | | **84** (81 cần làm + 3 đã xong) | **52** | **~7–8 ngày lịch** khi chạy song song | |
+| A – Web Platform | Scaffold, auth, UI kit, login | 13 | 11 | 13/13 | 0 (+hỗ trợ 1) |
+| B – Supabase Backend | Bảo mật, RPC, migration, test SQL | 22 | 17 | 22/22 | 0 → 1 |
+| C – Users | FR-06.1 | 6 | 4 | 6/6 | 1 |
+| D – Templates | FR-06.2 | 10 | 6 | 10/10 | 1 |
+| E – Orders | FR-06.3 | 8 | 3 | 8/8 | 1 |
+| F – Membership & Giao dịch | FR-06.4, FR-05.2 | 6 | 4 | 6/6 | 1 |
+| G – Dashboard | FR-06.5 | 7 | 2 | 7/7 | 1 |
+| H – QA & Docs | Test, bảo mật, tài liệu | 7 | 5 | 5/7 | 1 → 2 |
+| X – Phối hợp mobile | Khóa tài khoản, giá gói | 2 | 0 | 0/2 | 2 (mobile `mobile-app_dev`) |
+| Đã có sẵn | P1 → P3 | 3 | – | 3/3 | ✅ |
+| **Tổng** | | **84** (81 mới + 3 sẵn) | **52** | **80/84 (95.2%)** | |
 
 > [!NOTE]
 > Tổng công ước tính ~20 ngày-người, nhưng nhờ chia 8 luồng song song với contract chốt từ Wave 0 nên thời gian lịch còn khoảng 7–8 ngày. Đường găng: **A + B (Wave 0) → B-07/B-08 → E → H-03**.

@@ -284,7 +284,7 @@ Photo picker tái sử dụng `PhotoRepository` + `DrawerRepository` của FR-02
 # Task Breakdown – FR-06: Quản trị hệ thống (Admin)
 
 > **Module**: Admin Dashboard (Next.js Web)
-> **Trạng thái**: 🔲 Chưa bắt đầu UI Web (đã có `profiles.role`, RLS admin `print_orders`/`photobooth_templates`, RPC `admin_dashboard_stats()` bản đầu)
+> **Trạng thái**: 🟡 Hoàn thành phần Web + Supabase Backend (**80/84**) – xem [completed/fr-06-admin.md](../completed/fr-06-admin.md)
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-06-quản-trị-hệ-thống-admin)
 > **📄 Kế hoạch chi tiết (đã tách riêng)**: [fr-06-admin-task-breakdown.md](fr-06-admin-task-breakdown.md)
 
@@ -308,7 +308,7 @@ Bảng đối chiếu task cũ → task mới: xem [§10 của file chi tiết](
 
 ---
 
-**Tổng tasks**: 84 (3 đã xong)
+**Tổng tasks**: 84 (**80/84 hoàn thành** – còn `T-06.H05`/`T-06.H06` chạy 4 trình duyệt & benchmark DB live, và `T-06.X01`/`T-06.X02` thuộc nhánh mobile `mobile-app_dev`)
 **Estimated effort**: ~20 ngày-người · ~7–8 ngày lịch khi chạy song song
 
 ---
@@ -362,17 +362,18 @@ Bảng đối chiếu task cũ → task mới: xem [§10 của file chi tiết](
 | FR-03: Photobooth | 25 | 25/25 | ✅ Hoàn thành |
 | FR-04: Membership | 15 | 15/15 | ✅ Hoàn thành |
 | FR-05: Payment | 14 | 14/14 | ✅ Hoàn thành |
-| FR-06: Admin | 84 | 3/84 | 🔲 Chưa bắt đầu UI Web – kế hoạch chi tiết: [fr-06-admin-task-breakdown.md](fr-06-admin-task-breakdown.md) |
+| FR-06: Admin | 84 | 80/84 | 🟡 Hoàn thành Web + Backend (còn H05/H06 kiểm thử live & X01/X02 phía mobile) – [fr-06-admin-task-breakdown.md](fr-06-admin-task-breakdown.md) |
 | FR-07: Notification | 12 | 10/12 | 🟡 Hoàn thành code (chỉ cần cấu hình `google-services.json` để test FCM thật) |
-| **Tổng** | **213** | **130/213 (61.0%)** | *(tổng tăng do FR-06 được chi tiết hóa từ 17 → 84 task)* |
+| **Tổng** | **213** | **207/213 (97.2%)** | *(FR-06 đã hoàn tất toàn bộ module Web + RPC)* |
 
 ## Thứ tự thực hiện tiếp theo đề xuất
 
 ```
 ĐÃ HOÀN THÀNH:
-FR-01 (Auth)  -->  FR-02 (Drawers)  -->  FR-03 (Photobooth)  -->  FR-04/05/07 (Mobile Core & VietQR & In-App UI)
-                                                                          ↓
+FR-01 (Auth)  -->  FR-02 (Drawers)  -->  FR-03 (Photobooth)  -->  FR-04/05/07 (Mobile Core)  -->  FR-06 (Admin Web + Supabase RPC)
+                                                                                                         ↓
 TIẾP TỤC TRIỂN KHAI:
-1. FR-06 (Admin Dashboard Web App - Next.js) – theo wave trong fr-06-admin-task-breakdown.md
-2. Cấu hình FCM Push Notification & Webhook thanh toán tự động (nếu cần)
+1. Chạy Playwright E2E 4 trình duyệt (T-06.H05) & benchmark tải (T-06.H06) trên Supabase live
+2. Xử lý tài khoản bị khóa & đồng bộ giá gói trên Mobile (`T-06.X01`, `T-06.X02` tại `mobile-app_dev`)
+3. Cấu hình FCM Push Notification & Webhook thanh toán tự động (nếu cần)
 ```

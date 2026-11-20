@@ -13,4 +13,5 @@ interface NotificationRepository {
         body: String,
         referenceId: String? = null,
     ): AppNotification
+    suspend fun registerDeviceToken(token: String)
 }

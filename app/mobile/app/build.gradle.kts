@@ -136,9 +136,17 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
+    // FR-07: Firebase Cloud Messaging (FCM)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging.ktx)
+
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
 
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+}
+
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
 }

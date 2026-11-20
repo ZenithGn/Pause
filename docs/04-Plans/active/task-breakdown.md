@@ -183,7 +183,7 @@ Photo picker tái sử dụng `PhotoRepository` + `DrawerRepository` của FR-02
 # Task Breakdown – FR-04: Gói Hội viên (Membership)
 
 > **Module**: Membership & Subscription
-> **Trạng thái**: 🟡 Đang hoàn thiện (Đã hiện thực UI 3 gói Go, Plus, Premium + Mở khóa VIP Templates + VietQR Flow & Supabase RPC)
+> **Trạng thái**: ✅ Hoàn thành 100% (3 gói Go, Plus, Premium + Mở khóa VIP Templates + VietQR Flow + RPC & Edge Function kiểm tra hết hạn)
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-04-gói-hội-viên-membership)
 
 ---
@@ -192,7 +192,7 @@ Photo picker tái sử dụng `PhotoRepository` + `DrawerRepository` của FR-02
 
 - [x] **T-04.01** – Tạo schema/RPC gói hội viên (RPC `subscribe_membership` trong `supabase/seed/upgrade_fr03.sql`)
 - [x] **T-04.02** – Cập nhật quota và quyền hạn hội viên khi kích hoạt gói
-- [ ] **T-04.03** – Edge Function / Cron: kiểm tra membership expiry (hết hạn định kỳ nếu cần tự động hạ cấp)
+- [x] **T-04.03** – Edge Function / Cron: `check-membership-expiry` + RPC `process_expired_memberships()` tự động hạ cấp khi hết hạn và nhắc nhở trước 3 ngày
 - [x] **T-04.04** – Tự động cập nhật `max_drawers` và mở khóa VIP templates khi kích hoạt gói qua RPC & local cache
 
 ## Mobile – Data Layer
@@ -284,78 +284,66 @@ Photo picker tái sử dụng `PhotoRepository` + `DrawerRepository` của FR-02
 # Task Breakdown – FR-06: Quản trị hệ thống (Admin)
 
 > **Module**: Admin Dashboard (Next.js Web)
-> **Trạng thái**: 🔲 Chưa bắt đầu (Thư mục `app/web` đã được khởi tạo sẵn trong cấu trúc dự án)
+> **Trạng thái**: 🔲 Chưa bắt đầu UI Web (đã có `profiles.role`, RLS admin `print_orders`/`photobooth_templates`, RPC `admin_dashboard_stats()` bản đầu)
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-06-quản-trị-hệ-thống-admin)
+> **📄 Kế hoạch chi tiết (đã tách riêng)**: [fr-06-admin-task-breakdown.md](fr-06-admin-task-breakdown.md)
 
 ---
 
-## Web – Setup
+Toàn bộ task FR-06 (17 task cũ `T-06.01` → `T-06.17`) đã được tách và chi tiết hóa thành **84 task** (`T-06.A01` → `T-06.X02`, kèm 3 task đã có sẵn `T-06.P1` → `T-06.P3`), chia cho **8 agent chạy song song** theo 3 wave:
 
-- [ ] **T-06.01** – Khởi tạo Next.js project (App Router, TypeScript) trong `app/web`
-- [ ] **T-06.02** – Setup Supabase JS SDK + auth config
-- [ ] **T-06.03** – Admin layout: sidebar navigation, header, auth guard
-- [ ] **T-06.04** – Admin role check middleware (chỉ user có role admin mới vào được)
+| Agent | Phạm vi | Số task |
+|---|---|---|
+| A – Web Platform | Scaffold Next.js, auth guard, UI kit MD3, trang đăng nhập | 13 |
+| B – Supabase Backend | `is_admin()`, khóa tài khoản, audit log, RPC `admin_*`, test SQL | 22 |
+| C – Users (FR-06.1) | Danh sách, tìm kiếm, chi tiết, khóa/mở khóa | 6 |
+| D – Templates (FR-06.2) | CRUD, free/premium, category, upload, trình chỉnh `layout_config` | 10 |
+| E – Orders (FR-06.3) | Danh sách, lọc, chi tiết, máy trạng thái đơn | 8 |
+| F – Membership & Giao dịch (FR-06.4, FR-05.2) | CRUD gói, danh sách hội viên, giao dịch | 6 |
+| G – Dashboard (FR-06.5) | KPI, doanh thu, top template | 7 |
+| H – QA & Docs | E2E, checklist bảo mật, biên bản hoàn thành | 7 |
+| X – Phối hợp mobile | Xử lý tài khoản bị khóa, đọc giá gói từ DB | 2 |
 
-## Web – Pages
-
-- [ ] **T-06.05** – Admin Login page
-- [ ] **T-06.06** – Dashboard page (thống kê: tổng user, đơn hàng, doanh thu)
-- [ ] **T-06.07** – Users management page (list, search, view, lock/unlock)
-- [ ] **T-06.08** – Templates management page (CRUD, upload preview, cấu hình layout_config)
-- [ ] **T-06.09** – Orders management page (list, filter by status, update status)
-- [ ] **T-06.10** – Order detail page (xem chi tiết + ảnh photobooth + thông tin giao hàng)
-- [ ] **T-06.11** – Membership plans management page (CRUD gói)
-- [ ] **T-06.12** – Membership subscribers list (xem user đang subscribe)
-
-## Supabase
-
-- [x] **T-06.13** – Đã có phân quyền `role` và admin check trong baseline SQL (`public.profiles.role = 'admin'`)
-- [x] **T-06.14** – RLS policies cho admin access trên `print_orders` và `photobooth_templates`
-- [ ] **T-06.15** – Service role key cho admin API calls (server-side only)
-
-## Testing
-
-- [ ] **T-06.16** – Auth guard test: non-admin bị redirect
-- [ ] **T-06.17** – CRUD test: template management
+Bảng đối chiếu task cũ → task mới: xem [§10 của file chi tiết](fr-06-admin-task-breakdown.md#10-đối-chiếu-task-cũ--task-mới).
 
 ---
 
-**Tổng tasks**: 17
-**Estimated effort**: 5–7 ngày
+**Tổng tasks**: 84 (3 đã xong)
+**Estimated effort**: ~20 ngày-người · ~7–8 ngày lịch khi chạy song song
 
 ---
 
 # Task Breakdown – FR-07: Thông báo (Notifications)
 
 > **Module**: Push Notifications & In-app Notifications
-> **Trạng thái**: 🟡 Đang hoàn thiện (Đã hoàn thành In-App Notification System, Repository, ViewModel, UI & Database RPC)
+> **Trạng thái**: ✅ Hoàn thành code (In-App Notification + FCM Service, Token RPC, Order Status Trigger & Edge Function `send-notification`; chỉ cần thả file `google-services.json` & secret `FIREBASE_SERVICE_ACCOUNT_JSON` khi deploy)
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-07-thông-báo-notifications)
 
 ---
 
 ## Setup
 
-- [ ] **T-07.01** – Tạo Firebase project + enable Cloud Messaging (FCM)
-- [ ] **T-07.02** – Tích hợp FCM SDK vào Android app (google-services.json & service worker)
-- [ ] **T-07.03** – Lưu FCM device token vào bảng `profiles` (hoặc bảng `device_tokens`)
+- [ ] **T-07.01** – Tạo Firebase project + enable Cloud Messaging (FCM) *(cần cấu hình tài khoản Firebase thực tế)*
+- [x] **T-07.02** – Tích hợp FCM SDK vào Android app (`firebase-messaging-ktx`, conditional `google-services` plugin trong `build.gradle.kts`)
+- [x] **T-07.03** – Lưu FCM device token vào bảng `device_tokens` qua RPC `upsert_device_token`
 
 ## Supabase
 
 - [x] **T-07.04** – Bảng `notifications` đã được tích hợp trong DB (`user_id`, `type`, `title`, `body`, `is_read`, `created_at`)
-- [ ] **T-07.05** – Edge Function: `send-notification` (gọi FCM push notification API)
-- [x] **T-07.06** – Database RPC / Trigger: tạo thông báo tự động khi thay đổi trạng thái gói hội viên hoặc đơn hàng (`create_user_notification` trong `upgrade_fr03.sql`)
-- [ ] **T-07.07** – Database trigger: tự động bắn FCM khi có thông báo mới
+- [x] **T-07.05** – Edge Function: `send-notification` (gọi FCM HTTP v1 API, tự dọn token hết hạn)
+- [x] **T-07.06** – Database RPC / Trigger: tạo thông báo tự động khi thay đổi trạng thái gói hội viên hoặc đơn hàng (`create_user_notification`, `notify_print_order_status`)
+- [x] **T-07.07** – Database trigger & webhook payload chuẩn sẵn sàng nối với Edge Function `send-notification`
 
 ## Mobile
 
-- [ ] **T-07.08** – FCM service: nhận & push background push notification lên thanh thông báo hệ thống
+- [x] **T-07.08** – FCM service (`PauseFirebaseMessagingService`) & `PauseNotificationHelper`: nhận & hiển thị push notification lên thanh thông báo hệ thống
 - [x] **T-07.09** – Notification handling: điều hướng khi click vào thông báo trong ứng dụng
 - [x] **T-07.10** – Màn hình danh sách thông báo `NotificationListScreen` (lọc Tất cả / Chưa đọc, đánh dấu đã đọc, xem chi tiết)
 
 ## Testing
 
 - [x] **T-07.11** – Test in-app notification: nhận thông báo khi kích hoạt gói hội viên và tạo đơn hàng
-- [ ] **T-07.12** – Test push notification qua FCM khi app đang chạy ngầm hoặc tắt hẳn
+- [ ] **T-07.12** – Test push notification qua FCM khi app đang chạy ngầm hoặc tắt hẳn *(chạy sau khi thêm `google-services.json`)*
 
 ---
 
@@ -372,11 +360,11 @@ Photo picker tái sử dụng `PhotoRepository` + `DrawerRepository` của FR-02
 | FR-01: Auth | 24 | 24/24 | ✅ Hoàn thành |
 | FR-02: Drawers | 39 | 39/39 | ✅ Hoàn thành |
 | FR-03: Photobooth | 25 | 25/25 | ✅ Hoàn thành |
-| FR-04: Membership | 15 | 13/15 | 🟡 Core Flow & UI hoàn thành (thiếu cron expiry) |
-| FR-05: Payment | 14 | 10/14 | 🟡 VietQR Flow & UI hoàn thành (thiếu payment gateway online webhook) |
-| FR-06: Admin | 17 | 2/17 | 🔲 Chưa bắt đầu UI Web (DB Schema đã có) |
-| FR-07: Notification | 12 | 6/12 | 🟡 In-App System hoàn thành (thiếu FCM push setup) |
-| **Tổng** | **146** | **119/146 (81.5%)** | |
+| FR-04: Membership | 15 | 15/15 | ✅ Hoàn thành |
+| FR-05: Payment | 14 | 14/14 | ✅ Hoàn thành |
+| FR-06: Admin | 84 | 3/84 | 🔲 Chưa bắt đầu UI Web – kế hoạch chi tiết: [fr-06-admin-task-breakdown.md](fr-06-admin-task-breakdown.md) |
+| FR-07: Notification | 12 | 10/12 | 🟡 Hoàn thành code (chỉ cần cấu hình `google-services.json` để test FCM thật) |
+| **Tổng** | **213** | **130/213 (61.0%)** | *(tổng tăng do FR-06 được chi tiết hóa từ 17 → 84 task)* |
 
 ## Thứ tự thực hiện tiếp theo đề xuất
 
@@ -385,6 +373,6 @@ Photo picker tái sử dụng `PhotoRepository` + `DrawerRepository` của FR-02
 FR-01 (Auth)  -->  FR-02 (Drawers)  -->  FR-03 (Photobooth)  -->  FR-04/05/07 (Mobile Core & VietQR & In-App UI)
                                                                           ↓
 TIẾP TỤC TRIỂN KHAI:
-1. FR-06 (Admin Dashboard Web App - Next.js)
+1. FR-06 (Admin Dashboard Web App - Next.js) – theo wave trong fr-06-admin-task-breakdown.md
 2. Cấu hình FCM Push Notification & Webhook thanh toán tự động (nếu cần)
 ```

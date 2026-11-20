@@ -28,5 +28,5 @@ data class NotificationDto(
 
 @Serializable
 data class NotificationReadUpdateDto(
-    @SerialName("is_read") val isRead: Boolean = true,
+    @SerialName("is_read") val isRead: Boolean,
 )

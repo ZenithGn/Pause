@@ -81,7 +81,11 @@ class NotificationRepositoryImpl(
             if (item.id in readLocalIds) item.copy(isRead = true) else item
         }
 
-        val combined = (currentLocals + shareItems + remoteList)
+        val currentRemotes = remoteList.map { item ->
+            if (item.id in readLocalIds) item.copy(isRead = true) else item
+        }
+
+        val combined = (currentLocals + shareItems + currentRemotes)
             .distinctBy { "${it.type}:${it.title}:${it.body}" }
             .sortedByDescending { it.createdAt ?: Instant.EPOCH }
 
@@ -112,6 +116,14 @@ class NotificationRepositoryImpl(
         }
         if (!readLocalIds.contains("welcome_pause")) {
             readLocalIds.add("welcome_pause")
+        }
+        runCatching {
+            shareRepository?.getInvitations().orEmpty().forEach { inv ->
+                val notifId = "share_${inv.id}"
+                if (!readLocalIds.contains(notifId)) {
+                    readLocalIds.add(notifId)
+                }
+            }
         }
         if (userId != null) {
             runCatching {
@@ -153,6 +165,18 @@ class NotificationRepositoryImpl(
             client.postgrest.rpc("create_user_notification", params)
         }
         created
+    }
+
+    override suspend fun registerDeviceToken(token: String): Unit = withContext(ioDispatcher) {
+        if (token.isBlank()) return@withContext
+        val userId = client.auth.currentSessionOrNull()?.user?.id ?: return@withContext
+        runCatching {
+            val params = buildJsonObject {
+                put("p_token", token)
+                put("p_platform", "android")
+            }
+            client.postgrest.rpc("upsert_device_token", params)
+        }
     }
 
     private companion object {

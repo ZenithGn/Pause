@@ -1,0 +1,114 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background: radial-gradient(
+      circle at top left,
+      rgba(99, 13, 17, 0.09),
+      transparent 46%
+    ),
+    var(--md-sys-color-background);
+}
+
+.card {
+  width: 100%;
+  max-width: 440px;
+  background-color: var(--md-sys-color-surface);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2);
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.brandMark {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.25rem;
+}
+
+.title {
+  font-size: var(--text-headline-sm);
+  font-weight: 700;
+  color: var(--md-sys-color-on-surface);
+  line-height: var(--leading-tight);
+}
+
+.subtitle {
+  margin-top: 2px;
+  font-size: var(--text-body-sm);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.alertError {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background-color: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+}
+
+.alertInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background-color: var(--md-sys-color-warning-container);
+  color: var(--md-sys-color-on-warning-container);
+  font-size: var(--text-body-sm);
+}
+
+.mockLink {
+  font-weight: 600;
+  text-decoration: underline;
+  width: fit-content;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.togglePw {
+  border: 0;
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant);
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xs);
+}
+
+.togglePw:hover {
+  color: var(--md-sys-color-on-surface);
+}
+
+.footerNote {
+  text-align: center;
+  font-size: var(--text-label-md);
+  color: var(--md-sys-color-on-surface-variant);
+}

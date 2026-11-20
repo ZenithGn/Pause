@@ -1,0 +1,47 @@
+.skeleton {
+  display: block;
+  background: linear-gradient(
+    90deg,
+    var(--md-sys-color-surface-container) 0%,
+    var(--md-sys-color-surface-container-low) 50%,
+    var(--md-sys-color-surface-container) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.4s ease-in-out infinite;
+}
+
+.text {
+  height: 14px;
+  border-radius: var(--radius-xs);
+}
+
+.rect {
+  border-radius: var(--radius-md);
+}
+
+.circle {
+  border-radius: 50%;
+}
+
+.tableSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: var(--space-4);
+  align-items: center;
+}
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

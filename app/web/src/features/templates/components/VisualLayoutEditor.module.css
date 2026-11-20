@@ -1,0 +1,354 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.tabGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background-color: var(--md-sys-color-surface-container);
+  border-radius: var(--radius-md);
+}
+
+.tabBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--text-label-lg);
+  font-weight: 500;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.tabBtn:hover {
+  color: var(--md-sys-color-on-surface);
+}
+
+.tabBtnActive {
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-primary);
+  font-weight: 600;
+  box-shadow: var(--shadow-1);
+}
+
+.presetBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.presetLabel {
+  font-size: var(--text-label-md);
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface-variant);
+  margin-right: var(--space-1);
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.05fr) minmax(320px, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+.canvasStage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  background-color: var(--md-sys-color-surface-container);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+
+.canvasHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.canvasTitle {
+  font-size: var(--text-label-lg);
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface);
+}
+
+.canvasMeta {
+  font-size: var(--text-label-md);
+  color: var(--md-sys-color-on-surface-variant);
+  font-family: var(--font-mono);
+}
+
+.svgViewport {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-3);
+  background-color: var(--md-sys-color-surface-container-high);
+  border-radius: var(--radius-md);
+  min-height: 360px;
+}
+
+.svgCanvas {
+  width: 100%;
+  max-width: 420px;
+  max-height: 540px;
+  height: auto;
+  display: block;
+  box-shadow: var(--shadow-2);
+  border-radius: 4px;
+  touch-action: none;
+  user-select: none;
+}
+
+.canvasHint {
+  font-size: var(--text-label-md);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.inspector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.section {
+  background-color: var(--md-sys-color-surface-container-low);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.sectionTitle {
+  font-size: var(--text-title-sm);
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface);
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.grid4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+@media (max-width: 600px) {
+  .grid4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.colorRow {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.colorSwatch {
+  width: 40px;
+  height: 40px;
+  padding: 2px;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--radius-sm);
+  background-color: var(--md-sys-color-surface);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.chipList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.itemChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--md-sys-color-outline);
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  font-size: var(--text-label-md);
+  font-weight: 500;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.itemChip:hover {
+  border-color: var(--md-sys-color-primary);
+}
+
+.itemChipActive {
+  background-color: var(--md-sys-color-primary-container);
+  border-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary-container);
+  font-weight: 600;
+}
+
+.itemActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.orderBtns {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.validationBox {
+  background-color: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+  border: 1px solid rgba(179, 38, 30, 0.25);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-body-sm);
+}
+
+.validationTitle {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.validationList {
+  margin: 0;
+  padding-left: var(--space-4);
+}
+
+/* JSON Editor Mode */
+.jsonPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.jsonToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.jsonEditorShell {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--radius-md);
+  background-color: var(--md-sys-color-surface);
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.jsonEditorShellError {
+  border-color: var(--md-sys-color-error);
+}
+
+.lineGutter {
+  background-color: var(--md-sys-color-surface-container);
+  border-right: 1px solid var(--md-sys-color-outline-variant);
+  color: var(--md-sys-color-on-surface-variant);
+  padding: var(--space-3) var(--space-2);
+  text-align: right;
+  user-select: none;
+  overflow: hidden;
+  height: 420px;
+}
+
+.lineNumber {
+  display: block;
+}
+
+.lineNumberError {
+  color: var(--md-sys-color-error);
+  font-weight: 700;
+  background-color: var(--md-sys-color-error-container);
+  margin-inline: calc(var(--space-2) * -1);
+  padding-inline: var(--space-2);
+}
+
+.jsonTextarea {
+  width: 100%;
+  height: 420px;
+  border: 0;
+  outline: none;
+  resize: vertical;
+  padding: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+  background-color: transparent;
+  color: var(--md-sys-color-on-surface);
+  white-space: pre;
+  overflow: auto;
+}
+
+.jsonValidBanner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-body-sm);
+  color: var(--md-sys-color-success);
+  font-weight: 600;
+}

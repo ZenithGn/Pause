@@ -1,0 +1,132 @@
+/* ==========================================================================
+   Pause Admin Design System - Material Design 3 Tokens
+   Brand primary: #630D11 (Burgundy) | Surface: #FFFFFF | Background: #F7F6F5
+   All text/surface pairings satisfy WCAG AA >= 4.5:1 contrast.
+   ========================================================================== */
+
+:root {
+  /* Color Roles - Brand & Surfaces */
+  --md-sys-color-primary: #630d11;
+  --md-sys-color-primary-hover: #4b090c;
+  --md-sys-color-primary-active: #3a0609;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #fdf2f2;
+  --md-sys-color-on-primary-container: #4b090c;
+
+  --md-sys-color-secondary: #5c4033;
+  --md-sys-color-on-secondary: #ffffff;
+  --md-sys-color-secondary-container: #f5ece8;
+  --md-sys-color-on-secondary-container: #3b261e;
+
+  --md-sys-color-background: #f7f6f5;
+  --md-sys-color-on-background: #111111;
+
+  --md-sys-color-surface: #ffffff;
+  --md-sys-color-on-surface: #111111;
+  --md-sys-color-on-surface-variant: #595552;
+
+  --md-sys-color-surface-container-lowest: #ffffff;
+  --md-sys-color-surface-container-low: #faf9f8;
+  --md-sys-color-surface-container: #f3f1ef;
+  --md-sys-color-surface-container-high: #eceae7;
+  --md-sys-color-surface-container-highest: #e4e1dd;
+
+  --md-sys-color-outline: #cbc5bf;
+  --md-sys-color-outline-variant: #e6e2dd;
+
+  /* Semantic / Status Color Roles */
+  --md-sys-color-success: #146c2e;
+  --md-sys-color-on-success: #ffffff;
+  --md-sys-color-success-container: #e8f5ec;
+  --md-sys-color-on-success-container: #0f5223;
+
+  --md-sys-color-warning: #9a4d00;
+  --md-sys-color-on-warning: #ffffff;
+  --md-sys-color-warning-container: #fff3e0;
+  --md-sys-color-on-warning-container: #7a3b00;
+
+  --md-sys-color-info: #0b57d0;
+  --md-sys-color-on-info: #ffffff;
+  --md-sys-color-info-container: #e8f0fe;
+  --md-sys-color-on-info-container: #0842a0;
+
+  --md-sys-color-error: #b3261e;
+  --md-sys-color-on-error: #ffffff;
+  --md-sys-color-error-container: #fdecea;
+  --md-sys-color-on-error-container: #8c1d18;
+
+  --md-sys-color-neutral-container: #efece9;
+  --md-sys-color-on-neutral-container: #4a4643;
+
+  /* Scrim & Backdrop */
+  --md-sys-color-scrim: rgba(17, 17, 17, 0.45);
+
+  /* State Layers */
+  --md-sys-state-hover: rgba(17, 17, 17, 0.05);
+  --md-sys-state-pressed: rgba(17, 17, 17, 0.09);
+  --md-sys-state-primary-hover: rgba(99, 13, 17, 0.08);
+  --md-sys-state-focus-ring: 0 0 0 3px rgba(99, 13, 17, 0.24);
+
+  /* Typography */
+  --font-sans: "Be Vietnam Pro", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  --text-display-sm: 2rem;      /* 32px */
+  --text-headline-md: 1.75rem;  /* 28px */
+  --text-headline-sm: 1.5rem;   /* 24px */
+  --text-title-lg: 1.25rem;     /* 20px */
+  --text-title-md: 1rem;        /* 16px */
+  --text-title-sm: 0.875rem;    /* 14px */
+  --text-body-lg: 1rem;         /* 16px */
+  --text-body-md: 0.875rem;     /* 14px */
+  --text-body-sm: 0.8125rem;    /* 13px */
+  --text-label-lg: 0.875rem;    /* 14px */
+  --text-label-md: 0.75rem;     /* 12px */
+  --text-label-sm: 0.6875rem;   /* 11px */
+
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+
+  /* Shape (MD3 Corners) */
+  --radius-none: 0px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Elevation */
+  --shadow-0: none;
+  --shadow-1: 0 1px 2px rgba(17, 17, 17, 0.06), 0 1px 3px rgba(17, 17, 17, 0.04);
+  --shadow-2: 0 2px 6px rgba(17, 17, 17, 0.08), 0 4px 12px rgba(17, 17, 17, 0.05);
+  --shadow-3: 0 8px 24px rgba(17, 17, 17, 0.12), 0 2px 8px rgba(17, 17, 17, 0.06);
+
+  /* Spacing Scale (4px baseline) */
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px */
+
+  /* Layout Shell */
+  --sidebar-width: 264px;
+  --header-height: 64px;
+  --content-max-width: 1400px;
+
+  /* Z-index Scale */
+  --z-base: 1;
+  --z-sticky: 20;
+  --z-drawer: 40;
+  --z-modal: 60;
+  --z-toast: 80;
+
+  /* Motion */
+  --transition-fast: 150ms cubic-bezier(0.2, 0, 0, 1);
+  --transition-standard: 220ms cubic-bezier(0.2, 0, 0, 1);
+}

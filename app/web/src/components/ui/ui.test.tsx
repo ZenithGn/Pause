@@ -2,9 +2,11 @@ import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { mapPostgresError } from "@/lib/errors";
+import { getPublicEnv as getPublicEnvFromServerEnv, hasPublicSupabaseEnv as hasPublicFromServerEnv } from "@/lib/env";
 import { formatBytes, formatDate, formatVnd } from "@/lib/format";
 import { sanitizeAdminNextPath } from "@/lib/nav";
 import { parsePagination } from "@/lib/pagination";
+import { getPublicEnv, hasPublicSupabaseEnv } from "@/lib/public-env";
 import { Button } from "./Button";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { Select } from "./Select";
@@ -116,5 +118,11 @@ describe("Pause Admin Platform & UI Kit", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Trigger Toast" }));
     expect(screen.getByText("Lưu thành công")).toBeInTheDocument();
+  });
+
+  it("keeps public env helpers compatible across public-env and env modules", () => {
+    expect(getPublicEnv).toBe(getPublicEnvFromServerEnv);
+    expect(hasPublicSupabaseEnv).toBe(hasPublicFromServerEnv);
+    expect(typeof hasPublicSupabaseEnv()).toBe("boolean");
   });
 });

@@ -1,0 +1,263 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.screenToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: var(--space-4);
+  background-color: var(--md-sys-color-surface);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--radius-lg);
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 36px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--md-sys-color-outline);
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  font-size: var(--text-label-lg);
+  font-weight: 600;
+}
+
+.backLink:hover {
+  background-color: var(--md-sys-state-hover);
+}
+
+.slipSheet {
+  width: 100%;
+  max-width: 780px;
+  margin: 0 auto;
+  padding: var(--space-8);
+  background-color: #ffffff;
+  color: #111111;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.slipTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 2px solid #111111;
+}
+
+.brandBlock {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.brandMark {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: #630d11;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.25rem;
+}
+
+.slipTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111111;
+}
+
+.slipSubtitle {
+  font-size: 0.875rem;
+  color: #4a4643;
+}
+
+.codeBox {
+  text-align: right;
+}
+
+.codeLabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #4a4643;
+}
+
+.codeValue {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #111111;
+}
+
+.sectionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+.box {
+  border: 1px solid #cbc5bf;
+  border-radius: 10px;
+  padding: var(--space-4);
+}
+
+.boxTitle {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #4a4643;
+  margin-bottom: var(--space-3);
+}
+
+.recipientName {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111111;
+}
+
+.recipientPhone {
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.recipientAddress {
+  margin-top: 8px;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.noteLine {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #cbc5bf;
+  font-size: 0.875rem;
+}
+
+.specTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.specTable th,
+.specTable td {
+  border: 1px solid #cbc5bf;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.specTable th {
+  background-color: #f3f1ef;
+  font-weight: 700;
+}
+
+.textRight {
+  text-align: right !important;
+}
+
+.codBanner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4);
+  border: 2px dashed #111111;
+  border-radius: 10px;
+  background-color: #faf9f8;
+}
+
+.codAmount {
+  font-size: 1.375rem;
+  font-weight: 800;
+}
+
+.checklist {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.875rem;
+}
+
+.slipFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid #cbc5bf;
+  font-size: 0.8125rem;
+  color: #4a4643;
+}
+
+@media (max-width: 640px) {
+  .slipSheet {
+    padding: var(--space-4);
+  }
+
+  .sectionGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .slipTop {
+    flex-direction: column;
+  }
+
+  .codeBox {
+    text-align: left;
+  }
+}
+
+@page {
+  size: A5 portrait;
+  margin: 10mm;
+}
+
+@media print {
+  :global(body):has(.slipSheet) :global(aside),
+  :global(body):has(.slipSheet) :global(header) {
+    display: none !important;
+  }
+
+  :global(body):has(.slipSheet) :global(main) {
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  :global(body):has(.slipSheet) {
+    background-color: #ffffff !important;
+  }
+
+  .screenToolbar {
+    display: none !important;
+  }
+
+  .slipSheet {
+    max-width: none;
+    box-shadow: none;
+    border: 1px solid #000000;
+    border-radius: 0;
+    padding: 12px;
+  }
+}

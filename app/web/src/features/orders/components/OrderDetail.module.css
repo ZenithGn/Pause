@@ -1,0 +1,413 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.actionLinkBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 40px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-full);
+  font-size: var(--text-label-lg);
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.actionOutlined {
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  border: 1px solid var(--md-sys-color-outline);
+}
+
+.actionOutlined:hover {
+  background-color: var(--md-sys-state-hover);
+  border-color: var(--md-sys-color-on-surface-variant);
+}
+
+.actionTonal {
+  background-color: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  border: 1px solid transparent;
+}
+
+.actionTonal:hover {
+  background-color: #f9e3e3;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.previewWrap {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.previewFrame {
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  background-color: var(--md-sys-color-surface-container-low);
+}
+
+.previewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.metaList {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.metaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-4);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.metaRow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.metaLabel {
+  font-size: var(--text-body-sm);
+  color: var(--md-sys-color-on-surface-variant);
+  flex-shrink: 0;
+}
+
+.metaValue {
+  font-size: var(--text-body-md);
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+  text-align: right;
+  word-break: break-word;
+}
+
+.totalHighlight {
+  font-size: var(--text-title-md);
+  font-weight: 700;
+  color: var(--md-sys-color-primary);
+}
+
+.inlineLink {
+  color: var(--md-sys-color-primary);
+  font-weight: 600;
+}
+
+.inlineLink:hover {
+  text-decoration: underline;
+}
+
+.slotGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: var(--space-4);
+}
+
+.slotCard {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: var(--md-sys-color-surface-container-low);
+}
+
+.slotImageBox {
+  aspect-ratio: 4 / 3;
+  background-color: var(--md-sys-color-surface-container);
+  overflow: hidden;
+  position: relative;
+}
+
+.slotImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.slotIndexBadge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background-color: rgba(17, 17, 17, 0.78);
+  color: #ffffff;
+  font-size: var(--text-label-sm);
+  font-weight: 600;
+}
+
+.slotBody {
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.slotDims {
+  font-size: var(--text-label-md);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.slotDownloadLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--md-sys-color-outline);
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-primary);
+  font-size: var(--text-label-md);
+  font-weight: 600;
+  transition: background-color var(--transition-fast);
+}
+
+.slotDownloadLink:hover {
+  background-color: var(--md-sys-color-primary-container);
+}
+
+.shippingBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.shippingActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.txList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.txItem {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  background-color: var(--md-sys-color-surface-container-low);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.txTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.txAmount {
+  font-weight: 700;
+  color: var(--md-sys-color-on-surface);
+}
+
+.txDetails {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  font-size: var(--text-body-sm);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.statusPanelBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.currentStatusRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background-color: var(--md-sys-color-surface-container-low);
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.transitionButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.terminalNotice {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background-color: var(--md-sys-color-neutral-container);
+  color: var(--md-sys-color-on-neutral-container);
+  font-size: var(--text-body-sm);
+}
+
+.internalNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background-color: var(--md-sys-color-warning-container);
+  color: var(--md-sys-color-on-warning-container);
+  font-size: var(--text-label-md);
+  font-weight: 500;
+  margin-bottom: var(--space-3);
+}
+
+.notesFooter {
+  margin-top: var(--space-3);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.timelineItem {
+  position: relative;
+  padding-left: var(--space-6);
+}
+
+.timelineItem::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--md-sys-color-primary);
+}
+
+.timelineItem:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: 20px;
+  bottom: -18px;
+  width: 2px;
+  background-color: var(--md-sys-color-outline-variant);
+}
+
+.timelineHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.timelineTransition {
+  font-weight: 600;
+  font-size: var(--text-body-md);
+  color: var(--md-sys-color-on-surface);
+}
+
+.timelineTime {
+  font-size: var(--text-label-md);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.timelineActor {
+  margin-top: 2px;
+  font-size: var(--text-body-sm);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.timelineNote {
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background-color: var(--md-sys-color-surface-container-low);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  font-size: var(--text-body-sm);
+  color: var(--md-sys-color-on-surface);
+}
+
+.mutedText {
+  font-size: var(--text-body-sm);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.inlineError {
+  font-size: var(--text-label-md);
+  color: var(--md-sys-color-error);
+  font-weight: 500;
+}
+
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .previewWrap {
+    grid-template-columns: 1fr;
+  }
+
+  .previewFrame {
+    max-width: 240px;
+  }
+
+  .txDetails {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,15 +1,12 @@
 import { z } from "zod";
+import {
+  getPublicEnv,
+  hasPublicSupabaseEnv,
+  publicEnvSchema,
+  type PublicEnv,
+} from "@/lib/public-env";
 
-const publicEnvSchema = z.object({
-  NEXT_PUBLIC_SUPABASE_URL: z
-    .string()
-    .trim()
-    .url("NEXT_PUBLIC_SUPABASE_URL must be a valid URL"),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z
-    .string()
-    .trim()
-    .min(1, "NEXT_PUBLIC_SUPABASE_ANON_KEY is required"),
-});
+export { getPublicEnv, hasPublicSupabaseEnv, publicEnvSchema, type PublicEnv };
 
 const serverSecretsSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z
@@ -31,7 +28,6 @@ const serverSecretsSchema = z.object({
   USE_MOCK_ADMIN_DATA: z.enum(["true", "false"]).optional().default("false"),
 });
 
-export type PublicEnv = z.infer<typeof publicEnvSchema>;
 export type ServerSecretsEnv = z.infer<typeof serverSecretsSchema>;
 
 /**
@@ -42,39 +38,6 @@ export function isMockAdminMode(): boolean {
     return false;
   }
   return process.env.USE_MOCK_ADMIN_DATA === "true";
-}
-
-/**
- * Validates and returns public Supabase credentials.
- * Safe to import anywhere; throws lazily when called at runtime without required vars.
- */
-export function getPublicEnv(): PublicEnv {
-  // Static property access is required so Next.js inlines NEXT_PUBLIC_* on the client bundle.
-  const raw = {
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  };
-
-  const parsed = publicEnvSchema.safeParse(raw);
-  if (!parsed.success) {
-    const details = parsed.error.issues
-      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-      .join("; ");
-    throw new Error(`Missing or invalid public environment variables: ${details}`);
-  }
-
-  return parsed.data;
-}
-
-/**
- * Returns true if public Supabase credentials are configured and valid.
- */
-export function hasPublicSupabaseEnv(): boolean {
-  const parsed = publicEnvSchema.safeParse({
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  });
-  return parsed.success;
 }
 
 function assertServerSide(): void {

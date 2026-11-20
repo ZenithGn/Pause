@@ -1,0 +1,68 @@
+.tooltipWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tooltipWrap[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  z-index: var(--z-modal);
+  padding: 6px 10px;
+  border-radius: var(--radius-xs);
+  background-color: var(--md-sys-color-on-surface);
+  color: var(--md-sys-color-surface);
+  font-size: var(--text-label-md);
+  font-weight: 500;
+  line-height: var(--leading-tight);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(2px);
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
+  box-shadow: var(--shadow-2);
+}
+
+.tooltipBelow[data-tooltip]::after {
+  top: calc(100% + 6px);
+  right: 0;
+}
+
+.tooltipLeft[data-tooltip]::after {
+  right: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.tooltipWrap[data-tooltip]:hover::after,
+.tooltipWrap[data-tooltip]:focus-within::after {
+  opacity: 1;
+}
+
+.tooltipBelow[data-tooltip]:hover::after,
+.tooltipBelow[data-tooltip]:focus-within::after {
+  transform: translateY(0);
+}
+
+.dialogBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.previousReasonBox {
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background-color: var(--md-sys-color-surface-container-low);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  font-size: var(--text-body-sm);
+  color: var(--md-sys-color-on-surface-variant);
+  line-height: var(--leading-normal);
+}
+
+.previousReasonLabel {
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface);
+}

@@ -1,0 +1,65 @@
+.userCell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 180px;
+}
+
+.userNameLink {
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface);
+  transition: color var(--transition-fast);
+}
+
+.userNameLink:hover {
+  color: var(--md-sys-color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.mutedText {
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--text-body-sm);
+}
+
+.monoText {
+  font-family: var(--font-mono);
+  font-size: var(--text-body-sm);
+  color: var(--md-sys-color-on-surface);
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.actionsCell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.detailLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  font-size: var(--text-label-lg);
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.detailLink:hover {
+  background-color: var(--md-sys-color-primary-container);
+  border-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-primary);
+}

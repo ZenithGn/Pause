@@ -25,7 +25,7 @@ fun SplashScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(PauseColors.Ink),
+            .background(PauseColors.Wine),
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -34,7 +34,7 @@ fun SplashScreen() {
             Text(
                 text = stringResource(R.string.app_tagline),
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.65f),
+                color = Color.White.copy(alpha = 0.8f),
             )
             Spacer(modifier = Modifier.height(32.dp))
             CircularProgressIndicator(color = Color.White, strokeWidth = 2.dp)

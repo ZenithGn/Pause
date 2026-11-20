@@ -131,6 +131,8 @@ erDiagram
         string shipping_phone
         string shipping_address
         string status
+        string cover_type
+        string paper_type
         timestamp created_at
         timestamp updated_at
     }
@@ -507,7 +509,7 @@ CREATE INDEX idx_orders_status ON print_orders(status);
 
 ---
 
-### 11. `transactions` (Giao dịch thanh toán)
+### 11. `transactions` (Giao dịch thanh toán VietQR & PayOS)
 
 ```sql
 CREATE TABLE public.transactions (
@@ -516,17 +518,28 @@ CREATE TABLE public.transactions (
     order_id UUID REFERENCES public.print_orders(id),    -- NULL nếu mua hội viên/ngăn kéo
     type TEXT NOT NULL CHECK (type IN ('print_order', 'membership', 'drawer_purchase')),
     amount_vnd INTEGER NOT NULL,
-    payment_method TEXT,                -- 'vnpay', 'momo', 'zalopay'
-    payment_gateway_ref TEXT,           -- Mã giao dịch từ payment gateway
+    payment_method TEXT,                -- 'vietqr_payos', 'vietqr', 'vnpay', 'momo'
+    payment_gateway_ref TEXT,           -- Mã giao dịch từ payment gateway / PayOS
+    order_code BIGINT UNIQUE,           -- Mã đơn hàng numeric của cổng PayOS / VietQR Open Banking
     status TEXT NOT NULL DEFAULT 'pending'
         CHECK (status IN ('pending', 'success', 'failed', 'refunded')),
-    metadata JSONB,                     -- Thông tin thêm từ gateway
+    metadata JSONB,                     -- Thông tin thêm từ gateway (payment_type, ref_id...)
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX idx_transactions_user ON transactions(user_id);
 CREATE INDEX idx_transactions_status ON transactions(status);
+CREATE UNIQUE INDEX idx_transactions_order_code ON transactions(order_code) WHERE order_code IS NOT NULL;
 ```
+
+#### RPC Functions hỗ trợ Thanh toán & Webhook (FR-05)
+
+- **`create_payment_checkout(p_payment_type text, p_ref_id text, p_amount_vnd integer, p_order_code bigint default null) -> JSONB`**:
+  Khởi tạo giao dịch pending, sinh `order_code` 9 chữ số và lưu vào `public.transactions`.
+- **`complete_payment_transaction(p_order_code bigint, p_gateway_ref text default 'vietqr_auto', p_metadata jsonb default '{}'::jsonb) -> JSONB`**:
+  Hàm idempotent (bảo toàn tính nhất quán) dùng cho Webhook Edge Function hoặc Client Sandbox: cập nhật giao dịch thành `success`, tự động kích hoạt gói hội viên (`is_premium = true`, nâng `max_drawers` theo gói Go/Plus/Premium) hoặc chuyển đơn in sang `processing`, đồng thời gửi thông báo in-app.
+- **`get_payment_transaction_status(p_order_code bigint) -> JSONB`**:
+  Trả về trạng thái hiện tại của giao dịch cho Mobile client polling hoặc kiểm tra khi `ON_RESUME`.
 
 ---
 
@@ -632,6 +645,41 @@ cover_photo_url)`; `storage_used_bytes`, `storage_limit_bytes`, `is_purchased`,
 - Xoá policy cũ `"Shared users can view drawers"` (policy này bỏ qua status).
 - `create or replace` toàn bộ RPC FR-02 để DB đang ở trạng thái dở dang cũng
   hội tụ về hành vi chỉ-hiển-thị-khi-accepted.
+
+
+### Lưu trữ ảnh: Cloudinary (hybrid)
+
+- **Ảnh ngăn kéo** (`photos.original_url`) = `secure_url` từ Cloudinary
+  (upload preset unsigned, folder `pause/photos/{drawer_id}`).
+- **Thumbnail** (`photos.thumbnail_url`) = URL transformation
+  `.../image/upload/w_480,q_70,c_limit,f_auto/...` — Cloudinary sinh on-the-fly,
+  **không upload file thumbnail**.
+- **Preview photobooth** (`photobooth_items.preview_url`) = ảnh render trên máy,
+  upload Cloudinary folder `pause/photobooth/{user_id}`.
+- **Avatar** vẫn nằm ở bucket private `avatars` (Supabase Storage, signed URL).
+- Ảnh legacy dạng object path (`{drawer_id}/{photo_id}.jpg`) vẫn được hỗ trợ:
+  code phân biệt bằng `CloudinaryUploader.isCloudinaryUrl()` và resolve signed URL.
+- Chi tiết + trade-off bảo mật: [storage-strategy.md](storage-strategy.md).
+
+### `layout_config` (photobooth_templates)
+
+JSON do admin cấu hình, renderer mobile đọc để vẽ preview:
+
+```json
+{
+  "width": 1200,
+  "height": 1800,
+  "background_color": "#FFFFFF",
+  "slots": [
+    { "index": 0, "x": 60, "y": 80, "width": 1080, "height": 700 },
+    { "index": 1, "x": 60, "y": 820, "width": 1080, "height": 700 }
+  ],
+  "texts": [
+    { "content": "Pause", "x": 600, "y": 1700, "font_size": 48, "color": "#111111" }
+  ],
+  "frame_url": null
+}
+```
 
 ### RPC (gọi từ mobile)
 

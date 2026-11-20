@@ -1,6 +1,7 @@
 package com.pause.app
 
 import android.app.Application
+import com.pause.app.data.notification.PauseNotificationHelper
 import com.pause.app.di.appModules
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -11,6 +12,7 @@ class PauseApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        PauseNotificationHelper.ensureChannel(this)
         startKoin {
             androidLogger(Level.ERROR)
             androidContext(this@PauseApplication)

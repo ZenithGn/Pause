@@ -18,7 +18,7 @@
 |---|---|---|
 | NFR-02.1 | Số lượng người dùng đồng thời | Hỗ trợ tối thiểu 500 CCU trong MVP |
 | NFR-02.2 | Tổng dung lượng lưu trữ | Supabase Storage – scale theo nhu cầu |
-| NFR-02.3 | Số lượng ảnh mỗi ngăn kéo | Không giới hạn số lượng (chỉ giới hạn dung lượng 256 MB) |
+| NFR-02.3 | Giới hạn ảnh mỗi ngăn kéo | Tối đa 50 ảnh / ngăn kéo (free tier). Gói hội viên mở rộng dung lượng đám mây (5GB – 20GB/năm) và số lượng ngăn kéo |
 
 ---
 
@@ -39,8 +39,8 @@
 | NFR-04.1 | Xác thực | JWT token qua Supabase Auth. Token expiry: 1 giờ, refresh token: 7 ngày |
 | NFR-04.2 | Phân quyền | Row Level Security (RLS) trên Supabase. User chỉ truy cập data của mình hoặc data được chia sẻ |
 | NFR-04.3 | Mã hóa truyền tải | HTTPS/TLS 1.2+ cho mọi API call |
-| NFR-04.4 | Lưu trữ ảnh | Supabase Storage với bucket private. Truy cập qua signed URL (expiry 1 giờ) |
-| NFR-04.5 | Thanh toán | Không lưu thông tin thẻ trên hệ thống. Delegate hoàn toàn cho payment gateway |
+| NFR-04.4 | Lưu trữ ảnh | Cloudinary cho ảnh ngăn kéo & photobooth preview (URL không đoán được); Supabase Storage cho avatar (bucket private, signed URL) |
+| NFR-04.5 | Thanh toán | Không lưu thông tin thẻ/tài khoản. Sử dụng cổng VietQR / PayOS App-to-App đối soát tự động qua Webhook |
 | NFR-04.6 | Input validation | Validate tất cả input phía client & server. Chống SQL injection, XSS |
 | NFR-04.7 | Rate limiting | API rate limit: 100 requests/phút/user (có thể điều chỉnh) |
 

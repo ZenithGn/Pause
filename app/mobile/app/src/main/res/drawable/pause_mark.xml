@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="870"
+    android:viewportHeight="870">
+    <!-- Bar 1 (Left vertical pill) -->
+    <path
+        android:fillColor="#FF630D11"
+        android:pathData="M 278,372 C 278,353.22 293.22,338 312,338 C 330.78,338 346,353.22 346,372 L 346,590 C 346,608.78 330.78,624 312,624 C 293.22,624 278,608.78 278,590 Z" />
+    <!-- Bar 2 (Right vertical pill) -->
+    <path
+        android:fillColor="#FF630D11"
+        android:pathData="M 364,372 C 364,353.22 379.22,338 398,338 C 416.78,338 432,353.22 432,372 L 432,590 C 432,608.78 416.78,624 398,624 C 379.22,624 364,608.78 364,590 Z" />
+    <!-- P Arch (Outer loop and top/bottom strokes with rounded end caps) -->
+    <path
+        android:fillColor="#FF630D11"
+        android:pathData="M 312,320 C 293.22,320 278,304.78 278,286 C 278,267.22 293.22,252 312,252 L 489,252 C 558.31,252 614.5,308.19 614.5,377.5 C 614.5,446.81 558.31,503 489,503 L 486,503 C 467.22,503 452,487.78 452,469 C 452,450.22 467.22,435 486,435 L 489,435 C 520.76,435 546.5,409.26 546.5,377.5 C 546.5,345.74 520.76,320 489,320 Z" />
+</vector>

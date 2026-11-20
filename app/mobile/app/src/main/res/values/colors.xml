@@ -5,6 +5,7 @@
     <color name="pause_paper">#FFF7F6F5</color>
     <color name="pause_surface">#FFFFFFFF</color>
     <color name="pause_muted">#FF6B6B6B</color>
-    <color name="pause_accent">#FF111111</color>
-    <color name="ic_launcher_background">#FF111111</color>
+    <color name="pause_accent">#FF630D11</color>
+    <color name="pause_wine">#FF630D11</color>
+    <color name="ic_launcher_background">#FFFFFFFF</color>
 </resources>

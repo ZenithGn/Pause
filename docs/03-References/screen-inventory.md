@@ -81,11 +81,11 @@ Figma design bao gồm **16 màn hình** chia theo các luồng nghiệp vụ:
 | **Frame name** | `Home Page` |
 | **FR liên quan** | FR-02.1 (Xem danh sách ngăn kéo) |
 | **Mô tả** | Dashboard chính – hiển thị ngăn kéo kỷ niệm và quick actions |
-| **UI Elements** | Header: Avatar + Notification bell, Greeting card ("Xin chào, [tên]"), Section: "Kỷ niệm gần đây" (carousel/grid các ngăn kéo), Quick action buttons: "Tạo tủ mới", "Photobooth nhanh", Bottom tab bar: Home / Explore / Memories / Profile |
-| **Text content** | "Xin chào,", "Kỷ niệm gần đây", "Tủ kỷ niệm (Memory Drawers)", "Tạo tủ mới", "Photobooth nhanh" |
+| **UI Elements** | Header: Avatar + Notification bell, Greeting card ("Xin chào, [tên]"), Section: "Kỷ niệm gần đây" (carousel/grid các ngăn kéo), Quick action buttons: "Tạo tủ mới", "Photobooth nhanh", Bottom tab bar: Trang chủ / Sản phẩm in / Ngăn kéo / Tôi |
+| **Text content** | "Xin chào,", "Kỷ niệm gần đây", "Tủ kỷ niệm", "Tạo ngăn kéo mới", "Sản phẩm in" |
 | **Layout** | Dashboard card grid + sticky bottom navigation |
 | **Navigation** | → Album Overview (tap drawer), → Profile (tab), → Create Drawer |
-| **Ghi chú** | Bottom tab có 4 mục: Home, Explore, Memories, Profile |
+| **Ghi chú** | Bottom tab gồm 4 mục tiếng Việt: Trang chủ, Sản phẩm in, Ngăn kéo, Tôi |
 
 ---
 
@@ -163,16 +163,17 @@ Figma design bao gồm **16 màn hình** chia theo các luồng nghiệp vụ:
 
 ---
 
-### 10. Payment (Cổng thanh toán)
+### 10. Payment (Thanh toán VietQR & PayOS App-to-App)
 
 | Mục | Chi tiết |
 |---|---|
 | **Frame name** | `Payment` |
-| **FR liên quan** | FR-05.1 (Tích hợp Payment Gateway) |
-| **Mô tả** | Màn hình thanh toán QR code |
-| **UI Elements** | QR code (VietQR/MoMo), Bank transfer info (nội dung chuyển khoản), Countdown timer, Button: "Tôi đã hoàn tất thanh toán", Button: Cancel |
-| **Text content** | "Quét mã QR để thanh toán", "Nội dung chuyển khoản", "Số tiền", "Đang chờ thanh toán...", "Tôi đã hoàn tất thanh toán" |
-| **Layout** | Centered around QR code, modal-like |
+| **FR liên quan** | FR-05.1 (Tích hợp Cổng thanh toán VietQR & PayOS App-to-App) |
+| **Mô tả** | Màn hình thanh toán chuyển khoản App-to-App & quét mã VietQR tự động đối soát |
+| **UI Elements** | Nút: "Mở App Ngân hàng thanh toán" (App-to-App launch), Mã VietQR Pro (kèm Canvas simulated matrix), Thẻ thông tin chuyển khoản MB Bank (STK, tên chủ TK, số tiền, nội dung CK kèm nút copy), Trạng thái chờ đối soát (pulsing status chip), Countdown timer (10 phút), Nút: "⚡ Mô phỏng thanh toán (Sandbox Test)", Nút: "Tôi đã chuyển khoản xong", Nút: "Hủy giao dịch" |
+| **Text content** | "Thanh toán VietQR App-to-App", "Mở App Ngân hàng thanh toán", "Đang chờ đối soát tự động", "Số tiền", "Nội dung CK", "Tôi đã chuyển khoản xong" |
+| **Cơ chế tự động** | Bắt sự kiện quay lại app qua Lifecycle `ON_RESUME` + Background polling 2.5s. Tự động chuyển màn hình thành công khi nhận tiền (zero-click) |
+| **Layout** | Scrollable cards + sticky bottom action bar |
 | **Navigation** | → Payment Success / Payment Failed |
 
 ---
@@ -233,18 +234,17 @@ Figma design bao gồm **16 màn hình** chia theo các luồng nghiệp vụ:
 
 ---
 
-### 15. Upgrade (Nâng cấp tài khoản)
+### 15. Upgrade (Nâng cấp tài khoản Hội viên)
 
 | Mục | Chi tiết |
 |---|---|
 | **Frame name** | `Upgrade` |
 | **FR liên quan** | FR-04.1, FR-04.2 (Gói hội viên) |
-| **Mô tả** | So sánh và đăng ký gói hội viên |
-| **UI Elements** | Comparison table: Free vs. Premium, Feature checklist (unlimited storage, 4K video, free monthly prints), Billing toggle: Monthly / Annual, Button: "Nâng cấp ngay" (primary CTA) |
-| **Text content** | "Nâng cấp Pause Premium", "Lưu trữ không giới hạn", "In ấn ưu đãi mỗi tháng", "Gói 1 năm (Tiết kiệm 30%)", "Nâng cấp ngay" |
-| **Layout** | Promotional comparison cards |
-| **Navigation** | → Payment (khi nâng cấp) |
-| **Ghi chú** | Figma đề cập "4K video" và "unlimited storage" — cần xác nhận có hỗ trợ video không |
+| **Mô tả** | Chọn và đăng ký các gói hội viên hàng năm |
+| **UI Elements** | Danh sách 3 gói hội viên (PAUSE Go, PAUSE Plus, PAUSE Premium), Thẻ quyền lợi: Hạn mức ngăn kéo (10, 25, 50 ngăn kéo), Dung lượng đám mây (5GB, 10GB, 20GB), Mở khóa 100% VIP Templates, Nút "Nâng cấp ngay" |
+| **Text content** | "Nâng cấp gói Hội viên", "PAUSE Go - 30.000đ/năm", "PAUSE Plus - 55.000đ/năm (Phổ biến)", "PAUSE Premium - 100.000đ/năm", "Mở khóa toàn bộ VIP Templates" |
+| **Layout** | Vertical pricing tier cards, highlighted recommendation card |
+| **Navigation** | → Payment (với type `pause_go`, `pause_plus`, `pause_premium`) |
 
 ---
 

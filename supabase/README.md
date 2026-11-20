@@ -194,7 +194,7 @@ select * from public.profiles;
 | `security definer set search_path = ''` | Best practice trong tài liệu Supabase nói trên (đã áp dụng cho cả 4 function) |
 | Storage bucket private + policy theo `auth.uid()` | Theo [Storage Access Control](https://supabase.com/docs/guides/storage/security/access-control) |
 | Key trong `config.toml` | Đối chiếu `toml:` tag trong source `supabase/cli` (`apps/cli-go/pkg/config/auth.go`, `storage.go`) và [CLI config docs](https://supabase.com/docs/guides/local-development/cli/config) |
-| **SQL đã được chạy thật chưa?** | ✅ **Rồi** — chạy trên PostgreSQL thật (embedded, không cần Docker) bằng `tests/validate_migrations.py`: apply file baseline + **58/58 check** (FR-01 + FR-02: trigger, quota 256 MB, RLS, invitation flow, bucket). Chưa chạy trên **Supabase stack thật** (GoTrue/PostgREST/Storage thật) |
+| **SQL đã được chạy thật chưa?** | ✅ **Rồi** — chạy trên PostgreSQL thật (embedded, không cần Docker) bằng `tests/validate_migrations.py`: apply file baseline + **60/60 check** (FR-01 + FR-02: trigger, quota 256 MB, RLS, invitation flow, bucket). Chưa chạy trên **Supabase stack thật** (GoTrue/PostgREST/Storage thật) |
 
 ### Chạy lại kiểm chứng SQL (không cần Docker)
 

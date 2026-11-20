@@ -1,0 +1,141 @@
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: var(--space-4);
+}
+
+.summaryLabel {
+  font-size: var(--text-body-sm);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.summaryValue {
+  margin-top: var(--space-2);
+  font-size: var(--text-headline-sm);
+  font-weight: 700;
+  color: var(--md-sys-color-on-surface);
+  font-variant-numeric: tabular-nums;
+}
+
+.filterRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.planNameCell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 180px;
+}
+
+.planLink {
+  font-weight: 600;
+  color: var(--md-sys-color-primary);
+  transition: color var(--transition-fast);
+}
+
+.planLink:hover {
+  color: var(--md-sys-color-primary-hover);
+  text-decoration: underline;
+}
+
+.planDesc {
+  font-size: var(--text-body-sm);
+  color: var(--md-sys-color-on-surface-variant);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 340px;
+}
+
+.priceCell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.priceAmount {
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface);
+}
+
+.priceCycle {
+  font-size: var(--text-label-md);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.benefitsCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.benefitMain {
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+}
+
+.benefitSub {
+  font-size: var(--text-label-md);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.subscriberLink {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--md-sys-color-on-surface);
+  transition: color var(--transition-fast);
+}
+
+.subscriberLink:hover {
+  color: var(--md-sys-color-primary);
+}
+
+.subscriberActive {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.subscriberTotal {
+  font-size: var(--text-label-md);
+  color: var(--md-sys-color-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}
+
+.actionsCell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  flex-wrap: nowrap;
+}
+
+.actionLink {
+  display: inline-flex;
+  align-items: center;
+}
+
+.inUseNotice {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background-color: var(--md-sys-color-warning-container);
+  color: var(--md-sys-color-on-warning-container);
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-normal);
+}

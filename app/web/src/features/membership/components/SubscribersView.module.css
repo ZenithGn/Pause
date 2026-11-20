@@ -1,0 +1,65 @@
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.filterField {
+  min-width: 170px;
+}
+
+.searchField {
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.quickToggleWrap {
+  display: flex;
+  align-items: flex-end;
+}
+
+.userCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 180px;
+}
+
+.userLink {
+  font-weight: 600;
+  color: var(--md-sys-color-primary);
+  transition: color var(--transition-fast);
+}
+
+.userLink:hover {
+  color: var(--md-sys-color-primary-hover);
+  text-decoration: underline;
+}
+
+.userEmail {
+  font-size: var(--text-body-sm);
+  color: var(--md-sys-color-on-surface-variant);
+  word-break: break-word;
+}
+
+.dateCell {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.muted {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.expiringBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background-color: var(--md-sys-color-warning-container);
+  color: var(--md-sys-color-on-warning-container);
+  font-size: var(--text-body-sm);
+  flex-wrap: wrap;
+}

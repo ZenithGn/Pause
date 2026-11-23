@@ -1,0 +1,116 @@
+name: CI/CD – Supabase (Migrations & Edge Functions)
+
+on:
+  push:
+    branches:
+      - main
+      - webapp-dev
+      - mobile-app_dev
+    paths:
+      - "supabase/**"
+      - ".github/workflows/ci-supabase.yml"
+  pull_request:
+    branches:
+      - main
+      - webapp-dev
+      - mobile-app_dev
+    paths:
+      - "supabase/**"
+      - ".github/workflows/ci-supabase.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: supabase-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-migrations:
+    name: Validate SQL Migrations (Embedded Postgres)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install SQL validator dependencies
+        run: pip install pgserver "psycopg[binary]"
+
+      - name: Run migration & RLS test suite
+        run: python supabase/tests/validate_migrations.py
+
+  check-edge-functions:
+    name: Typecheck Supabase Edge Functions (Deno)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Check all Edge Function entrypoints
+        run: |
+          for fn in supabase/functions/*/index.ts; do
+            echo "Checking $fn..."
+            deno check "$fn"
+          done
+
+  deploy-supabase:
+    name: Deploy Migrations & Edge Functions to Supabase
+    needs:
+      - validate-migrations
+      - check-edge-functions
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check Supabase deploy secrets
+        id: sb_check
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          if [ -n "$SUPABASE_ACCESS_TOKEN" ] && [ -n "$SUPABASE_PROJECT_ID" ] && [ -n "$SUPABASE_DB_PASSWORD" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping Supabase auto-deploy (secrets not configured)."
+          fi
+
+      - name: Setup Supabase CLI
+        if: steps.sb_check.outputs.enabled == 'true'
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link & push SQL migrations
+        if: steps.sb_check.outputs.enabled == 'true'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          supabase link --project-ref "${{ secrets.SUPABASE_PROJECT_ID }}" --password "$SUPABASE_DB_PASSWORD"
+          supabase db push
+
+      - name: Deploy Edge Functions
+        if: steps.sb_check.outputs.enabled == 'true'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          for dir in supabase/functions/*/; do
+            fn_name=$(basename "$dir")
+            echo "Deploying Edge Function: $fn_name"
+            supabase functions deploy "$fn_name" --project-ref "${{ secrets.SUPABASE_PROJECT_ID }}"
+          done

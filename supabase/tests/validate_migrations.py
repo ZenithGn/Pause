@@ -1145,6 +1145,27 @@ def main() -> int:
         ).fetchone()[0]
         check("FR-06 admin_seed.sql seeds orders across all 6 statuses", seed_orders == 6, seed_orders)
 
+        # Verify auto-expiry of stale pending VietQR transactions & linked pending print_orders
+        as_user(conn, "11111111-1111-4111-8111-111111111101")
+        expire_res = conn.execute(
+            "select public.expire_stale_pending_payments(15)"
+        ).fetchone()[0]
+        as_superuser(conn)
+        check(
+            "FR-06 expire_stale_pending_payments cancels stale pending seed tx & linked pending order",
+            expire_res.get("cancelled_transactions", 0) >= 1
+            and expire_res.get("cancelled_orders", 0) >= 1,
+            expire_res,
+        )
+        tx4_status = conn.execute(
+            "select status from public.transactions where id = '77777777-7777-4777-8777-777777777704'"
+        ).fetchone()[0]
+        order1_status = conn.execute(
+            "select status from public.print_orders where id = '55555555-5555-4555-8555-555555555501'"
+        ).fetchone()[0]
+        check("FR-06 stale pending transaction becomes cancelled", tx4_status == "cancelled", tx4_status)
+        check("FR-06 stale unpaid online print_order becomes cancelled", order1_status == "cancelled", order1_status)
+
     print(f"\n{checks - len(failures)}/{checks} checks passed")
     if failures:
         for failure in failures:

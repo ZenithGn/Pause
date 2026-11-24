@@ -138,7 +138,7 @@ describe("DownloadFaq accordion interaction", () => {
 });
 
 describe("DownloadActions CTA and copyable link feedback", () => {
-  it("renders primary APK link, disabled Google Play coming soon badge, and copies link", async () => {
+  it("renders primary APK link, platform coming soon metadata, and copies link", async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
@@ -156,9 +156,7 @@ describe("DownloadActions CTA and copyable link feedback", () => {
     const apkLink = screen.getByRole("link", { name: /Tải file APK Android/i });
     expect(apkLink).toHaveAttribute("href", DEFAULT_ANDROID_APK_URL);
 
-    const playButton = screen.getByRole("button", { name: /Google Play/i });
-    expect(playButton).toBeDisabled();
-    expect(screen.getByText("Sắp ra mắt")).toBeInTheDocument();
+    expect(screen.getByText(/Google Play & iOS sắp ra mắt/i)).toBeVisible();
 
     const copyButton = screen.getByRole("button", {
       name: /Sao chép liên kết tải APK/i,

@@ -23,8 +23,8 @@
   --color-gold-bright: #d4af37;
   --color-gold-soft: #fbf5e6;
 
-  /* Typography */
-  --font-display-family: var(--font-display), Georgia, "Times New Roman", serif;
+  /* Typography (Sans-serif only) */
+  --font-display-family: var(--font-display), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-sans-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   --leading-tight: 1.15;

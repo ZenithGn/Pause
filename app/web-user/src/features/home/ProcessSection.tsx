@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { SAMPLE_PHOTO_URLS } from "@/lib/catalog-data";
 import type { PublicTemplate } from "@/types/catalog";
 import styles from "./Home.module.css";
 
@@ -35,18 +36,38 @@ const CATEGORY_LABELS: Record<string, string> = {
   general: "Chung",
 };
 
-function TemplateMiniSchematic({ template }: { template: PublicTemplate }) {
+function TemplateMiniSchematic({
+  template,
+  photoOffset = 0,
+}: {
+  template: PublicTemplate;
+  photoOffset?: number;
+}) {
   const { width, height, background_color, slots } = template.layout_config;
   const slotFill = template.is_premium ? "#2A2525" : "#E9E4DE";
   const strokeColor = template.is_premium ? "#C59B38" : "#D6CFC7";
+  const safeId = template.id.replace(/[^a-zA-Z0-9_-]/g, "");
 
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
       className={styles.templateSvg}
       role="img"
-      aria-label={`Bố cục mẫu ${template.name}`}
+      aria-label={`Xem trước mẫu ${template.name}`}
     >
+      <defs>
+        {slots.map((slot) => (
+          <clipPath key={`clip-${slot.index}`} id={`clip-${safeId}-${slot.index}`}>
+            <rect
+              x={slot.x}
+              y={slot.y}
+              width={slot.width}
+              height={slot.height}
+              rx={14}
+            />
+          </clipPath>
+        ))}
+      </defs>
       <rect
         x={0}
         y={0}
@@ -57,17 +78,33 @@ function TemplateMiniSchematic({ template }: { template: PublicTemplate }) {
         stroke={strokeColor}
         strokeWidth={16}
       />
-      {slots.map((slot) => (
-        <rect
-          key={slot.index}
-          x={slot.x}
-          y={slot.y}
-          width={slot.width}
-          height={slot.height}
-          rx={14}
-          fill={slotFill}
-        />
-      ))}
+      {slots.map((slot) => {
+        const photoUrl =
+          SAMPLE_PHOTO_URLS[(slot.index + photoOffset) % SAMPLE_PHOTO_URLS.length];
+        return (
+          <g key={slot.index}>
+            <rect
+              x={slot.x}
+              y={slot.y}
+              width={slot.width}
+              height={slot.height}
+              rx={14}
+              fill={slotFill}
+            />
+            {photoUrl ? (
+              <image
+                href={photoUrl}
+                x={slot.x}
+                y={slot.y}
+                width={slot.width}
+                height={slot.height}
+                preserveAspectRatio="xMidYMid slice"
+                clipPath={`url(#clip-${safeId}-${slot.index})`}
+              />
+            ) : null}
+          </g>
+        );
+      })}
     </svg>
   );
 }
@@ -81,43 +118,36 @@ export function ProcessSection({ templates }: ProcessSectionProps) {
       aria-labelledby="process-heading"
     >
       <div className={styles.sectionContainer}>
-        <div className={styles.processSplit}>
-          <div>
-            <span className={styles.eyebrow}>IN PHOTOBOOTH THEO YÊU CẦU</span>
-            <h2 id="process-heading" className={styles.sectionHeading}>
-              Từ khoảnh khắc số đến dải ảnh cầm tay trong 3 bước
-            </h2>
-            <p className={styles.sectionLead}>
-              Xem trước trực quan từng đường nét ép kim và độ dày giấy in trên
-              sân khấu 3D trước khi mở app đặt in.
-            </p>
+        <div className={styles.processIntro}>
+          <span className={styles.eyebrow}>IN PHOTOBOOTH THEO YÊU CẦU</span>
+          <h2 id="process-heading" className={styles.sectionHeading}>
+            Từ khoảnh khắc số đến dải ảnh cầm tay trong 3 bước
+          </h2>
+          <p className={styles.sectionLead}>
+            Xem trước trực quan từng đường nét ép kim và độ dày giấy in trên
+            sân khấu 3D trước khi mở app đặt in.
+          </p>
+        </div>
 
-            <ol className={styles.processSteps}>
-              {STEPS.map((step) => (
-                <li key={step.number} className={styles.processStep}>
-                  <span className={styles.stepNumber}>{step.number}</span>
-                  <div>
-                    <h3 className={styles.stepTitle}>{step.title}</h3>
-                    <p className={styles.stepDesc}>{step.description}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
+        <ol className={styles.processStepsGrid}>
+          {STEPS.map((step) => (
+            <li key={step.number} className={styles.processStepCard}>
+              <span className={styles.stepNumber}>{step.number}</span>
+              <h3 className={styles.stepTitle}>{step.title}</h3>
+              <p className={styles.stepDesc}>{step.description}</p>
+            </li>
+          ))}
+        </ol>
 
-            <div className={styles.processCallout}>
-              <p className={styles.calloutText}>
-                Thử ghép ảnh từ máy lên mẫu in 3D ngay trên trình duyệt — không
-                tải ảnh lên server.
-              </p>
-              <Link href="/preview" className={styles.wineCtaBtn}>
-                <span>Trải nghiệm xoay mẫu in 3D ngay</span>
-                <ArrowRight size={16} aria-hidden="true" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Open stage column on the right for the 3D camera + mini strip */}
-          <div className={styles.processSpacer} aria-hidden="true" />
+        <div className={styles.processCallout}>
+          <p className={styles.calloutText}>
+            Thử ghép ảnh từ máy lên mẫu in 3D ngay trên trình duyệt — không
+            tải ảnh lên server.
+          </p>
+          <Link href="/preview" className={styles.wineCtaBtn}>
+            <span>Trải nghiệm xoay mẫu in 3D ngay</span>
+            <ArrowRight size={16} aria-hidden="true" />
+          </Link>
         </div>
 
         <div className={styles.templatesShowcase}>
@@ -137,7 +167,7 @@ export function ProcessSection({ templates }: ProcessSectionProps) {
           </div>
 
           <div className={styles.templatesGrid}>
-            {featuredTemplates.map((tpl) => {
+            {featuredTemplates.map((tpl, idx) => {
               const categoryLabel =
                 CATEGORY_LABELS[tpl.category] ?? tpl.category;
               return (
@@ -147,7 +177,7 @@ export function ProcessSection({ templates }: ProcessSectionProps) {
                   className={styles.templateCard}
                 >
                   <div className={styles.templateThumbWrap}>
-                    <TemplateMiniSchematic template={tpl} />
+                    <TemplateMiniSchematic template={tpl} photoOffset={idx} />
                     {tpl.is_premium ? (
                       <span className={styles.vipBadge}>VIP</span>
                     ) : null}

@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState, type ChangeEvent, type DragEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type DragEvent } from "react";
 import {
+  AlertCircle,
   ArrowDown,
   ArrowUp,
   ImagePlus,
@@ -28,20 +29,31 @@ interface PhotoSlotManagerProps {
   onClearAllPhotos: () => void;
 }
 
-function filterAcceptedImageFiles(fileList: FileList | null): File[] {
-  if (!fileList || fileList.length === 0) return [];
-  return Array.from(fileList).filter((file) => {
-    if (ACCEPTED_IMAGE_MIME_TYPES.has(file.type)) {
-      return true;
-    }
+function partitionImageFiles(fileList: FileList | null): {
+  valid: File[];
+  rejectedNames: string[];
+} {
+  if (!fileList || fileList.length === 0) return { valid: [], rejectedNames: [] };
+  const valid: File[] = [];
+  const rejectedNames: string[] = [];
+
+  for (const file of Array.from(fileList)) {
     const lowerName = file.name.toLowerCase();
-    return (
+    const isAccepted =
+      ACCEPTED_IMAGE_MIME_TYPES.has(file.type) ||
       lowerName.endsWith(".jpg") ||
       lowerName.endsWith(".jpeg") ||
       lowerName.endsWith(".png") ||
-      lowerName.endsWith(".webp")
-    );
-  });
+      lowerName.endsWith(".webp");
+
+    if (isAccepted) {
+      valid.push(file);
+    } else {
+      rejectedNames.push(file.name);
+    }
+  }
+
+  return { valid, rejectedNames };
 }
 
 /**
@@ -62,16 +74,44 @@ export function PhotoSlotManager({
   const multiInputRef = useRef<HTMLInputElement>(null);
   const slotInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
   const [isDragging, setIsDragging] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [confirmClear, setConfirmClear] = useState(false);
 
   const slots = template.layout_config.slots;
   const filledCount = slots.filter((slot) => Boolean(slotPhotos[slot.index])).length;
   const defaultCaptionHint =
     template.layout_config.texts[0]?.content || "Kỷ niệm cùng Pause";
 
+  useEffect(() => {
+    if (!confirmClear) return;
+    const timer = window.setTimeout(() => setConfirmClear(false), 4000);
+    return () => window.clearTimeout(timer);
+  }, [confirmClear]);
+
+  useEffect(() => {
+    if (filledCount === 0 && confirmClear) {
+      setConfirmClear(false);
+    }
+  }, [filledCount, confirmClear]);
+
+  const reportRejectedFiles = (rejectedNames: string[]) => {
+    if (rejectedNames.length === 0) {
+      setUploadError(null);
+      return;
+    }
+    const previewNames = rejectedNames.slice(0, 2).join(", ");
+    const extra = rejectedNames.length > 2 ? ` và ${rejectedNames.length - 2} tệp khác` : "";
+    setUploadError(
+      `Không hỗ trợ định dạng của ${previewNames}${extra}. Vui lòng chọn ảnh JPG, PNG hoặc WebP.`
+    );
+  };
+
   const handleMultiFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const validFiles = filterAcceptedImageFiles(event.target.files);
-    if (validFiles.length > 0) {
-      onFilesSelected(validFiles);
+    const { valid, rejectedNames } = partitionImageFiles(event.target.files);
+    reportRejectedFiles(rejectedNames);
+    if (valid.length > 0) {
+      setConfirmClear(false);
+      onFilesSelected(valid);
     }
     event.target.value = "";
   };
@@ -80,9 +120,11 @@ export function PhotoSlotManager({
     slotIndex: number,
     event: ChangeEvent<HTMLInputElement>
   ) => {
-    const validFiles = filterAcceptedImageFiles(event.target.files);
-    const first = validFiles[0];
+    const { valid, rejectedNames } = partitionImageFiles(event.target.files);
+    reportRejectedFiles(rejectedNames);
+    const first = valid[0];
     if (first) {
+      setConfirmClear(false);
       onReplaceSlotFile(slotIndex, first);
     }
     event.target.value = "";
@@ -101,10 +143,22 @@ export function PhotoSlotManager({
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragging(false);
-    const validFiles = filterAcceptedImageFiles(event.dataTransfer.files);
-    if (validFiles.length > 0) {
-      onFilesSelected(validFiles);
+    const { valid, rejectedNames } = partitionImageFiles(event.dataTransfer.files);
+    reportRejectedFiles(rejectedNames);
+    if (valid.length > 0) {
+      setConfirmClear(false);
+      onFilesSelected(valid);
     }
+  };
+
+  const handleClearClick = () => {
+    if (!confirmClear) {
+      setConfirmClear(true);
+      return;
+    }
+    setConfirmClear(false);
+    setUploadError(null);
+    onClearAllPhotos();
   };
 
   return (
@@ -163,15 +217,24 @@ export function PhotoSlotManager({
 
           <button
             type="button"
-            className={styles.ghostDangerButton}
+            className={
+              confirmClear ? styles.ghostDangerConfirmButton : styles.ghostDangerButton
+            }
             disabled={filledCount === 0}
-            onClick={onClearAllPhotos}
+            onClick={handleClearClick}
           >
             <Trash2 size={14} aria-hidden="true" />
-            <span>Xóa toàn bộ ảnh</span>
+            <span>{confirmClear ? "Xác nhận xóa tất cả?" : "Xóa toàn bộ ảnh"}</span>
           </button>
         </div>
       </div>
+
+      {uploadError ? (
+        <div className={styles.uploadErrorAlert} role="alert">
+          <AlertCircle size={15} aria-hidden="true" />
+          <span>{uploadError}</span>
+        </div>
+      ) : null}
 
       <p className={styles.privacyNotice}>
         <ShieldCheck size={15} aria-hidden="true" />

@@ -117,6 +117,12 @@ export function PreviewStudio({
     [slotPhotos, selectedTemplate]
   );
 
+  const totalSlotCount = selectedTemplate.layout_config.slots.length;
+  const filledSlotCount = useMemo(
+    () => Object.values(activeSlotPhotoUrls).filter(Boolean).length,
+    [activeSlotPhotoUrls]
+  );
+
   const handleSelectTemplate = useCallback((template: PublicTemplate) => {
     setSelectedTemplateId(template.id);
   }, []);
@@ -221,9 +227,11 @@ export function PreviewStudio({
 
           <div className={styles.tabBar} role="tablist" aria-label="Các bước tùy chỉnh">
             <button
+              id="studio-tab-templates"
               type="button"
               role="tab"
               aria-selected={activeTab === "templates"}
+              aria-controls="studio-tabpanel"
               className={`${styles.tabButton} ${
                 activeTab === "templates" ? styles.tabButtonActive : ""
               }`}
@@ -232,20 +240,30 @@ export function PreviewStudio({
               1. Chọn mẫu in
             </button>
             <button
+              id="studio-tab-photos"
               type="button"
               role="tab"
               aria-selected={activeTab === "photos"}
+              aria-controls="studio-tabpanel"
               className={`${styles.tabButton} ${
                 activeTab === "photos" ? styles.tabButtonActive : ""
               }`}
               onClick={() => setActiveTab("photos")}
             >
-              2. Chọn ảnh &amp; Chữ
+              <span>2. Chọn ảnh &amp; Chữ</span>
+              <span
+                className={styles.tabCountBadge}
+                aria-label={`Đã điền ${filledSlotCount} trên ${totalSlotCount} ảnh`}
+              >
+                {filledSlotCount}/{totalSlotCount}
+              </span>
             </button>
             <button
+              id="studio-tab-materials"
               type="button"
               role="tab"
               aria-selected={activeTab === "materials"}
+              aria-controls="studio-tabpanel"
               className={`${styles.tabButton} ${
                 activeTab === "materials" ? styles.tabButtonActive : ""
               }`}
@@ -255,7 +273,12 @@ export function PreviewStudio({
             </button>
           </div>
 
-          <div className={styles.panelBody} role="tabpanel">
+          <div
+            id="studio-tabpanel"
+            className={styles.panelBody}
+            role="tabpanel"
+            aria-labelledby={`studio-tab-${activeTab}`}
+          >
             {activeTab === "templates" ? (
               <>
                 <TemplateSelector

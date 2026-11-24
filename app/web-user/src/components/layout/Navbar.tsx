@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
@@ -24,6 +24,8 @@ export function Navbar() {
   const isHome = pathname === "/";
   const [isScrolled, setIsScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerRef = useRef<HTMLElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,13 +42,39 @@ export function Navbar() {
 
   useEffect(() => {
     if (!drawerOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setDrawerOpen(false);
+        return;
+      }
+
+      if (event.key === "Tab" && drawerRef.current) {
+        const focusables = drawerRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
       }
     };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [drawerOpen]);
 
   const isTransparentHero = isHome && !isScrolled;
@@ -54,9 +82,8 @@ export function Navbar() {
   return (
     <>
       <header
-        className={`${styles.header} ${
-          isTransparentHero ? styles.headerHero : styles.headerSolid
-        }`}
+        className={`${styles.header} ${isTransparentHero ? styles.headerHero : styles.headerSolid
+          }`}
       >
         <div className={styles.inner}>
           <Link href="/" className={styles.brand} aria-label="Pause - Trang chủ">
@@ -78,9 +105,8 @@ export function Navbar() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`${styles.ctaLink} ${
-                      isTransparentHero ? styles.ctaLinkHero : styles.ctaLinkSolid
-                    } ${isActive ? styles.ctaActive : ""}`}
+                    className={`${styles.ctaLink} ${isTransparentHero ? styles.ctaLinkHero : styles.ctaLinkSolid
+                      } ${isActive ? styles.ctaActive : ""}`}
                   >
                     {item.label}
                   </Link>
@@ -91,9 +117,8 @@ export function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`${styles.navLink} ${
-                    isActive ? styles.navLinkActive : ""
-                  }`}
+                  className={`${styles.navLink} ${isActive ? styles.navLinkActive : ""
+                    }`}
                 >
                   <span>{item.label}</span>
                   {item.hasGoldDot ? (
@@ -123,6 +148,9 @@ export function Navbar() {
           onClick={() => setDrawerOpen(false)}
         >
           <aside
+            ref={drawerRef}
+            role="dialog"
+            aria-modal="true"
             className={styles.drawerPanel}
             aria-label="Menu di động"
             onClick={(event) => event.stopPropagation()}
@@ -139,6 +167,7 @@ export function Navbar() {
                 <span className={styles.brandWordmark}>Pause</span>
               </Link>
               <button
+                ref={closeButtonRef}
                 type="button"
                 className={styles.drawerClose}
                 aria-label="Đóng menu"
@@ -160,9 +189,8 @@ export function Navbar() {
                     key={item.href}
                     href={item.href}
                     onClick={() => setDrawerOpen(false)}
-                    className={`${styles.drawerLink} ${
-                      item.isCta ? styles.drawerCta : ""
-                    } ${isActive ? styles.drawerLinkActive : ""}`}
+                    className={`${styles.drawerLink} ${item.isCta ? styles.drawerCta : ""
+                      } ${isActive ? styles.drawerLinkActive : ""}`}
                   >
                     <span>{item.label}</span>
                     {item.hasGoldDot ? (

@@ -85,6 +85,7 @@ interface PrintCardMeshProps {
   coverType: CoverType;
   paperType: PaperType;
   autoRotate: boolean;
+  reducedMotion: boolean;
 }
 
 function PrintCardMesh({
@@ -94,6 +95,7 @@ function PrintCardMesh({
   coverType,
   paperType,
   autoRotate,
+  reducedMotion,
 }: PrintCardMeshProps) {
   const groupRef = useRef<THREE.Group>(null);
   const loadedImageCacheRef = useRef<Map<string, HTMLImageElement>>(new Map());
@@ -113,10 +115,12 @@ function PrintCardMesh({
   useEffect(() => {
     if (prevTemplateIdRef.current !== template.id) {
       prevTemplateIdRef.current = template.id;
-      transitionScaleRef.current = 0.91;
-      transitionSpinRef.current = 0.24;
+      if (!reducedMotion) {
+        transitionScaleRef.current = 0.91;
+        transitionSpinRef.current = 0.24;
+      }
     }
-  }, [template.id]);
+  }, [template.id, reducedMotion]);
 
   // Create deterministic 200gsm paper grain bump texture once
   useEffect(() => {
@@ -271,7 +275,7 @@ function PrintCardMesh({
       transitionSpinRef.current = nextSpin;
     }
 
-    if (autoRotate) {
+    if (autoRotate && !reducedMotion) {
       group.rotation.y += dt * 0.42;
     }
   });
@@ -397,9 +401,19 @@ export function PrintPreviewScene3D({
   const [presetVersion, setPresetVersion] = useState(0);
   const [autoRotate, setAutoRotate] = useState(false);
   const [lightingMode, setLightingMode] = useState<LightingMode>("studio");
+  const [reducedMotion, setReducedMotion] = useState(false);
 
   const controlsRef = useRef<OrbitControlsHandle | null>(null);
   const isTransitioningRef = useRef(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   const handleSelectAngle = (preset: CameraAnglePreset) => {
     setCameraPreset(preset);
@@ -408,6 +422,7 @@ export function PrintPreviewScene3D({
 
   const handleUserInteractStart = () => {
     isTransitioningRef.current = false;
+    setAutoRotate(false);
   };
 
   const isWarm = lightingMode === "warm";
@@ -425,7 +440,11 @@ export function PrintPreviewScene3D({
         <span className={styles.stageHint}>Kéo để xoay 360° · Cuộn để phóng to</span>
       </div>
 
-      <div className={styles.canvasShell}>
+      <div
+        className={styles.canvasShell}
+        role="img"
+        aria-label={`Mô hình 3D mẫu in ${template.name}. Kéo để xoay 360 độ hoặc dùng các nút góc nhìn bên dưới.`}
+      >
         <Canvas
           shadows
           dpr={[1, 2]}
@@ -490,6 +509,7 @@ export function PrintPreviewScene3D({
             coverType={coverType}
             paperType={paperType}
             autoRotate={autoRotate}
+            reducedMotion={reducedMotion}
           />
 
           <ContactShadows

@@ -777,3 +777,58 @@
     padding-inline: 0.3rem;
   }
 }
+
+.tabCountBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.35rem;
+  padding: 0.08rem 0.42rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-gold-soft);
+  color: var(--color-wine);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.tabButtonActive .tabCountBadge {
+  background-color: rgba(255, 255, 255, 0.22);
+  color: var(--color-white);
+}
+
+.ghostDangerConfirmButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-wine);
+  background-color: var(--color-wine);
+  color: var(--color-white);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition: background-color var(--transition-fast);
+}
+
+.ghostDangerConfirmButton:hover {
+  background-color: var(--color-wine-deep);
+}
+
+.uploadErrorAlert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-md);
+  background-color: var(--color-wine-soft);
+  border: 1px solid rgba(99, 13, 17, 0.25);
+  color: var(--color-wine);
+  font-size: 0.8125rem;
+  line-height: var(--leading-snug);
+}
+
+.uploadErrorAlert svg {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}

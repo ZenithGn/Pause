@@ -116,30 +116,32 @@
   opacity: 0.8;
 }
 
-.secondaryPlayBtn {
+.secondaryCopyBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  padding: 0.85rem 1.35rem;
+  padding: 0.88rem 1.35rem;
   border-radius: var(--radius-full);
   background-color: var(--color-white);
-  color: var(--color-ink-muted);
+  color: var(--color-ink);
   border: 1px solid var(--color-line);
   font-weight: 600;
   font-size: 0.9375rem;
-  cursor: not-allowed;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
-.comingSoonBadge {
-  padding: 0.15rem 0.55rem;
-  border-radius: var(--radius-full);
+.secondaryCopyBtn:hover {
+  border-color: var(--color-gold);
   background-color: var(--color-gold-soft);
-  color: var(--color-wine);
-  border: 1px solid rgba(197, 155, 56, 0.5);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+}
+
+.platformMeta {
+  font-size: 0.84rem;
+  color: var(--color-ink-muted);
 }
 
 .copyBox {

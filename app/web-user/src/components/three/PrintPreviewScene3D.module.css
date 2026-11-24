@@ -165,7 +165,8 @@
   }
 
   .stageHint {
-    display: none;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.55rem;
   }
 
   .toolbarWrap {

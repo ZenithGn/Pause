@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, Copy, Download, ExternalLink, Smartphone } from "lucide-react";
+import { Check, Copy, Download, ExternalLink } from "lucide-react";
 import styles from "./DownloadHero.module.css";
 
 interface DownloadActionsProps {
@@ -58,58 +58,42 @@ export function DownloadActions({
 
         <button
           type="button"
-          className={styles.secondaryPlayBtn}
-          disabled
-          aria-disabled="true"
-          title="Ứng dụng đang trong giai đoạn phát hành APK Beta, sẽ sớm có mặt trên Google Play"
-        >
-          <Smartphone size={18} aria-hidden="true" />
-          <span>Google Play</span>
-          <span className={styles.comingSoonBadge}>Sắp ra mắt</span>
-        </button>
-      </div>
-
-      <div className={styles.copyBox}>
-        <div className={styles.copyMeta}>
-          <span className={styles.copyLabel}>Liên kết tải chính thức</span>
-          <code className={styles.copyUrl} title={apkUrl}>
-            {apkUrl}
-          </code>
-        </div>
-        <button
-          type="button"
-          className={`${styles.copyBtn} ${copied ? styles.copyBtnSuccess : ""}`}
+          className={`${styles.secondaryCopyBtn} ${copied ? styles.copyBtnSuccess : ""}`}
           onClick={handleCopyLink}
           aria-label="Sao chép liên kết tải APK"
         >
           {copied ? (
             <>
-              <Check size={15} aria-hidden="true" />
-              <span>Đã sao chép</span>
+              <Check size={16} aria-hidden="true" />
+              <span>Đã sao chép link</span>
             </>
           ) : (
             <>
-              <Copy size={15} aria-hidden="true" />
-              <span>Sao chép link</span>
+              <Copy size={16} aria-hidden="true" />
+              <span>Sao chép link tải</span>
             </>
           )}
         </button>
       </div>
 
-      <p className={styles.liveFeedback} role="status" aria-live="polite">
-        {copied
-          ? "Đã sao chép liên kết tải Pause Android vào bộ nhớ tạm."
-          : copyError
-            ? "Không thể tự động sao chép, vui lòng chọn trực tiếp đường dẫn ở trên."
-            : ""}
+      <p className={styles.platformMeta}>
+        Android 8.0 trở lên · Phiên bản Google Play &amp; iOS sắp ra mắt
       </p>
+
+      {copied || copyError ? (
+        <p className={styles.liveFeedback} role="status" aria-live="polite">
+          {copied
+            ? "Đã sao chép liên kết tải Pause Android vào bộ nhớ tạm."
+            : "Không thể tự động sao chép, vui lòng bấm trực tiếp nút Tải file APK Android."}
+        </p>
+      ) : null}
 
       {isBetaRelease ? (
         <div className={styles.betaNotice}>
           <span className={styles.betaDot} aria-hidden="true" />
           <p>
             <strong>Bản thử nghiệm Beta (v0.1.0):</strong> Phát hành trực tiếp
-            qua GitHub Releases để bạn trải nghiệm sớm trước khi lên Google Play.
+            cho Android để bạn trải nghiệm sớm trước khi lên Google Play.
           </p>
         </div>
       ) : null}

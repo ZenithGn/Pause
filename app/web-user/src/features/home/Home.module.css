@@ -219,13 +219,160 @@
 
 .featuresGrid {
   display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-  gap: var(--space-10);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: var(--space-12);
   align-items: center;
 }
 
-.featuresSpacer {
-  min-height: 280px;
+.drawerShowcase {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.drawerCardPrimary {
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-editorial);
+}
+
+.drawerCardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.drawerLabel {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-wine);
+}
+
+.drawerTitle {
+  font-family: var(--font-display-family);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  margin-top: 2px;
+}
+
+.drawerPermPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-gold-soft);
+  border: 1px solid rgba(197, 155, 56, 0.45);
+  color: var(--color-wine);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.drawerMosaic {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: var(--space-2);
+}
+
+.drawerPhotoLarge {
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background-color: var(--color-line);
+}
+
+.drawerPhotoCol {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.drawerPhotoSmall {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background-color: var(--color-line);
+}
+
+.drawerImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.drawerCardFooter {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.drawerCount {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ink-muted);
+}
+
+.drawerReadyTag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-wine);
+  background-color: var(--color-wine-soft);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+}
+
+.drawerCardSecondary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  max-width: 320px;
+  align-self: flex-end;
+}
+
+.drawerSecondaryThumb {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  flex-shrink: 0;
+  background-color: var(--color-line);
+}
+
+.drawerSecondaryInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.drawerSecondaryTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.drawerSecondaryMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8125rem;
+  color: var(--color-ink-muted);
 }
 
 .featuresContent {
@@ -249,12 +396,6 @@
   border-radius: var(--radius-md);
   border: 1px solid var(--color-line);
   background-color: var(--color-paper);
-  transition: border-color var(--transition-fast), transform var(--transition-fast);
-}
-
-.featureCard:hover {
-  border-color: var(--color-gold);
-  transform: translateY(-2px);
 }
 
 .featureIconWrap {
@@ -292,26 +433,22 @@
   padding-block: var(--space-24);
 }
 
-.processSplit {
-  display: grid;
-  grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
-  gap: var(--space-10);
-  align-items: center;
+.processIntro {
+  max-width: 660px;
 }
 
-.processSteps {
+.processStepsGrid {
   margin-top: var(--space-8);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+.processStepCard {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-}
-
-.processStep {
-  display: grid;
-  grid-template-columns: 52px minmax(0, 1fr);
-  gap: var(--space-4);
-  align-items: start;
-  padding: var(--space-5);
+  gap: var(--space-2);
+  padding: var(--space-6);
   background-color: var(--color-white);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-md);
@@ -787,5 +924,16 @@
 
   .ctaCard {
     padding: var(--space-6);
+  }
+}
+
+@media (max-width: 899px) {
+  .processStepsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .drawerCardSecondary {
+    align-self: stretch;
+    max-width: 100%;
   }
 }

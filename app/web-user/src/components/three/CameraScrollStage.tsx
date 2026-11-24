@@ -194,6 +194,7 @@ export function CameraScrollStage({
   const [reducedMotion, setReducedMotion] = useState(false);
   const scrollProgressRef = useRef(0);
   const pointerRef = useRef({ x: 0, y: 0 });
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const mqDesktop = window.matchMedia("(min-width: 900px)");
@@ -216,13 +217,28 @@ export function CameraScrollStage({
   useEffect(() => {
     if (mode !== "desktop-scroll" || !isDesktop) return;
 
+    const applyBookendOpacity = (progress: number) => {
+      const el = overlayRef.current;
+      if (!el) return;
+      // Bookend visibility: full in Hero (0..0.14), fade out over middle sections (0.24..0.78), return at Final CTA (0.88..1)
+      let opacity = 1;
+      if (progress > 0.14 && progress < 0.78) {
+        opacity = progress < 0.24 ? 1 - (progress - 0.14) / 0.1 : 0;
+      } else if (progress >= 0.78 && progress < 0.88) {
+        opacity = (progress - 0.78) / 0.1;
+      }
+      el.style.opacity = String(clamp01(opacity));
+    };
+
     const updateScrollProgress = () => {
       const target = containerRef?.current;
       if (target) {
         const rect = target.getBoundingClientRect();
         const scrollableHeight = Math.max(1, target.offsetHeight - window.innerHeight);
         const passed = -rect.top;
-        scrollProgressRef.current = clamp01(passed / scrollableHeight);
+        const progress = clamp01(passed / scrollableHeight);
+        scrollProgressRef.current = progress;
+        applyBookendOpacity(progress);
         return;
       }
 
@@ -230,7 +246,9 @@ export function CameraScrollStage({
         1,
         document.documentElement.scrollHeight - window.innerHeight
       );
-      scrollProgressRef.current = clamp01(window.scrollY / docScrollable);
+      const progress = clamp01(window.scrollY / docScrollable);
+      scrollProgressRef.current = progress;
+      applyBookendOpacity(progress);
     };
 
     const handlePointerMove = (event: PointerEvent) => {
@@ -263,6 +281,7 @@ export function CameraScrollStage({
 
   return (
     <div
+      ref={isHeroMobile ? undefined : overlayRef}
       className={isHeroMobile ? styles.heroMobileWrap : styles.desktopOverlay}
       aria-hidden="true"
     >

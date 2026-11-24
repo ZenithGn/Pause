@@ -235,7 +235,7 @@ export async function renderFrontTemplateCanvas(
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       const fontSize = Math.max(16, Math.round(textItem.font_size * scale));
-      ctx.font = `700 ${fontSize}px "Playfair Display", Georgia, serif`;
+      ctx.font = `700 ${fontSize}px "Plus Jakarta Sans", "Be Vietnam Pro", system-ui, sans-serif`;
       ctx.fillText(content, textItem.x * scale, textItem.y * scale, canvas.width - 80 * scale);
       ctx.restore();
     });
@@ -245,7 +245,7 @@ export async function renderFrontTemplateCanvas(
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     const fontSize = Math.max(24, Math.round(44 * scale));
-    ctx.font = `700 ${fontSize}px "Playfair Display", Georgia, serif`;
+    ctx.font = `700 ${fontSize}px "Plus Jakarta Sans", "Be Vietnam Pro", system-ui, sans-serif`;
     ctx.fillText(
       trimmedCaption,
       canvas.width / 2,
@@ -329,12 +329,12 @@ export function renderBackTemplateCanvas(
   ctx.fillStyle = "#FFFFFF";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.font = `700 ${Math.round(54 * scale)}px "Playfair Display", Georgia, serif`;
+  ctx.font = `700 ${Math.round(54 * scale)}px "Plus Jakarta Sans", "Be Vietnam Pro", system-ui, sans-serif`;
   ctx.fillText("P", cx, badgeY + badgeSize / 2 + 2 * scale);
 
   // Studio watermark title
   ctx.fillStyle = isDarkBack ? "#D4AF37" : "#630D11";
-  ctx.font = `700 ${Math.round(34 * scale)}px "Playfair Display", Georgia, serif`;
+  ctx.font = `700 ${Math.round(34 * scale)}px "Plus Jakarta Sans", "Be Vietnam Pro", system-ui, sans-serif`;
   ctx.fillText("PAUSE · MEMORY STUDIO", cx, cy + 20 * scale);
 
   // Divider hairline

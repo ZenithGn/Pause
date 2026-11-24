@@ -1,28 +1,34 @@
-export default function PreviewPage() {
+import type { Metadata } from "next";
+import { PreviewStudio } from "@/features/preview/PreviewStudio";
+import { getPublicTemplates } from "@/lib/catalog-data";
+
+export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "Studio Preview Mẫu In 3D",
+  description:
+    "Chọn mẫu in Photobooth, thử ảnh cá nhân ngay trên trình duyệt và xoay 360° vật thể bản in 3D chân thực.",
+};
+
+interface PreviewPageProps {
+  searchParams: Promise<{ template?: string | string[] }>;
+}
+
+export default async function PreviewPage({ searchParams }: PreviewPageProps) {
+  const [templates, resolvedParams] = await Promise.all([
+    getPublicTemplates(),
+    searchParams,
+  ]);
+
+  const rawTemplate = resolvedParams?.template;
+  const initialTemplateId = Array.isArray(rawTemplate)
+    ? rawTemplate[0]
+    : rawTemplate;
+
   return (
-    <section
-      style={{
-        minHeight: "75vh",
-        display: "grid",
-        placeItems: "center",
-        padding: "7rem 1.5rem 4rem",
-        textAlign: "center",
-      }}
-    >
-      <div style={{ maxWidth: "560px" }}>
-        <h1
-          style={{
-            fontFamily: "var(--font-display-family)",
-            fontSize: "2.25rem",
-            marginBottom: "0.75rem",
-          }}
-        >
-          Studio Preview Mẫu In 3D
-        </h1>
-        <p style={{ color: "var(--color-ink-muted)" }}>
-          Không gian thử mẫu Photobooth 3D đang được chuẩn bị.
-        </p>
-      </div>
-    </section>
+    <PreviewStudio
+      templates={templates}
+      initialTemplateId={initialTemplateId}
+    />
   );
 }

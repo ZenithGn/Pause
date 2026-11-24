@@ -67,7 +67,7 @@ export class WebGLErrorBoundary extends Component<
               display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
-              fontFamily: "var(--font-display-family, Georgia, serif)",
+              fontFamily: "var(--font-display-family, system-ui, sans-serif)",
               fontWeight: 700,
               fontSize: "1.5rem",
             }}
@@ -76,7 +76,7 @@ export class WebGLErrorBoundary extends Component<
           </span>
           <p
             style={{
-              fontFamily: "var(--font-display-family, Georgia, serif)",
+              fontFamily: "var(--font-display-family, system-ui, sans-serif)",
               fontWeight: 700,
               fontSize: "1.125rem",
             }}

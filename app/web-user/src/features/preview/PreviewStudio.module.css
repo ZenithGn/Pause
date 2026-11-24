@@ -5,15 +5,15 @@
 
 .studioGrid {
   display: grid;
-  grid-template-columns: minmax(0, 60fr) minmax(360px, 40fr);
-  min-height: calc(100vh - var(--nav-height));
+  grid-template-columns: minmax(0, 60fr) minmax(380px, 40fr);
+  height: calc(100vh - var(--nav-height));
+  min-height: 580px;
   align-items: stretch;
 }
 
 .stageColumn {
-  position: sticky;
-  top: var(--nav-height);
-  height: calc(100vh - var(--nav-height));
+  position: relative;
+  height: 100%;
   min-height: 540px;
   background-color: var(--color-paper);
 }
@@ -53,6 +53,9 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .panelHeader {
@@ -83,7 +86,7 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.35rem;
-  padding: var(--space-3) var(--space-6);
+  padding: var(--space-3) var(--space-4);
   background-color: var(--color-paper);
   border-bottom: 1px solid var(--color-line);
 }
@@ -92,15 +95,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
-  padding: 0.6rem 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.55rem 0.4rem;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   background-color: transparent;
   color: var(--color-ink-muted);
-  font-size: 0.8125rem;
+  font-size: 0.78rem;
   font-weight: 600;
   text-align: center;
+  line-height: 1.25;
   transition: background-color var(--transition-fast),
     color var(--transition-fast),
     border-color var(--transition-fast);
@@ -744,6 +749,7 @@
 @media (max-width: 1023px) {
   .studioGrid {
     grid-template-columns: 1fr;
+    height: auto;
     min-height: auto;
   }
 
@@ -757,6 +763,8 @@
 
   .panelColumn {
     border-left: none;
+    height: auto;
+    overflow-y: visible;
   }
 
   .panelHeader,
@@ -793,7 +801,7 @@
 }
 
 .tabButtonActive .tabCountBadge {
-  background-color: rgba(255, 255, 255, 0.22);
+  background-color: var(--color-wine);
   color: var(--color-white);
 }
 

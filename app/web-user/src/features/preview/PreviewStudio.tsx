@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { PrintPreviewFallback2D } from "@/components/three/PrintPreviewFallback2D";
 import { WebGLErrorBoundary } from "@/components/three/WebGLErrorBoundary";
 import { FALLBACK_TEMPLATES, SAMPLE_PHOTO_URLS } from "@/lib/catalog-data";
 import type { CoverType, PaperType, PublicTemplate } from "@/types/catalog";
@@ -205,8 +206,16 @@ export function PreviewStudio({
         {/* Left 60% 3D Stage */}
         <div className={styles.stageColumn}>
           <WebGLErrorBoundary
-            title="Không gian 3D đang tạm nghỉ"
-            description="Trình duyệt chưa hỗ trợ WebGL để hiển thị mô hình bản in 3D. Bạn vẫn có thể chọn mẫu, thử ảnh và xem giá ước tính ở bảng bên cạnh."
+            fallback={
+              <PrintPreviewFallback2D
+                template={selectedTemplate}
+                slotPhotoUrls={activeSlotPhotoUrls}
+                caption={caption}
+                coverType={coverType}
+                paperType={paperType}
+                reason="unsupported"
+              />
+            }
           >
             <DynamicPrintPreviewScene3D
               template={selectedTemplate}

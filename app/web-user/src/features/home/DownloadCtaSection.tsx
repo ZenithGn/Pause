@@ -7,6 +7,7 @@ export function DownloadCtaSection() {
     <section
       className={styles.ctaSection}
       aria-labelledby="final-cta-heading"
+      data-camera-zone="cta"
     >
       <div className={styles.sectionContainer}>
         <div className={styles.ctaGrid}>

@@ -10,7 +10,11 @@ interface HeroSectionProps {
 
 export function HeroSection({ mobileCameraSlot }: HeroSectionProps) {
   return (
-    <section className={styles.hero} aria-labelledby="hero-heading">
+    <section
+      className={styles.hero}
+      aria-labelledby="hero-heading"
+      data-camera-zone="hero"
+    >
       <div className={styles.heroGrain} aria-hidden="true" />
       <div className={styles.heroFrame} aria-hidden="true" />
 

@@ -30,9 +30,17 @@
 .fallbackFrame {
   width: 100%;
   height: 100%;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: var(--space-6);
+}
+
+.stickyViewport .fallbackFrame {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  justify-content: flex-end;
+  padding-right: clamp(2rem, 7vw, 6rem);
 }
 
 .editorialFallbackCard {

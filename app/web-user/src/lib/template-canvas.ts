@@ -146,7 +146,7 @@ function drawSlotPlaceholder(
   ctx.fillStyle = isDarkBg ? "#B8B0A6" : "#595552";
   const subSize = Math.max(13, Math.round(titleSize * 0.62));
   ctx.font = `400 ${subSize}px "Be Vietnam Pro", system-ui, sans-serif`;
-  ctx.fillText("Chọn ảnh bên phải", cx, cy + iconSize * 0.95 + 16 * scale + titleSize * 1.05);
+  ctx.fillText("Chọn ảnh từ máy", cx, cy + iconSize * 0.95 + 16 * scale + titleSize * 1.05);
   ctx.restore();
 }
 

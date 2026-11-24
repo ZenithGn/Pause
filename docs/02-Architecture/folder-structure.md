@@ -207,25 +207,29 @@ app/web-user/
 │   └── 📂 samples/                         # sample-1.svg .. sample-4.svg (ảnh mẫu dùng cho nút Điền ảnh mẫu nhanh)
 ├── 📂 src/
 │   ├── 📂 app/
-│   │   ├── 📄 layout.tsx                   # Playfair Display + Be Vietnam Pro + Navbar + Footer
-│   │   ├── 📄 page.tsx                     # Trang chủ (/) – Hero, Giới thiệu Ngăn kéo, 3 bước in, Bảng giá Membership & Camera 3D scroll
-│   │   ├── 📂 preview/page.tsx             # Studio Preview mẫu in 3D (/preview)
+│   │   ├── 📄 icon.svg                     # Favicon monogram Pause (Đỏ rượu vang + viền Vàng đồng)
+│   │   ├── 📄 layout.tsx                   # Plus Jakarta Sans + Be Vietnam Pro + Navbar + Footer
+│   │   ├── 📄 page.tsx                     # Trang chủ (/) – Hero, Ngăn kéo, 3 bước in, Bảng giá Membership & Camera 3D bookend
+│   │   ├── 📄 not-found.tsx · error.tsx · status-page.module.css   # Trang 404 & khôi phục lỗi thương hiệu Pause
+│   │   ├── 📄 robots.ts · sitemap.ts       # SEO công khai cho /, /preview, /download
+│   │   ├── 📂 preview/ (page.tsx, loading.tsx)  # Studio Preview mẫu in 3D (/preview)
 │   │   └── 📂 download/page.tsx            # Trang tải phần mềm Android APK, QR SVG, hướng dẫn 3 bước & FAQ (/download)
 │   ├── 📂 components/
 │   │   ├── 📂 layout/                      # Navbar (+ .module.css), Footer (+ .module.css)
-│   │   └── 📂 three/                       # WebGLErrorBoundary, VintageCameraModel, CameraScrollStage, PrintPreviewScene3D
+│   │   └── 📂 three/                       # WebGLErrorBoundary, CameraModelSlot, VintageCameraModel, CameraScrollStage, PrintPreviewScene3D, PrintPreviewFallback2D
 │   ├── 📂 features/
-│   │   ├── 📂 home/                        # Các section trang chủ (Hero, Features, Process, Pricing, DownloadCta)
-│   │   ├── 📂 preview/                     # PreviewStudio, chọn mẫu in, quản lý slot ảnh, tuỳ chỉnh chất liệu
+│   │   ├── 📂 home/                        # HomeExperience, scroll-choreography.ts, Hero, Features, Process, Pricing, DownloadCta
+│   │   ├── 📂 preview/                     # PreviewStudio, preview-state.ts, TemplateSelector, PhotoSlotManager, MaterialControls
 │   │   └── 📂 download/                    # apk-config.ts, qr-svg.ts, DownloadHero, DownloadActions, QrCodeCard, InstallSteps, DownloadFaq
 │   ├── 📂 lib/
 │   │   ├── 📄 supabase-public.ts           # Anon-only read client (photobooth_templates, membership_plans)
 │   │   ├── 📄 catalog-data.ts              # Fetch Supabase + fallback 6 templates & 4 gói membership chuẩn
-│   │   └── 📄 template-canvas.ts           # Pure Canvas2D renderer (front crop-fill + back watermark) -> THREE.CanvasTexture
+│   │   ├── 📄 template-canvas.ts           # Pure Canvas2D renderer (front crop-fill + back watermark) -> THREE.CanvasTexture
+│   │   └── 📄 webgl-support.ts             # Kiểm tra khả năng WebGL an toàn & tự giải phóng probe context
 │   ├── 📂 styles/ (tokens.css, globals.css)
 │   └── 📂 types/catalog.ts
 └── 📂 tests/
-    └── 📂 unit/                            # template-canvas.test.ts, download.test.ts, ...
+    └── 📂 unit/                            # home-scroll.test.ts, template-canvas.test.ts, preview-studio.test.ts, download.test.ts, webgl-and-shell.test.ts
 ```
 
 ---

@@ -17,12 +17,14 @@ import {
 } from "@react-three/drei";
 import { RotateCw, Sun, Sparkles } from "lucide-react";
 import * as THREE from "three";
+import { PrintPreviewFallback2D } from "@/components/three/PrintPreviewFallback2D";
 import {
   createPaperGrainCanvas,
   renderBackTemplateCanvas,
   renderFrontTemplateCanvas,
   type SlotImageSource,
 } from "@/lib/template-canvas";
+import { isWebGLAvailable } from "@/lib/webgl-support";
 import type { CoverType, PaperType, PublicTemplate } from "@/types/catalog";
 import styles from "./PrintPreviewScene3D.module.css";
 
@@ -40,9 +42,9 @@ export interface PrintPreviewScene3DProps {
 type OrbitControlsHandle = ComponentRef<typeof OrbitControls>;
 
 const CAMERA_PRESETS: Record<CameraAnglePreset, [number, number, number]> = {
-  front: [0, 0, 5.1],
-  back: [0, 0, -5.1],
-  "three-quarter": [2.75, 0.9, 4.35],
+  front: [0, 0, 5.2],
+  back: [0, 0, -5.2],
+  "three-quarter": [2.35, 0.72, 4.58],
 };
 
 function isDarkHex(hex: string): boolean {
@@ -84,7 +86,6 @@ interface PrintCardMeshProps {
   caption: string;
   coverType: CoverType;
   paperType: PaperType;
-  autoRotate: boolean;
   reducedMotion: boolean;
 }
 
@@ -94,7 +95,6 @@ function PrintCardMesh({
   caption,
   coverType,
   paperType,
-  autoRotate,
   reducedMotion,
 }: PrintCardMeshProps) {
   const groupRef = useRef<THREE.Group>(null);
@@ -107,17 +107,17 @@ function PrintCardMesh({
   const [backTexture, setBackTexture] = useState<THREE.CanvasTexture | null>(null);
   const [paperGrainTexture, setPaperGrainTexture] = useState<THREE.CanvasTexture | null>(null);
 
-  // Subtle transition pulse on template switch
+  // Subtle transition pulse on template switch (always settles cleanly back to 0 rotation)
   const transitionScaleRef = useRef(0.94);
-  const transitionSpinRef = useRef(0);
+  const transitionTwistRef = useRef(0);
   const prevTemplateIdRef = useRef(template.id);
 
   useEffect(() => {
     if (prevTemplateIdRef.current !== template.id) {
       prevTemplateIdRef.current = template.id;
       if (!reducedMotion) {
-        transitionScaleRef.current = 0.91;
-        transitionSpinRef.current = 0.24;
+        transitionScaleRef.current = 0.92;
+        transitionTwistRef.current = 0.22;
       }
     }
   }, [template.id, reducedMotion]);
@@ -239,8 +239,8 @@ function PrintCardMesh({
     const aspect = cfg.height > 0 ? cfg.width / cfg.height : 2 / 3;
     const height = 3.2;
     const width = Number((height * aspect).toFixed(4));
-    const depth = coverType === "hard" ? 0.06 : 0.02;
-    const radius = Math.min(0.008, depth * 0.35);
+    const depth = coverType === "hard" ? 0.068 : 0.02;
+    const radius = Math.min(0.01, depth * 0.32);
     const goldEdge = template.is_premium || isDarkHex(cfg.background_color || "");
     return {
       cardWidth: width,
@@ -269,15 +269,14 @@ function PrintCardMesh({
     );
     group.scale.setScalar(transitionScaleRef.current);
 
-    if (Math.abs(transitionSpinRef.current) > 0.001) {
-      const nextSpin = THREE.MathUtils.damp(transitionSpinRef.current, 0, 7, dt);
-      group.rotation.y += transitionSpinRef.current - nextSpin;
-      transitionSpinRef.current = nextSpin;
-    }
-
-    if (autoRotate && !reducedMotion) {
-      group.rotation.y += dt * 0.42;
-    }
+    transitionTwistRef.current = THREE.MathUtils.damp(
+      transitionTwistRef.current,
+      0,
+      7.5,
+      dt
+    );
+    group.rotation.y =
+      Math.abs(transitionTwistRef.current) > 0.0005 ? transitionTwistRef.current : 0;
   });
 
   return (
@@ -291,9 +290,9 @@ function PrintCardMesh({
         receiveShadow
       >
         <meshStandardMaterial
-          color={isGoldEdge ? "#C59B38" : "#EFECE6"}
-          roughness={isGoldEdge ? 0.3 : 0.78}
-          metalness={isGoldEdge ? 0.78 : 0.03}
+          color={isGoldEdge ? "#C59B38" : "#E8E2D7"}
+          roughness={isGoldEdge ? 0.28 : 0.72}
+          metalness={isGoldEdge ? 0.8 : 0.04}
         />
       </RoundedBox>
 
@@ -305,18 +304,18 @@ function PrintCardMesh({
             key={`front-premium-${template.id}`}
             map={frontTexture}
             bumpMap={paperGrainTexture}
-            bumpScale={0.004}
-            roughness={0.42}
-            metalness={0.04}
-            clearcoat={0.28}
-            clearcoatRoughness={0.36}
+            bumpScale={0.008}
+            roughness={0.36}
+            metalness={0.05}
+            clearcoat={0.42}
+            clearcoatRoughness={0.26}
           />
         ) : (
           <meshStandardMaterial
             key={`front-standard-${template.id}`}
             map={frontTexture}
-            roughness={0.74}
-            metalness={0.02}
+            roughness={0.78}
+            metalness={0.01}
           />
         )}
       </mesh>
@@ -324,13 +323,25 @@ function PrintCardMesh({
       {/* Back watermark face */}
       <mesh position={[0, 0, backZ]} rotation={[0, Math.PI, 0]}>
         <planeGeometry args={[faceWidth, faceHeight]} />
-        <meshStandardMaterial
-          map={backTexture}
-          bumpMap={paperType === "premium" ? paperGrainTexture : null}
-          bumpScale={paperType === "premium" ? 0.003 : 0}
-          roughness={paperType === "premium" ? 0.52 : 0.78}
-          metalness={0.03}
-        />
+        {paperType === "premium" ? (
+          <meshPhysicalMaterial
+            key={`back-premium-${template.id}`}
+            map={backTexture}
+            bumpMap={paperGrainTexture}
+            bumpScale={0.006}
+            roughness={0.44}
+            metalness={0.04}
+            clearcoat={0.32}
+            clearcoatRoughness={0.3}
+          />
+        ) : (
+          <meshStandardMaterial
+            key={`back-standard-${template.id}`}
+            map={backTexture}
+            roughness={0.8}
+            metalness={0.01}
+          />
+        )}
       </mesh>
     </group>
   );
@@ -343,6 +354,10 @@ interface CameraRigProps {
   isTransitioningRef: React.MutableRefObject<boolean>;
 }
 
+/**
+ * Orbits the camera smoothly in spherical coordinates around the print card origin
+ * so transitions like Front -> Back glide around the card instead of clipping through it.
+ */
 function CameraRig({
   targetPreset,
   presetVersion,
@@ -350,7 +365,12 @@ function CameraRig({
   isTransitioningRef,
 }: CameraRigProps) {
   const { camera } = useThree();
-  const targetPos = useMemo(() => new THREE.Vector3(...CAMERA_PRESETS[targetPreset]), [targetPreset]);
+  const targetVec = useMemo(() => new THREE.Vector3(...CAMERA_PRESETS[targetPreset]), [targetPreset]);
+  const targetSpherical = useMemo(
+    () => new THREE.Spherical().setFromVector3(targetVec),
+    [targetVec]
+  );
+  const currentSphericalRef = useRef(new THREE.Spherical());
   const originTarget = useMemo(() => new THREE.Vector3(0, 0, 0), []);
 
   useEffect(() => {
@@ -362,20 +382,33 @@ function CameraRig({
 
     const dt = Math.min(delta, 0.05);
     const controls = controlsRef.current;
+    const step = 1 - Math.exp(-8.5 * dt);
 
-    camera.position.x = THREE.MathUtils.damp(camera.position.x, targetPos.x, 6.5, dt);
-    camera.position.y = THREE.MathUtils.damp(camera.position.y, targetPos.y, 6.5, dt);
-    camera.position.z = THREE.MathUtils.damp(camera.position.z, targetPos.z, 6.5, dt);
+    const spherical = currentSphericalRef.current.setFromVector3(camera.position);
+
+    let deltaTheta = targetSpherical.theta - spherical.theta;
+    while (deltaTheta > Math.PI) deltaTheta -= Math.PI * 2;
+    while (deltaTheta < -Math.PI) deltaTheta += Math.PI * 2;
+
+    spherical.radius += (targetSpherical.radius - spherical.radius) * step;
+    spherical.phi += (targetSpherical.phi - spherical.phi) * step;
+    spherical.theta += deltaTheta * step;
+
+    camera.position.setFromSpherical(spherical);
 
     if (controls) {
-      controls.target.lerp(originTarget, 1 - Math.exp(-7 * dt));
+      controls.target.lerp(originTarget, step);
       controls.update();
     } else {
       camera.lookAt(0, 0, 0);
     }
 
-    if (camera.position.distanceTo(targetPos) < 0.025) {
-      camera.position.copy(targetPos);
+    if (
+      Math.abs(deltaTheta) < 0.008 &&
+      Math.abs(targetSpherical.phi - spherical.phi) < 0.008 &&
+      Math.abs(targetSpherical.radius - spherical.radius) < 0.02
+    ) {
+      camera.position.copy(targetVec);
       if (controls) {
         controls.target.copy(originTarget);
         controls.update();
@@ -389,6 +422,7 @@ function CameraRig({
 
 /**
  * Interactive 360-degree Three.js stage displaying the physical 3D photobooth print card.
+ * Automatically degrades to `<PrintPreviewFallback2D />` when WebGL is disabled or context is lost.
  */
 export function PrintPreviewScene3D({
   template,
@@ -402,9 +436,16 @@ export function PrintPreviewScene3D({
   const [autoRotate, setAutoRotate] = useState(false);
   const [lightingMode, setLightingMode] = useState<LightingMode>("studio");
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [webglStatus, setWebglStatus] = useState<"ready" | "unsupported" | "context-lost">("ready");
 
   const controlsRef = useRef<OrbitControlsHandle | null>(null);
   const isTransitioningRef = useRef(false);
+
+  useEffect(() => {
+    if (!isWebGLAvailable()) {
+      setWebglStatus("unsupported");
+    }
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
@@ -415,7 +456,21 @@ export function PrintPreviewScene3D({
     return () => mq.removeEventListener("change", update);
   }, []);
 
+  if (webglStatus !== "ready") {
+    return (
+      <PrintPreviewFallback2D
+        template={template}
+        slotPhotoUrls={slotPhotoUrls}
+        caption={caption}
+        coverType={coverType}
+        paperType={paperType}
+        reason={webglStatus}
+      />
+    );
+  }
+
   const handleSelectAngle = (preset: CameraAnglePreset) => {
+    setAutoRotate(false);
     setCameraPreset(preset);
     setPresetVersion((v) => v + 1);
   };
@@ -437,7 +492,10 @@ export function PrintPreviewScene3D({
           <span className={styles.stageBadgeDot} aria-hidden="true" />
           <span>{template.name}</span>
         </div>
-        <span className={styles.stageHint}>Kéo để xoay 360° · Cuộn để phóng to</span>
+        <span className={styles.stageHint}>
+          <span className={styles.stageHintFull}>Kéo để xoay 360° · Cuộn để phóng to</span>
+          <span className={styles.stageHintShort}>Vuốt xoay 360° · Chụm phóng to</span>
+        </span>
       </div>
 
       <div
@@ -450,52 +508,62 @@ export function PrintPreviewScene3D({
           dpr={[1, 2]}
           camera={{ position: CAMERA_PRESETS["three-quarter"], fov: 38 }}
           gl={{ antialias: true, powerPreference: "high-performance" }}
+          onCreated={({ gl }) => {
+            gl.domElement.addEventListener(
+              "webglcontextlost",
+              (event) => {
+                event.preventDefault();
+                setWebglStatus("context-lost");
+              },
+              { once: true }
+            );
+          }}
         >
           <ambientLight
-            intensity={isWarm ? 0.55 : 0.65}
+            intensity={isWarm ? 0.56 : 0.65}
             color={isWarm ? "#FFE6C2" : "#FFFFFF"}
           />
           <directionalLight
             position={[3.5, 5, 4.5]}
-            intensity={isWarm ? 1.55 : 1.35}
-            color={isWarm ? "#FFD8A3" : "#FFFDF9"}
+            intensity={isWarm ? 1.65 : 1.38}
+            color={isWarm ? "#FFD496" : "#FFFDF9"}
             castShadow
           />
           <directionalLight
             position={[-4, 2.5, -3.5]}
-            intensity={isWarm ? 0.95 : 0.75}
+            intensity={isWarm ? 1.0 : 0.78}
             color={isWarm ? "#F5D07A" : "#EAE6E1"}
           />
           <spotLight
             position={[0, 4, -4]}
-            intensity={isWarm ? 1.15 : 0.85}
+            intensity={isWarm ? 1.2 : 0.85}
             color="#D4AF37"
             angle={0.55}
             penumbra={0.8}
           />
 
-          {/* Offline studio environment for paper sheen & gold edge reflections */}
-          <Environment resolution={256} frames={1}>
+          {/* Offline studio environment re-baked cleanly on lightingMode toggle */}
+          <Environment key={lightingMode} resolution={256} frames={1}>
             <Lightformer
               form="rect"
-              intensity={isWarm ? 2.1 : 2.5}
-              color={isWarm ? "#FFE4B8" : "#FFFDF9"}
+              intensity={isWarm ? 2.4 : 2.5}
+              color={isWarm ? "#FFE0A8" : "#FFFDF9"}
               position={[4, 4, 4]}
               scale={[6, 6, 1]}
               target={[0, 0, 0]}
             />
             <Lightformer
-              form="ring"
-              intensity={isWarm ? 2.4 : 1.8}
-              color="#F5D27B"
-              position={[-4, 2, 3]}
-              scale={4}
+              form="rect"
+              intensity={isWarm ? 2.6 : 1.85}
+              color={isWarm ? "#F5C96B" : "#F5D27B"}
+              position={[-4.5, 2.2, 3]}
+              scale={[3.5, 5, 1]}
               target={[0, 0, 0]}
             />
             <Lightformer
               form="rect"
-              intensity={1.5}
-              color="#FFFFFF"
+              intensity={1.55}
+              color={isWarm ? "#FFE8C8" : "#FFFFFF"}
               position={[0, 3, -5]}
               scale={[10, 4, 1]}
               target={[0, 0, 0]}
@@ -508,7 +576,6 @@ export function PrintPreviewScene3D({
             caption={caption}
             coverType={coverType}
             paperType={paperType}
-            autoRotate={autoRotate}
             reducedMotion={reducedMotion}
           />
 
@@ -528,6 +595,8 @@ export function PrintPreviewScene3D({
             dampingFactor={0.07}
             minDistance={2.8}
             maxDistance={7.5}
+            autoRotate={autoRotate && !reducedMotion}
+            autoRotateSpeed={2.2}
             onStart={handleUserInteractStart}
           />
 

@@ -1,4 +1,4 @@
-# Hướng dẫn CI/CD – Pause (Mobile, Web Admin & Supabase)
+# Hướng dẫn CI/CD – Pause (Mobile, Web User, Web Admin & Supabase)
 
 > Tài liệu mô tả toàn bộ pipeline **Continuous Integration / Continuous Deployment (CI/CD)** sử dụng **GitHub Actions** cho monorepo Pause.
 
@@ -9,26 +9,29 @@
 ```mermaid
 flowchart LR
     PR["Push / Pull Request"] --> Path{"Path Filter"}
-    Path -->|"app/web-admin/**"| WebCI["ci-web-admin.yml\nTypecheck · Lint · Vitest · Build · Secret Scan"]
+    Path -->|"app/web-admin/**"| WebAdminCI["ci-web-admin.yml\nTypecheck · Lint · Vitest · Build · Secret Scan"]
+    Path -->|"app/web-user/**"| WebUserCI["ci-web-user.yml\nTypecheck · Lint · Vitest · Build · Secret Scan"]
     Path -->|"app/mobile/**"| MobileCI["ci-mobile.yml\nUnit Test · Android Lint · Debug APK"]
     Path -->|"supabase/**"| SbCI["ci-supabase.yml\nEmbedded Postgres 149+ Checks · Deno Check"]
 
-    WebCI -->|"main / webapp-dev"| Vercel["Deploy Vercel\nProduction / Preview"]
+    WebAdminCI -->|"main / webapp-dev"| VercelAdmin["Deploy Vercel (Web Admin)\nProduction / Preview"]
+    WebUserCI -->|"main / webapp-dev"| VercelUser["Deploy Vercel (Web User)\nProduction / Preview"]
     MobileCI -->|"Tag v* (vd: v1.0.0)"| GHRel["Release APK + Play Store AAB\nGitHub Release"]
     SbCI -->|"main"| SbCD["Supabase CLI\ndb push + functions deploy"]
 ```
 
 Mỗi workflow có **path filter** riêng và bật `concurrency.cancel-in-progress: true`:
-- Sửa code Mobile không làm chạy lại CI của Web và ngược lại.
+- Sửa code `app/web-user` không làm chạy lại CI của `app/web-admin` hoặc `app/mobile` và ngược lại.
 - Push liên tiếp trên cùng một nhánh tự động hủy job cũ đang chạy dở để tiết kiệm phút CI.
 
 ---
 
-## 2. Chi tiết 3 Workflows
+## 2. Chi tiết 4 Workflows
 
 | Workflow | File | Kích hoạt khi | CI (Kiểm tra) | CD (Triển khai) |
 |---|---|---|---|---|
 | **Web Admin** | [.github/workflows/ci-web-admin.yml](../../.github/workflows/ci-web-admin.yml) | Push / PR `main`, `webapp-dev` (`app/web-admin/**`) | `npm ci`, `typecheck`, `lint`, `vitest`, `next build`, quét `.next/static` chống lộ secret | Deploy tự động lên **Vercel** (`main` → Production, `webapp-dev` → Preview) nếu có secrets |
+| **Web User** | [.github/workflows/ci-web-user.yml](../../.github/workflows/ci-web-user.yml) | Push / PR `main`, `webapp-dev` (`app/web-user/**`) | `npm ci`, `typecheck`, `lint`, `vitest`, `next build`, quét `.next/static` chống lộ `SUPABASE_SERVICE_ROLE_KEY` / `CLOUDINARY_API_SECRET` | Deploy tự động lên **Vercel** bằng `VERCEL_USER_PROJECT_ID` (`main` → Production, `webapp-dev` → Preview) nếu có secrets |
 | **Mobile Android** | [.github/workflows/ci-mobile.yml](../../.github/workflows/ci-mobile.yml) | Push / PR `main`, `mobile-app_dev`, tag `v*` (`app/mobile/**`) | JDK 17, `testDebugUnitTest`, `lintDebug`, `assembleDebug` + tải artifact `app-debug.apk` | Khi push tag `v*` (hoặc chạy tay `build_release=true`): build Release `.apk` & `.aab` (ký bằng keystore nếu có) và đăng lên **GitHub Releases** để upload lên Play Store |
 | **Supabase Backend** | [.github/workflows/ci-supabase.yml](../../.github/workflows/ci-supabase.yml) | Push / PR `main`, `webapp-dev`, `mobile-app_dev` (`supabase/**`) | Chạy `validate_migrations.py` trên PostgreSQL thật + `deno check` toàn bộ Edge Functions | Khi merge vào `main`: tự chạy `supabase db push` và `supabase functions deploy` (nếu có secrets) |
 
@@ -46,11 +49,24 @@ Vào **GitHub Repository → Settings → Secrets and variables → Actions → 
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Nên có | Anon key Supabase |
 | `VERCEL_TOKEN` | Tùy chọn* | Token lấy tại Vercel → Account Settings → Tokens |
 | `VERCEL_ORG_ID` | Tùy chọn* | Org ID trong `.vercel/project.json` sau khi chạy `vercel link` |
-| `VERCEL_PROJECT_ID` | Tùy chọn* | Project ID trong `.vercel/project.json` |
+| `VERCEL_PROJECT_ID` | Tùy chọn* | Project ID của **Web Admin** trong `.vercel/project.json` |
 
-> *Nếu bạn kết nối repo trực tiếp với **Vercel GitHub App** (Root Directory = `app/web-admin`), có thể bỏ trống 3 secret Vercel — job `deploy-vercel` sẽ tự động bỏ qua mà không báo lỗi. Nhớ cấu hình đầy đủ biến server-only (`SUPABASE_SERVICE_ROLE_KEY`, `CLOUDINARY_*`, `USE_MOCK_ADMIN_DATA=false`) trong **Vercel Project Settings → Environment Variables**.
+> *Nếu kết nối repo trực tiếp với **Vercel GitHub App** (Root Directory = `app/web-admin`), có thể bỏ trống 3 secret Vercel — job `deploy-vercel` sẽ tự động bỏ qua mà không báo lỗi. Nhớ cấu hình đầy đủ biến server-only (`SUPABASE_SERVICE_ROLE_KEY`, `CLOUDINARY_*`, `USE_MOCK_ADMIN_DATA=false`) trong **Vercel Project Settings → Environment Variables**.
 
-### 3.2 Cho Mobile Android (`ci-mobile.yml`)
+### 3.2 Cho Web User (`ci-web-user.yml`)
+
+| Secret | Bắt buộc? | Mô tả |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Nên có | URL Supabase Project (dùng đọc công khai `photobooth_templates` và `membership_plans`) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Nên có | Anon key Supabase (chỉ đọc công khai, **tuyệt đối không** dùng service role key) |
+| `NEXT_PUBLIC_ANDROID_APK_URL` | Tùy chọn | Đường dẫn tải APK cho trang `/download` (mặc định `https://github.com/ZenithGn/Pause/releases/latest`) |
+| `VERCEL_TOKEN` | Tùy chọn* | Token lấy tại Vercel → Account Settings → Tokens |
+| `VERCEL_ORG_ID` | Tùy chọn* | Org ID dùng chung với Vercel team/account |
+| `VERCEL_USER_PROJECT_ID` | Tùy chọn* | Project ID riêng của **Web User** trên Vercel |
+
+> *Nếu dùng **Vercel GitHub App** (Root Directory = `app/web-user`), có thể bỏ trống các secret Vercel; job `deploy-vercel` sẽ tự bỏ qua an toàn. Khai báo thêm `NEXT_PUBLIC_CAMERA_GLB_URL` (tùy chọn) trong Vercel Environment Variables nếu dùng model `.glb` riêng.
+
+### 3.3 Cho Mobile Android (`ci-mobile.yml`)
 
 | Secret | Bắt buộc? | Mô tả |
 |---|---|---|
@@ -69,7 +85,7 @@ Cách mã hóa file sang Base64 trên PowerShell (Windows):
 [Convert]::ToBase64String([IO.File]::ReadAllBytes("path\to\release-keystore.jks")) | Set-Clipboard
 ```
 
-### 3.3 Cho Supabase (`ci-supabase.yml`)
+### 3.4 Cho Supabase (`ci-supabase.yml`)
 
 | Secret | Bắt buộc? | Mô tả |
 |---|---|---|
@@ -81,10 +97,10 @@ Cách mã hóa file sang Base64 trên PowerShell (Windows):
 
 ## 4. Quy trình phát hành (Release Workflow)
 
-### 4.1 Phát hành Web Admin (Vercel)
-1. Phát triển trên nhánh `webapp-dev` → push lên GitHub → `ci-web-admin.yml` tự kiểm tra và tạo bản **Preview** (nếu đã cấu hình Vercel).
+### 4.1 Phát hành Web User & Web Admin (Vercel)
+1. Phát triển trên nhánh `webapp-dev` → push lên GitHub → tùy phạm vi thư mục thay đổi (`app/web-user/**` hoặc `app/web-admin/**`), workflow tương ứng (`ci-web-user.yml` / `ci-web-admin.yml`) tự kiểm tra và tạo bản **Preview** (nếu đã cấu hình Vercel).
 2. Tạo Pull Request từ `webapp-dev` → `main` → đợi tất cả CI checks xanh → Merge.
-3. Khi merge vào `main`, Web Admin tự động deploy lên **Production** (region `sin1` Singapore, đặt trong [vercel.json](../../app/web-admin/vercel.json)).
+3. Khi merge vào `main`, từng ứng dụng Next.js tự động deploy lên **Production** trên Vercel project riêng (region `sin1` Singapore, đặt trong [app/web-user/vercel.json](../../app/web-user/vercel.json) và [app/web-admin/vercel.json](../../app/web-admin/vercel.json)).
 
 ### 4.2 Phát hành Mobile Android (APK / Play Store AAB)
 1. Phát triển trên nhánh `mobile-app_dev` → mỗi lần push, CI tự chạy unit test + lint và đính kèm file `pause-android-debug-apk` trong tab **Actions → Artifacts** để tester cài thử ngay.
@@ -106,5 +122,6 @@ Vào **Settings → Branches → Add branch protection rule** cho `main`:
 - Bật **Require a pull request before merging** (không push trực tiếp lên `main`).
 - Bật **Require status checks to pass before merging**, chọn:
   - `Typecheck, Lint, Test & Build` (Web Admin)
+  - `Typecheck, Lint, Test & Build (Web User)` (Web User)
   - `Unit Tests, Lint & Debug APK` (Mobile)
   - `Validate SQL Migrations (Embedded Postgres)` & `Typecheck Supabase Edge Functions (Deno)` (Supabase)

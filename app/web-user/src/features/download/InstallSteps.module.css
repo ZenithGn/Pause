@@ -1,0 +1,138 @@
+.section {
+  background-color: var(--color-white);
+  padding-block: var(--space-16);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.container {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--space-6);
+}
+
+.header {
+  max-width: 640px;
+  margin-bottom: var(--space-10);
+}
+
+.eyebrow {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--color-gold);
+  margin-bottom: var(--space-2);
+}
+
+.title {
+  font-family: var(--font-display-family);
+  font-size: clamp(1.75rem, 3vw, 2.35rem);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  color: var(--color-ink);
+  margin-bottom: var(--space-3);
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--color-ink-muted);
+}
+
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-6);
+}
+
+.stepCard {
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.stepTop {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.stepNumber {
+  font-family: var(--font-display-family);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-gold);
+}
+
+.stepRule {
+  flex: 1;
+  height: 1px;
+  background-color: var(--color-line);
+}
+
+.stepTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.stepDescription {
+  font-size: 0.9375rem;
+  line-height: var(--leading-normal);
+  color: var(--color-ink-muted);
+}
+
+.stepHint {
+  margin-top: auto;
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--color-line);
+  font-size: 0.8125rem;
+  color: var(--color-wine);
+  font-weight: 500;
+}
+
+.specsBar {
+  margin-top: var(--space-8);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  background-color: var(--color-gold-soft);
+  border: 1px solid rgba(197, 155, 56, 0.35);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.specItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-ink);
+}
+
+.specIcon {
+  color: var(--color-wine);
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .stepsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .section {
+    padding-block: var(--space-12);
+  }
+
+  .container {
+    padding-inline: var(--space-4);
+  }
+}

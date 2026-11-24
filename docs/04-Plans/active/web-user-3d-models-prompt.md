@@ -166,9 +166,11 @@ sau đó khởi tạo và triển khai hoàn chỉnh `app/web-user` trên nhánh
 
 ## 5. Checklist Kiểm tra Chất lượng Model 3D trước khi Hoàn thành
 
-- [ ] Tất cả `<Canvas>` đều load bằng `next/dynamic(..., { ssr: false })` → `next build` không lỗi `window is not defined`.
-- [ ] Kim loại bạc, viền vàng đồng `#C59B38` và thấu kính trên máy ảnh 3D có phản xạ sáng rõ (nhờ `<Environment><Lightformer /></Environment>`), không bị tối đen.
-- [ ] Kéo scroll trang Home mượt 60fps, máy ảnh đi qua 5 mốc trái/phải không che nội dung chữ và dừng gọn trước Footer.
-- [ ] Trên `/preview`, chọn từng mẫu trong 6 mẫu chuẩn đều đổi tỷ lệ khối 3D & bố cục slot chính xác; chọn ảnh từ máy lập tức hiện đúng tỷ lệ crop-fill trên mặt trước 3D; xoay 180° thấy rõ mặt sau in watermark Pause.
-- [ ] Đổi **Bìa mềm ↔ Bìa cứng** thấy rõ độ dày cạnh thay đổi; đổi **Giấy tiêu chuẩn ↔ Giấy mỹ thuật 200gsm** thấy rõ độ bắt sáng & vân giấy.
-- [ ] Khi chạy trong trình duyệt tắt WebGL hoặc mobile màn nhỏ, giao diện vẫn đẹp và không bị vỡ hay trắng trang.
+> **Trạng thái xác minh**: Kiểm tra tĩnh, SSR/build (`next build`), unit tests (`31/31`) và HTTP smoke server (`200` trên port `3097`) đã **PASS 100%**. Các mục quan sát GPU/WebGL 60fps trực tiếp trên trình duyệt thật đã hoàn thiện đầy đủ mã nguồn & sẵn sàng chạy kiểm tra visual trên trình duyệt.
+
+- [x] Tất cả `<Canvas>` đều load bằng `next/dynamic(..., { ssr: false })` → `next build` không lỗi `window is not defined` (đã xác minh ở `HomeExperience.tsx`, `PreviewStudio.tsx` & `next build` pass 6/6 trang).
+- [ ] *(Sẵn sàng kiểm thử visual trên trình duyệt; đã xác minh cấu hình `<Environment resolution={256} frames={1}><Lightformer /></Environment>` trong `CameraScrollStage.tsx` & `PrintPreviewScene3D.tsx`)* Kim loại bạc, viền vàng đồng `#C59B38` và thấu kính trên máy ảnh 3D có phản xạ sáng rõ, không bị tối đen.
+- [ ] *(Sẵn sàng kiểm thử visual trên trình duyệt; đã xác minh 5 mốc `computeCameraPoseAtScroll` qua `home-scroll.test.ts` 7/7 tests)* Kéo scroll trang Home mượt 60fps, máy ảnh đi qua 5 mốc trái/phải không che nội dung chữ và dừng gọn trước Footer.
+- [ ] *(Sẵn sàng kiểm thử visual trên trình duyệt; đã xác minh `template-canvas.test.ts` 12/12 + `preview-studio.test.ts` 6/6 & HTTP `200`)* Trên `/preview`, chọn từng mẫu trong 6 mẫu chuẩn đều đổi tỷ lệ khối 3D & bố cục slot chính xác; chọn ảnh từ máy lập tức hiện đúng tỷ lệ crop-fill trên mặt trước 3D; xoay 180° thấy rõ mặt sau in watermark Pause.
+- [ ] *(Sẵn sàng kiểm thử visual trên trình duyệt; đã xác minh logic `coverType` `0.02`/`0.06` & `paperType` `MeshPhysicalMaterial` + `paperGrainTexture`)* Đổi **Bìa mềm ↔ Bìa cứng** thấy rõ độ dày cạnh thay đổi; đổi **Giấy tiêu chuẩn ↔ Giấy mỹ thuật 200gsm** thấy rõ độ bắt sáng & vân giấy.
+- [ ] *(Sẵn sàng kiểm thử visual trên trình duyệt; đã xác minh `WebGLErrorBoundary` + chế độ `hero-mobile` `< 900px`)* Khi chạy trong trình duyệt tắt WebGL hoặc mobile màn nhỏ, giao diện vẫn đẹp và không bị vỡ hay trắng trang.

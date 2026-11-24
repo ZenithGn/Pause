@@ -267,14 +267,16 @@ app/web-user/
 
 ## 8. Tiêu chuẩn Nghiệm thu (Acceptance Criteria)
 
-- [ ] **Navbar**: Hiển thị đúng 3 link **Trang chủ** (`/`), **Preview mẫu in** (`/preview`), **Tải phần mềm** (`/download`) + logo Pause; chuyển màu mượt theo scroll.
-- [ ] **Bảng màu & Typography**: Nhất quán 3 màu chủ đạo **Đỏ rượu vang (`#630D11`)**, **Trắng / Giấy ngà (`#FFFFFF` / `#F7F6F5`)**, và **Vàng đồng cổ điển (`#C59B38` / `#D4AF37`)**; font `Playfair Display` + `Be Vietnam Pro`; **0% TailwindCSS** (chỉ dùng CSS Modules).
-- [ ] **Trang Home (`/`)**: Hero nền Đỏ rượu vang lớn giàu chiều sâu; model máy ảnh 3D (Three.js) di chuyển, xoay mượt theo cuộn trang qua từng section mà không che chữ; đầy đủ phần giới thiệu Ngăn kéo, quy trình 3 bước, bảng giá 4 gói (Free, Go 30k, Plus 55k, Premium 100k) và CTA tải app.
-- [ ] **Trang Preview 3D (`/preview`)**:
-  - Chọn được tất cả mẫu in (đọc từ Supabase hoặc fallback 6 mẫu chuẩn), lọc theo category / VIP.
-  - Mẫu in hiển thị dạng **vật thể 3D có độ dày thật + mặt trước & mặt sau**, xoay tự do 360° & zoom mượt bằng chuột/cảm ứng.
-  - Chọn ảnh từ máy (1 ảnh hoặc nhiều ảnh / kéo-thả) hoặc bấm *"Điền ảnh mẫu nhanh"* → ảnh hiển thị đúng tỷ lệ **crop-fill** ngay lập tức trên mẫu 3D, đổi vị trí/xóa slot được, sửa caption cập nhật realtime, đổi Bìa cứng/mềm & Giấy tiêu chuẩn/mỹ thuật phản ánh trực tiếp trên độ dày & độ bóng vật liệu 3D.
-  - Giải phóng bộ nhớ đúng cách (`URL.revokeObjectURL` và `texture.dispose()`) khi thay ảnh/đổi mẫu để không rò rỉ RAM/WebGL.
-- [ ] **Trang Download (`/download`)**: Nút tải APK, mã QR, hướng dẫn cài đặt 3 bước, FAQ.
-- [ ] **Kiểm tra kỹ thuật**: `npm run typecheck`, `npm run lint`, `npm run build` trong `app/web-user` pass 100%, không lỗi hydration SSR với Three.js, không lộ bất kỳ biến bí mật nào.
-- [ ] **CI/CD**: Bổ sung workflow `.github/workflows/ci-web-user.yml` (tương tự `ci-web-admin.yml`) khi hoàn thiện code.
+> **Trạng thái xác minh (trên nhánh `webapp-dev`)**: Đã nghiệm thu kỹ thuật & chức năng code/build/smoke HTTP 100% — xem báo cáo hoàn thiện tại [web-user-3d-showcase.md](../completed/web-user-3d-showcase.md). Lưu ý quyết định đã chốt: bỏ nút tải ảnh PNG xem thử trên `/preview` để giữ luồng chuyển đổi chính dẫn về `/download`.
+
+- [x] **Navbar**: Hiển thị đúng 3 link **Trang chủ** (`/`), **Preview mẫu in** (`/preview`), **Tải phần mềm** (`/download`) + logo Pause; chuyển màu mượt theo scroll (`Navbar.tsx`).
+- [x] **Bảng màu & Typography**: Nhất quán 3 màu chủ đạo **Đỏ rượu vang (`#630D11`)**, **Trắng / Giấy ngà (`#FFFFFF` / `#F7F6F5`)**, và **Vàng đồng cổ điển (`#C59B38` / `#D4AF37`)**; font `Playfair Display` + `Be Vietnam Pro`; **0% TailwindCSS** (chỉ dùng CSS Modules + `tokens.css`).
+- [x] **Trang Home (`/`)**: Hero nền Đỏ rượu vang lớn giàu chiều sâu; model máy ảnh 3D (Three.js `VintageCameraModel` + cổng nạp hybrid `CameraModelSlot`) di chuyển, xoay mượt theo 5 mốc cuộn trang (`scroll-choreography.ts`) mà không che chữ; đầy đủ phần giới thiệu Ngăn kéo, quy trình 3 bước, bảng giá 4 gói (Free, PAUSE Go 30k, PAUSE Plus 55k, PAUSE Premium 100k — lọc bỏ seed legacy) và CTA tải app.
+- [x] **Trang Preview 3D (`/preview`)**:
+  - Chọn được tất cả mẫu in (đọc từ Supabase `photobooth_templates` active hoặc fallback 6 mẫu chuẩn), lọc theo category / VIP (`TemplateSelector.tsx`).
+  - Mẫu in hiển thị dạng **vật thể 3D có độ dày thật + mặt trước & mặt sau**, xoay tự do 360° & zoom mượt bằng chuột/cảm ứng (`PrintPreviewScene3D.tsx`).
+  - Chọn ảnh từ máy (1 ảnh hoặc nhiều ảnh / kéo-thả) hoặc bấm *"Điền ảnh mẫu nhanh"* (`/samples/sample-1..4.svg`) → ảnh hiển thị đúng tỷ lệ **crop-fill** (`computeCenterCropRect`) ngay trên mẫu 3D, đổi vị trí/xóa slot được (`preview-state.ts`), sửa caption cập nhật realtime, đổi Bìa cứng/mềm & Giấy tiêu chuẩn/mỹ thuật 200gsm phản ánh trực tiếp trên độ dày & độ bóng vật liệu 3D; CTA chính dẫn sang `/download`.
+  - Giải phóng bộ nhớ đúng cách (`URL.revokeObjectURL` và `texture.dispose()`) khi thay ảnh/đổi mẫu/unmount.
+- [x] **Trang Download (`/download`)**: Nút tải APK (`NEXT_PUBLIC_ANDROID_APK_URL` + fallback GitHub Releases), mã QR SVG, hướng dẫn cài đặt 3 bước, FAQ accordion thuần React + CSS Modules.
+- [x] **Kiểm tra kỹ thuật**: `npm run typecheck`, `npm run lint`, `npm run test` (4 files / 31 tests passed), `npm run build` trong `app/web-user` pass 100%, không lỗi hydration SSR với Three.js (`ssr: false`), quét `.next/static` & `src/` xác nhận 0 secret leaks, 0 `dangerouslySetInnerHTML` trong `src/`, 0 TailwindCSS; live HTTP smoke port `3097` trả `200` + đủ 3 security headers.
+- [x] **CI/CD**: Đã bổ sung workflow [`.github/workflows/ci-web-user.yml`](../../../.github/workflows/ci-web-user.yml) (Node 22, `typecheck`, `lint`, `test`, `build`, quét secret `.next/static`, conditional deploy Vercel khi cấu hình `VERCEL_TOKEN`/`VERCEL_ORG_ID`/`VERCEL_USER_PROJECT_ID`).

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000">
+  <defs>
+    <radialGradient id="nightGlow" cx="0.5" cy="0.42" r="0.65">
+      <stop offset="0%" stop-color="#630D11"/>
+      <stop offset="55%" stop-color="#290709"/>
+      <stop offset="100%" stop-color="#111111"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="1000" fill="url(#nightGlow)"/>
+  <g opacity="0.85">
+    <circle cx="150" cy="210" r="24" fill="#D4AF37" opacity="0.35"/>
+    <circle cx="150" cy="210" r="10" fill="#FBF5E6"/>
+    <circle cx="290" cy="145" r="32" fill="#D4AF37" opacity="0.28"/>
+    <circle cx="290" cy="145" r="13" fill="#FBF5E6"/>
+    <circle cx="515" cy="160" r="28" fill="#D4AF37" opacity="0.32"/>
+    <circle cx="515" cy="160" r="11" fill="#FBF5E6"/>
+    <circle cx="655" cy="225" r="22" fill="#D4AF37" opacity="0.35"/>
+    <circle cx="655" cy="225" r="9" fill="#FBF5E6"/>
+  </g>
+  <path d="M80 180 Q400 280 720 180" fill="none" stroke="#C59B38" stroke-width="2" opacity="0.65"/>
+  <rect x="200" y="340" width="400" height="430" rx="18" fill="#FAF7F2"/>
+  <rect x="230" y="370" width="340" height="295" rx="8" fill="#3B0609"/>
+  <circle cx="345" cy="495" r="64" fill="#D4AF37" opacity="0.25"/>
+  <circle cx="455" cy="495" r="64" fill="#D4AF37" opacity="0.25"/>
+  <path d="M325 515 Q400 590 475 515 Q440 440 400 475 Q360 440 325 515 Z" fill="#C59B38"/>
+  <text x="400" y="725" text-anchor="middle" fill="#111111" font-family="Georgia, serif" font-size="30" font-style="italic">Anniversary Night</text>
+  <text x="400" y="905" text-anchor="middle" fill="#D4AF37" font-family="Georgia, serif" font-size="26" letter-spacing="6">PAUSE · KEEPSAKE</text>
+</svg>

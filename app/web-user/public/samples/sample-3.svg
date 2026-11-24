@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000">
+  <defs>
+    <linearGradient id="seaSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1E3548"/>
+      <stop offset="52%" stop-color="#6B8A9E"/>
+      <stop offset="100%" stop-color="#F1D5A7"/>
+    </linearGradient>
+    <linearGradient id="ocean" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#274E63"/>
+      <stop offset="100%" stop-color="#122633"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" fill="url(#seaSky)"/>
+  <circle cx="400" cy="495" r="76" fill="#FBF5E6" opacity="0.95"/>
+  <rect y="540" width="800" height="280" fill="url(#ocean)"/>
+  <g stroke="#F1D5A7" stroke-width="3" stroke-linecap="round" opacity="0.7">
+    <line x1="330" y1="575" x2="470" y2="575"/>
+    <line x1="350" y1="605" x2="450" y2="605"/>
+    <line x1="365" y1="635" x2="435" y2="635"/>
+    <line x1="378" y1="665" x2="422" y2="665"/>
+  </g>
+  <path d="M0 800 Q400 740 800 815 L800 1000 L0 1000 Z" fill="#E9D8BE"/>
+  <path d="M0 800 Q400 740 800 815" fill="none" stroke="#FFFFFF" stroke-width="6" opacity="0.8"/>
+  <g transform="translate(540, 440)">
+    <polygon points="0,80 58,80 35,0" fill="#630D11"/>
+    <polygon points="42,80 86,80 42,22" fill="#D4AF37"/>
+    <rect x="-8" y="80" width="102" height="12" rx="6" fill="#111111"/>
+  </g>
+  <text x="64" y="925" fill="#3B0609" font-family="Georgia, serif" font-size="28" letter-spacing="5">COASTAL SUMMER · FILM 400</text>
+</svg>

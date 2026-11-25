@@ -6,21 +6,28 @@ import {
   ArrowDown,
   ArrowUp,
   ImagePlus,
+  Palette,
   RefreshCw,
   ShieldCheck,
   Sparkles,
   Trash2,
   Upload,
 } from "lucide-react";
-import type { PublicTemplate } from "@/types/catalog";
-import { ACCEPTED_IMAGE_MIME_TYPES, type SlotPhotoMap } from "./preview-state";
+import type { PhotoTone, PublicTemplate } from "@/types/catalog";
+import {
+  partitionImageFiles,
+  PHOTO_TONE_OPTIONS,
+  type SlotPhotoMap,
+} from "./preview-state";
 import styles from "./PreviewStudio.module.css";
 
 interface PhotoSlotManagerProps {
   template: PublicTemplate;
   slotPhotos: SlotPhotoMap;
   caption: string;
+  photoTone: PhotoTone;
   onCaptionChange: (nextCaption: string) => void;
+  onPhotoToneChange: (nextTone: PhotoTone) => void;
   onFilesSelected: (files: File[]) => void;
   onReplaceSlotFile: (slotIndex: number, file: File) => void;
   onSwapSlots: (indexA: number, indexB: number) => void;
@@ -29,41 +36,16 @@ interface PhotoSlotManagerProps {
   onClearAllPhotos: () => void;
 }
 
-function partitionImageFiles(fileList: FileList | null): {
-  valid: File[];
-  rejectedNames: string[];
-} {
-  if (!fileList || fileList.length === 0) return { valid: [], rejectedNames: [] };
-  const valid: File[] = [];
-  const rejectedNames: string[] = [];
-
-  for (const file of Array.from(fileList)) {
-    const lowerName = file.name.toLowerCase();
-    const isAccepted =
-      ACCEPTED_IMAGE_MIME_TYPES.has(file.type) ||
-      lowerName.endsWith(".jpg") ||
-      lowerName.endsWith(".jpeg") ||
-      lowerName.endsWith(".png") ||
-      lowerName.endsWith(".webp");
-
-    if (isAccepted) {
-      valid.push(file);
-    } else {
-      rejectedNames.push(file.name);
-    }
-  }
-
-  return { valid, rejectedNames };
-}
-
 /**
- * Client-side multi-file upload, drag-and-drop, per-slot editing, and live caption controls.
+ * Client-side multi-file upload, drag-and-drop, per-slot editing, film tone presets, and live caption controls.
  */
 export function PhotoSlotManager({
   template,
   slotPhotos,
   caption,
+  photoTone,
   onCaptionChange,
+  onPhotoToneChange,
   onFilesSelected,
   onReplaceSlotFile,
   onSwapSlots,
@@ -162,12 +144,20 @@ export function PhotoSlotManager({
   };
 
   return (
-    <section aria-label="Chọn ảnh và lời nhắn" className={styles.sectionStack}>
+    <section
+      id="studio-section-photos"
+      aria-label="Chọn ảnh và lời nhắn"
+      className={styles.sectionStack}
+    >
       <div className={styles.sectionIntro}>
-        <h2 className={styles.sectionHeading}>Chọn ảnh & Chữ kỷ niệm</h2>
+        <span className={styles.stepIndexTag}>BƯỚC 02</span>
+        <h2 className={styles.sectionHeading}>Chọn ảnh, Tone màu &amp; Chữ</h2>
         <p className={styles.sectionDescription}>
-          Đã điền {filledCount}/{slots.length} khung ảnh trên mẫu{" "}
-          <strong>{template.name}</strong>.
+          Đã điền{" "}
+          <strong className={styles.monoInline}>
+            {filledCount}/{slots.length}
+          </strong>{" "}
+          khung ảnh trên mẫu <strong>{template.name}</strong>.
         </p>
       </div>
 
@@ -191,9 +181,9 @@ export function PhotoSlotManager({
         <div className={styles.dropZoneIcon} aria-hidden="true">
           <Upload size={20} />
         </div>
-        <p className={styles.dropZoneTitle}>Kéo & thả ảnh vào đây</p>
+        <p className={styles.dropZoneTitle}>Kéo &amp; thả ảnh vào đây hoặc lên khung 3D</p>
         <p className={styles.dropZoneSub}>
-          Hỗ trợ JPG, PNG, WebP · Tự động điền lần lượt vào khung trống
+          Hỗ trợ JPG, PNG, WebP · Tự động căn khung không méo ảnh
         </p>
 
         <div className={styles.dropZoneActions}>
@@ -208,7 +198,7 @@ export function PhotoSlotManager({
 
           <button
             type="button"
-            className={styles.goldOutlineButton}
+            className={styles.secondarySmallButton}
             onClick={onFillSamplePhotos}
           >
             <Sparkles size={15} aria-hidden="true" />
@@ -279,7 +269,12 @@ export function PhotoSlotManager({
               </div>
 
               <div className={styles.slotInfo}>
-                <span className={styles.slotTitle}>Khung {slot.index + 1}</span>
+                <div className={styles.slotTitleRow}>
+                  <span className={styles.slotTitle}>Khung {slot.index + 1}</span>
+                  {entry && !entry.isObjectUrl ? (
+                    <span className={styles.sampleSourceTag}>Ảnh mẫu</span>
+                  ) : null}
+                </div>
                 <span className={styles.slotFilename}>
                   {entry ? entry.name : "Chưa có ảnh"}
                 </span>
@@ -332,6 +327,32 @@ export function PhotoSlotManager({
             </div>
           );
         })}
+      </div>
+
+      {/* Film color tone presets */}
+      <div className={styles.optionGroup}>
+        <div className={styles.optionGroupHeader}>
+          <Palette size={15} aria-hidden="true" />
+          <span>Tone màu ảnh trên khung</span>
+        </div>
+        <div className={styles.toneRow} role="group" aria-label="Chọn tone màu ảnh">
+          {PHOTO_TONE_OPTIONS.map((tone) => {
+            const isActive = photoTone === tone.key;
+            return (
+              <button
+                key={tone.key}
+                type="button"
+                aria-pressed={isActive}
+                className={`${styles.toneChip} ${
+                  isActive ? styles.toneChipActive : ""
+                }`}
+                onClick={() => onPhotoToneChange(tone.key)}
+              >
+                {tone.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Live caption input */}

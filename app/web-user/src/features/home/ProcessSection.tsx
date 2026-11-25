@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { ProcessInteractiveSteps } from "@/features/home/ProcessInteractiveSteps";
 import { SAMPLE_PHOTO_URLS } from "@/lib/catalog-data";
 import type { PublicTemplate } from "@/types/catalog";
 import styles from "./Home.module.css";
@@ -7,27 +8,6 @@ import styles from "./Home.module.css";
 interface ProcessSectionProps {
   templates: PublicTemplate[];
 }
-
-const STEPS = [
-  {
-    number: "01",
-    title: "Chọn mẫu Photobooth",
-    description:
-      "Khám phá các bố cục Cổ điển, Vintage, Minimal, Polaroid và kho mẫu ép kim VIP Gold.",
-  },
-  {
-    number: "02",
-    title: "Fill ảnh từ Ngăn kéo",
-    description:
-      "Tự động căn khung chuẩn tỷ lệ không méo ảnh, kèm lời nhắn và ngày kỷ niệm riêng.",
-  },
-  {
-    number: "03",
-    title: "Đặt in & Nhận tận tay",
-    description:
-      "Chọn giấy mỹ thuật 200gsm, bìa cứng hoặc bìa mềm, theo dõi trạng thái in giao tận nơi.",
-  },
-] as const;
 
 const CATEGORY_LABELS: Record<string, string> = {
   couple: "Cặp đôi",
@@ -43,15 +23,18 @@ function TemplateMiniSchematic({
   template: PublicTemplate;
   photoOffset?: number;
 }) {
-  const { width, height, background_color, slots } = template.layout_config;
+  const { width, height, background_color, slots, texts } = template.layout_config;
+  const safeW = width > 0 ? width : 1200;
+  const safeH = height > 0 ? height : 1800;
   const slotFill = template.is_premium ? "#2A2525" : "#E9E4DE";
   const strokeColor = template.is_premium ? "#C59B38" : "#D6CFC7";
   const safeId = template.id.replace(/[^a-zA-Z0-9_-]/g, "");
 
   return (
     <svg
-      viewBox={`0 0 ${width} ${height}`}
+      viewBox={`0 0 ${safeW} ${safeH}`}
       className={styles.templateSvg}
+      style={{ aspectRatio: `${safeW} / ${safeH}` }}
       role="img"
       aria-label={`Xem trước mẫu ${template.name}`}
     >
@@ -71,12 +54,12 @@ function TemplateMiniSchematic({
       <rect
         x={0}
         y={0}
-        width={width}
-        height={height}
+        width={safeW}
+        height={safeH}
         rx={28}
         fill={background_color || "#FFFFFF"}
         stroke={strokeColor}
-        strokeWidth={16}
+        strokeWidth={14}
       />
       {slots.map((slot) => {
         const photoUrl =
@@ -105,6 +88,20 @@ function TemplateMiniSchematic({
           </g>
         );
       })}
+      {(texts ?? []).map((txt, idx) => (
+        <text
+          key={`txt-${idx}`}
+          x={txt.x}
+          y={txt.y}
+          fill={txt.color || (template.is_premium ? "#D4AF37" : "#111111")}
+          fontSize={txt.font_size}
+          fontWeight={700}
+          textAnchor="middle"
+          dominantBaseline="middle"
+        >
+          {txt.content}
+        </text>
+      ))}
     </svg>
   );
 }
@@ -129,26 +126,7 @@ export function ProcessSection({ templates }: ProcessSectionProps) {
           </p>
         </div>
 
-        <ol className={styles.processStepsGrid}>
-          {STEPS.map((step) => (
-            <li key={step.number} className={styles.processStepCard}>
-              <span className={styles.stepNumber}>{step.number}</span>
-              <h3 className={styles.stepTitle}>{step.title}</h3>
-              <p className={styles.stepDesc}>{step.description}</p>
-            </li>
-          ))}
-        </ol>
-
-        <div className={styles.processCallout}>
-          <p className={styles.calloutText}>
-            Thử ghép ảnh từ máy lên mẫu in 3D ngay trên trình duyệt — không
-            tải ảnh lên server.
-          </p>
-          <Link href="/preview" className={styles.wineCtaBtn}>
-            <span>Trải nghiệm xoay mẫu in 3D ngay</span>
-            <ArrowRight size={16} aria-hidden="true" />
-          </Link>
-        </div>
+        <ProcessInteractiveSteps />
 
         <div className={styles.templatesShowcase}>
           <div className={styles.templatesHeader}>

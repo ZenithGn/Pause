@@ -80,6 +80,12 @@ export function DownloadActions({
         Android 8.0 trở lên · Phiên bản Google Play &amp; iOS sắp ra mắt
       </p>
 
+      <ul className={styles.releaseSpecs} aria-label="Thông số gói cài đặt APK">
+        <li>Phiên bản: v0.1.0</li>
+        <li>Nguồn: GitHub Releases</li>
+        <li>Không quảng cáo</li>
+      </ul>
+
       {copied || copyError ? (
         <p className={styles.liveFeedback} role="status" aria-live="polite">
           {copied

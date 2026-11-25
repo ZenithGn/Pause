@@ -8,6 +8,7 @@ import {
   formatVnd,
 } from "@/lib/catalog-data";
 import type { CoverType, PaperType, PublicTemplate } from "@/types/catalog";
+import { buildDownloadPreviewHref } from "./preview-state";
 import styles from "./PreviewStudio.module.css";
 
 interface MaterialControlsProps {
@@ -38,11 +39,17 @@ export function MaterialControls({
     coverType,
     paperType
   );
+  const downloadHref = buildDownloadPreviewHref(template.id, coverType, paperType);
 
   return (
-    <section aria-label="Chất liệu và đặt in" className={styles.sectionStack}>
+    <section
+      id="studio-section-materials"
+      aria-label="Chất liệu và đặt in"
+      className={styles.sectionStack}
+    >
       <div className={styles.sectionIntro}>
-        <h2 className={styles.sectionHeading}>Chất liệu & Ước tính đặt in</h2>
+        <span className={styles.stepIndexTag}>BƯỚC 03</span>
+        <h2 className={styles.sectionHeading}>Chất liệu &amp; Ước tính đặt in</h2>
         <p className={styles.sectionDescription}>
           Thay đổi loại bìa và giấy để quan sát độ dày cạnh và độ bắt sáng ngay trên mô hình 3D.
         </p>
@@ -138,15 +145,15 @@ export function MaterialControls({
       <div className={styles.priceBox}>
         <div className={styles.priceRow}>
           <span>Phôi in ({template.slot_count} khung ảnh)</span>
-          <span>{formatVnd(breakdown.baseVnd)}</span>
+          <span className={styles.monoInline}>{formatVnd(breakdown.baseVnd)}</span>
         </div>
         <div className={styles.priceRow}>
           <span>{coverType === "hard" ? "Bìa cứng cao cấp" : "Bìa mềm tiêu chuẩn"}</span>
-          <span>+{formatVnd(breakdown.coverSurchargeVnd)}</span>
+          <span className={styles.monoInline}>+{formatVnd(breakdown.coverSurchargeVnd)}</span>
         </div>
         <div className={styles.priceRow}>
           <span>{paperType === "premium" ? "Giấy mỹ thuật 200gsm" : "Giấy tiêu chuẩn"}</span>
-          <span>+{formatVnd(breakdown.paperSurchargeVnd)}</span>
+          <span className={styles.monoInline}>+{formatVnd(breakdown.paperSurchargeVnd)}</span>
         </div>
         <div className={styles.priceDivider} />
         <div className={styles.priceTotalRow}>
@@ -157,8 +164,8 @@ export function MaterialControls({
         </div>
       </div>
 
-      {/* Primary conversion CTA -> /download */}
-      <Link href="/download" className={styles.downloadCtaButton}>
+      {/* Primary conversion CTA -> /download (carries template & material configuration) */}
+      <Link href={downloadHref} className={styles.downloadCtaButton}>
         <span>Tải App Pause để lưu Ngăn kéo &amp; đặt in</span>
         <ArrowRight size={17} aria-hidden="true" />
       </Link>

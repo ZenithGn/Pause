@@ -7,13 +7,14 @@ import {
   renderFrontTemplateCanvas,
   type SlotImageSource,
 } from "@/lib/template-canvas";
-import type { CoverType, PaperType, PublicTemplate } from "@/types/catalog";
+import type { CoverType, PaperType, PhotoTone, PublicTemplate } from "@/types/catalog";
 import styles from "./PrintPreviewFallback2D.module.css";
 
 export interface PrintPreviewFallback2DProps {
   template: PublicTemplate;
   slotPhotoUrls: Record<number, string>;
   caption: string;
+  photoTone?: PhotoTone;
   coverType: CoverType;
   paperType: PaperType;
   reason?: "unsupported" | "context-lost";
@@ -44,6 +45,7 @@ export function PrintPreviewFallback2D({
   template,
   slotPhotoUrls,
   caption,
+  photoTone = "original",
   coverType,
   paperType,
   reason = "unsupported",
@@ -82,14 +84,20 @@ export function PrintPreviewFallback2D({
         }
       }
 
-      await renderFrontTemplateCanvas(template, slotSources, caption, target);
+      await renderFrontTemplateCanvas(
+        template,
+        slotSources,
+        caption,
+        target,
+        photoTone
+      );
     }
 
     void draw();
     return () => {
       cancelled = true;
     };
-  }, [template, slotPhotoUrls, caption, face]);
+  }, [template, slotPhotoUrls, caption, photoTone, face]);
 
   const { width, height } = template.layout_config;
   const aspectRatio = height > 0 ? `${width} / ${height}` : "2 / 3";

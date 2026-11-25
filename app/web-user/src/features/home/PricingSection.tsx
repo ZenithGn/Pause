@@ -58,14 +58,9 @@ export function PricingSection({ tiers }: PricingSectionProps) {
                     <span className={styles.tierDuration}>{durationLabel}</span>
                   </div>
 
-                  <div className={styles.tierHighlights}>
-                    <span className={styles.tierQuotaChip}>
-                      {tier.drawer_limit_label}
-                    </span>
-                    <span className={styles.tierQuotaChip}>
-                      {tier.storage_label}
-                    </span>
-                  </div>
+                  <p className={styles.tierSpecLine}>
+                    {tier.drawer_limit_label} · {tier.storage_label}
+                  </p>
 
                   <ul className={styles.tierFeatures}>
                     {tier.features.map((feature) => (

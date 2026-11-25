@@ -1,4 +1,4 @@
-import type { LayoutSlot, PublicTemplate } from "@/types/catalog";
+import type { LayoutSlot, PhotoTone, PublicTemplate } from "@/types/catalog";
 
 export interface CropRect {
   sx: number;
@@ -150,6 +150,17 @@ function drawSlotPlaceholder(
   ctx.restore();
 }
 
+function resolveCanvasFilter(photoTone: PhotoTone): string {
+  switch (photoTone) {
+    case "warm-film":
+      return "sepia(0.18) saturate(1.14) contrast(1.04) brightness(1.02)";
+    case "bw":
+      return "grayscale(1) contrast(1.08) brightness(1.02)";
+    default:
+      return "none";
+  }
+}
+
 /**
  * Renders the front face of a Photobooth template onto a Canvas2D surface.
  * Uses `computeCenterCropRect` so user photos fill each slot cleanly without stretching.
@@ -158,7 +169,8 @@ export async function renderFrontTemplateCanvas(
   template: PublicTemplate,
   slotImages: Record<number, SlotImageSource>,
   customCaption?: string,
-  existingCanvas?: HTMLCanvasElement
+  existingCanvas?: HTMLCanvasElement,
+  photoTone: PhotoTone = "original"
 ): Promise<HTMLCanvasElement> {
   const { layout_config } = template;
   const maxDim = Math.max(layout_config.width, layout_config.height);
@@ -187,7 +199,8 @@ export async function renderFrontTemplateCanvas(
     ctx.restore();
   }
 
-  // 2. Photo slots
+  // 2. Photo slots (with optional client-side film tone filter)
+  const slotFilter = resolveCanvasFilter(photoTone);
   for (const slot of layout_config.slots) {
     const imgSource = slotImages[slot.index];
     if (imgSource) {
@@ -195,6 +208,9 @@ export async function renderFrontTemplateCanvas(
       if (imgW > 0 && imgH > 0) {
         const crop = computeCenterCropRect(imgW, imgH, slot.width, slot.height);
         ctx.save();
+        if ("filter" in ctx) {
+          ctx.filter = slotFilter;
+        }
         ctx.drawImage(
           imgSource,
           crop.sx,
@@ -392,41 +408,5 @@ export function createPaperGrainCanvas(size = 256): HTMLCanvasElement {
   }
 
   ctx.putImageData(imageData, 0, 0);
-  return canvas;
-}
-
-/**
- * Generates a deterministic pebbled leather bump map Canvas2D texture for the 3D vintage camera.
- */
-export function createLeatherBumpCanvas(size = 256): HTMLCanvasElement {
-  const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return canvas;
-
-  ctx.fillStyle = "#5A5A5A";
-  ctx.fillRect(0, 0, size, size);
-
-  let seed = 4242;
-  const nextRand = () => {
-    seed = (seed * 1664525 + 1013904223) >>> 0;
-    return seed / 0xffffffff;
-  };
-
-  const cell = 8;
-  for (let y = 0; y < size; y += cell) {
-    for (let x = 0; x < size; x += cell) {
-      const jx = x + cell * 0.5 + (nextRand() - 0.5) * 3.5;
-      const jy = y + cell * 0.5 + (nextRand() - 0.5) * 3.5;
-      const r = cell * (0.32 + nextRand() * 0.22);
-      const tone = Math.round(135 + nextRand() * 90);
-      ctx.fillStyle = `rgb(${tone}, ${tone}, ${tone})`;
-      ctx.beginPath();
-      ctx.arc(jx, jy, r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-
   return canvas;
 }

@@ -98,13 +98,17 @@
   right: 0;
   bottom: -2px;
   height: 2px;
-  background-color: var(--color-gold);
+  background-color: currentColor;
   border-radius: var(--radius-full);
 }
 
+.headerSolid .navLinkActive {
+  color: var(--color-wine);
+}
+
 .goldDot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: var(--radius-full);
   background-color: var(--color-gold);
   flex-shrink: 0;
@@ -141,15 +145,15 @@
 .ctaLinkHero {
   background-color: var(--color-white);
   color: var(--color-wine);
-  border: 1px solid rgba(212, 175, 55, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.9);
 }
 
 .ctaLinkHero:hover {
-  background-color: var(--color-gold-soft);
+  background-color: var(--color-wine-soft);
 }
 
 .ctaActive {
-  box-shadow: 0 0 0 2px var(--color-gold);
+  box-shadow: 0 0 0 2px rgba(99, 13, 17, 0.25);
 }
 
 .menuButton {
@@ -221,7 +225,7 @@
 .drawerLinkActive {
   background-color: var(--color-wine-soft);
   color: var(--color-wine);
-  border-color: rgba(197, 155, 56, 0.45);
+  border-color: rgba(99, 13, 17, 0.22);
 }
 
 .drawerCta {

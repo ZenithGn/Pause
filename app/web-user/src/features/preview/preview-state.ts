@@ -1,6 +1,23 @@
-import type { PublicTemplate, TemplateCategory } from "@/types/catalog";
+import type {
+  CoverType,
+  PaperType,
+  PhotoTone,
+  PublicTemplate,
+  TemplateCategory,
+} from "@/types/catalog";
 
 export type TemplateFilterKey = "all" | TemplateCategory | "vip";
+
+export interface PhotoToneOption {
+  key: PhotoTone;
+  label: string;
+}
+
+export const PHOTO_TONE_OPTIONS: readonly PhotoToneOption[] = [
+  { key: "original", label: "Ảnh gốc" },
+  { key: "warm-film", label: "Film Ấm" },
+  { key: "bw", label: "Đen trắng" },
+];
 
 export interface TemplateFilterOption {
   key: TemplateFilterKey;
@@ -21,6 +38,36 @@ export const ACCEPTED_IMAGE_MIME_TYPES = new Set([
   "image/png",
   "image/webp",
 ]);
+
+/**
+ * Splits a browser FileList into accepted image files (JPG/PNG/WebP) and rejected filenames.
+ */
+export function partitionImageFiles(fileList: FileList | null): {
+  valid: File[];
+  rejectedNames: string[];
+} {
+  if (!fileList || fileList.length === 0) return { valid: [], rejectedNames: [] };
+  const valid: File[] = [];
+  const rejectedNames: string[] = [];
+
+  for (const file of Array.from(fileList)) {
+    const lowerName = file.name.toLowerCase();
+    const isAccepted =
+      ACCEPTED_IMAGE_MIME_TYPES.has(file.type) ||
+      lowerName.endsWith(".jpg") ||
+      lowerName.endsWith(".jpeg") ||
+      lowerName.endsWith(".png") ||
+      lowerName.endsWith(".webp");
+
+    if (isAccepted) {
+      valid.push(file);
+    } else {
+      rejectedNames.push(file.name);
+    }
+  }
+
+  return { valid, rejectedNames };
+}
 
 export interface SlotPhotoEntry {
   url: string;
@@ -266,4 +313,21 @@ export function getCategoryLabelVi(category: string): string {
     default:
       return "Chủ đề";
   }
+}
+
+/**
+ * Builds the `/download` route URL preserving the user's selected print configuration
+ * (without transmitting any local photo files).
+ */
+export function buildDownloadPreviewHref(
+  templateId: string,
+  coverType: CoverType,
+  paperType: PaperType
+): string {
+  const params = new URLSearchParams({
+    template: templateId,
+    cover: coverType,
+    paper: paperType,
+  });
+  return `/download?${params.toString()}`;
 }

@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { FALLBACK_TEMPLATES, SAMPLE_PHOTO_URLS } from "@/lib/catalog-data";
 import {
   assignEntriesToSlots,
+  buildDownloadPreviewHref,
   clearAllSlotEntries,
   fillSampleSlotEntries,
   filterTemplates,
@@ -22,6 +23,7 @@ vi.mock("next/dynamic", () => ({
       template: { name: string };
       slotPhotoUrls: Record<number, string>;
       caption: string;
+      photoTone?: string;
       coverType: string;
       paperType: string;
     }) {
@@ -30,6 +32,7 @@ vi.mock("next/dynamic", () => ({
         "data-template": props.template.name,
         "data-cover": props.coverType,
         "data-paper": props.paperType,
+        "data-tone": props.photoTone ?? "original",
         "data-caption": props.caption,
         "data-slot-count": String(Object.keys(props.slotPhotoUrls).length),
       });
@@ -96,13 +99,11 @@ describe("preview-state helpers", () => {
       3: { url: "blob:photo-3", name: "d.jpg", isObjectUrl: true },
     };
 
-    // Switch to a 2-slot template: exposes slots 0..1 while underlying map keeps 0..3
     expect(getActiveSlotPhotoUrls(initialMap, 2)).toEqual({
       0: "blob:photo-0",
       1: "blob:photo-1",
     });
 
-    // Switch back to a 4-slot template: all 4 photos remain intact
     expect(getActiveSlotPhotoUrls(initialMap, 4)).toEqual({
       0: "blob:photo-0",
       1: "blob:photo-1",
@@ -131,7 +132,7 @@ describe("preview-state helpers", () => {
     expect(urlsToRevoke).toEqual(["blob:existing-1"]);
   });
 
-  it("replaces, swaps, removes, fills samples, and clears slot entries cleanly", () => {
+  it("replaces, swaps, removes, fills samples, clears slots, and builds /download href cleanly", () => {
     const base: SlotPhotoMap = {
       0: { url: "blob:0", name: "0.jpg", isObjectUrl: true },
       1: { url: "blob:1", name: "1.jpg", isObjectUrl: true },
@@ -163,11 +164,15 @@ describe("preview-state helpers", () => {
     const cleared = clearAllSlotEntries(swapped);
     expect(cleared.nextMap).toEqual({});
     expect(cleared.urlsToRevoke).toEqual(["blob:1", "blob:0b"]);
+
+    expect(buildDownloadPreviewHref("tpl-premium-gold", "hard", "premium")).toBe(
+      "/download?template=tpl-premium-gold&cover=hard&paper=premium"
+    );
   });
 });
 
 describe("PreviewStudio component", () => {
-  it("preserves picked photos when switching templates and never renders a PNG export button", () => {
+  it("pre-fills sample photos, supports unified scrolling controls, film tones, /download handoff, and never renders a PNG export button", () => {
     render(
       React.createElement(PreviewStudio, {
         templates: FALLBACK_TEMPLATES,
@@ -177,9 +182,8 @@ describe("PreviewStudio component", () => {
 
     const stage = screen.getByTestId("mock-print-scene-3d");
     expect(stage).toHaveAttribute("data-template", "Classic White");
-
-    // Step 2: Fill sample photos and enter a caption
-    fireEvent.click(screen.getByRole("tab", { name: /2\. Chọn ảnh/i }));
+    expect(stage).toHaveAttribute("data-slot-count", "2");
+    expect(stage).toHaveAttribute("data-tone", "original");
 
     expect(
       screen.getByText(
@@ -187,24 +191,30 @@ describe("PreviewStudio component", () => {
       )
     ).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /Điền ảnh mẫu nhanh/i }));
-    expect(stage).toHaveAttribute("data-slot-count", "2");
+    // Film tone selection
+    fireEvent.click(screen.getByRole("button", { name: "Film Ấm" }));
+    expect(stage).toHaveAttribute("data-tone", "warm-film");
 
+    // Live caption update
     const captionInput = screen.getByLabelText("Lời nhắn / Chú thích in trên khung");
     fireEvent.change(captionInput, { target: { value: "Đà Lạt 2026" } });
     expect(stage).toHaveAttribute("data-caption", "Đà Lạt 2026");
 
-    // Step 1: Filter VIP and switch to Premium Gold (4 slots) -> slots 0 & 1 are preserved
-    fireEvent.click(screen.getByRole("tab", { name: /1\. Chọn mẫu in/i }));
-    fireEvent.click(screen.getByRole("button", { name: /Mẫu VIP/i }));
-    fireEvent.click(screen.getByRole("button", { name: /Premium Gold/i }));
+    // Clear all -> 0 slots, then fill samples again
+    fireEvent.click(screen.getByRole("button", { name: /Xóa toàn bộ ảnh/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Xác nhận xóa tất cả\?/i }));
+    expect(stage).toHaveAttribute("data-slot-count", "0");
 
-    expect(stage).toHaveAttribute("data-template", "Premium Gold");
+    fireEvent.click(screen.getByRole("button", { name: /Điền ảnh mẫu nhanh/i }));
     expect(stage).toHaveAttribute("data-slot-count", "2");
 
-    // Step 3: Material controls, VIP notice, estimated price, and /download CTA
-    fireEvent.click(screen.getByRole("tab", { name: /3\. Chất liệu/i }));
+    // Instant template switching without changing tabs
+    fireEvent.click(screen.getByRole("button", { name: /Mẫu VIP/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Premium Gold/i }));
+    expect(stage).toHaveAttribute("data-template", "Premium Gold");
+    expect(stage).toHaveAttribute("data-slot-count", "4");
 
+    // Material controls + /download handoff query
     fireEvent.click(screen.getByRole("button", { name: /Bìa cứng cao cấp/i }));
     fireEvent.click(screen.getByRole("button", { name: /Giấy mỹ thuật 200gsm/i }));
     expect(stage).toHaveAttribute("data-cover", "hard");
@@ -216,7 +226,10 @@ describe("PreviewStudio component", () => {
     const downloadCta = screen.getByRole("link", {
       name: /Tải App Pause để lưu Ngăn kéo & đặt in/i,
     });
-    expect(downloadCta).toHaveAttribute("href", "/download");
+    expect(downloadCta).toHaveAttribute(
+      "href",
+      "/download?template=tpl-premium-gold&cover=hard&paper=premium"
+    );
 
     // Policy check: NO PNG download or export button anywhere in the studio
     const panel = screen.getByRole("complementary", {

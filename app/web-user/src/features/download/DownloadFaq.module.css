@@ -23,10 +23,11 @@
 }
 
 .eyebrow {
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-family: var(--font-mono-family);
+  font-size: 0.74rem;
+  font-weight: 600;
   letter-spacing: 0.12em;
-  color: var(--color-gold);
+  color: var(--color-wine);
 }
 
 .title {
@@ -59,7 +60,7 @@
 }
 
 .accordionItemOpen {
-  border-color: rgba(197, 155, 56, 0.7);
+  border-color: var(--color-wine);
   box-shadow: var(--shadow-subtle);
 }
 

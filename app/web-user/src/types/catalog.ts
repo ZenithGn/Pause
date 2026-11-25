@@ -59,6 +59,7 @@ export interface PublicMembershipTier {
 
 export type CoverType = "soft" | "hard";
 export type PaperType = "standard" | "premium";
+export type PhotoTone = "original" | "warm-film" | "bw";
 
 export interface PrintPriceBreakdown {
   baseVnd: number;

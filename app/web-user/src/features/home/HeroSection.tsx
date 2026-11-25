@@ -1,22 +1,17 @@
-import type { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowRight, Download } from "lucide-react";
+import { HeroShowcaseSlot } from "@/features/home/HeroShowcaseSlot";
+import type { PublicTemplate } from "@/types/catalog";
 import styles from "./Home.module.css";
 
 interface HeroSectionProps {
-  /** Compact 3D camera stage rendered cleanly inside Hero on mobile (`< 900px`). */
-  mobileCameraSlot?: ReactNode;
+  templates: PublicTemplate[];
 }
 
-export function HeroSection({ mobileCameraSlot }: HeroSectionProps) {
+export function HeroSection({ templates }: HeroSectionProps) {
   return (
-    <section
-      className={styles.hero}
-      aria-labelledby="hero-heading"
-      data-camera-zone="hero"
-    >
+    <section className={styles.hero} aria-labelledby="hero-heading">
       <div className={styles.heroGrain} aria-hidden="true" />
-      <div className={styles.heroFrame} aria-hidden="true" />
 
       <div className={styles.heroInner}>
         <div className={styles.heroContent}>
@@ -59,9 +54,9 @@ export function HeroSection({ mobileCameraSlot }: HeroSectionProps) {
           </div>
         </div>
 
-        {mobileCameraSlot ? (
-          <div className={styles.heroMobileCameraSlot}>{mobileCameraSlot}</div>
-        ) : null}
+        <div className={styles.heroShowcaseCol}>
+          <HeroShowcaseSlot templates={templates} />
+        </div>
       </div>
     </section>
   );

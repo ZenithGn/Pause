@@ -114,19 +114,25 @@ export function FeaturesSection() {
               trên tay.
             </p>
 
-            <div className={styles.featureCards}>
-              {FEATURE_ITEMS.map(({ title, description, Icon }) => (
-                <article key={title} className={styles.featureCard}>
-                  <div className={styles.featureIconWrap} aria-hidden="true">
-                    <Icon size={20} strokeWidth={1.8} />
-                  </div>
-                  <div>
-                    <h3 className={styles.featureCardTitle}>{title}</h3>
+            <ul className={styles.featureList}>
+              {FEATURE_ITEMS.map(({ title, description, Icon }, idx) => (
+                <li key={title} className={styles.featureRow}>
+                  <span className={styles.featureIndex}>0{idx + 1}</span>
+                  <div className={styles.featureBody}>
+                    <div className={styles.featureHeadingRow}>
+                      <Icon
+                        size={18}
+                        strokeWidth={1.8}
+                        className={styles.featureRowIcon}
+                        aria-hidden="true"
+                      />
+                      <h3 className={styles.featureCardTitle}>{title}</h3>
+                    </div>
                     <p className={styles.featureCardDesc}>{description}</p>
                   </div>
-                </article>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </div>
       </div>

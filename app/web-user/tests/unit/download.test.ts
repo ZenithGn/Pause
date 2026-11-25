@@ -8,11 +8,23 @@ import {
 } from "@/features/download/apk-config";
 import { buildQrSvgData } from "@/features/download/qr-svg";
 import { QrCodeCard } from "@/features/download/QrCodeCard";
-import {
-  DOWNLOAD_FAQ_ITEMS,
-  DownloadFaq,
-} from "@/features/download/DownloadFaq";
+import { DownloadFaq } from "@/features/download/DownloadFaq";
+import { DOWNLOAD_FAQ_ITEMS } from "@/features/download/DownloadFaq";
 import { DownloadActions } from "@/features/download/DownloadActions";
+import { DownloadHero } from "@/features/download/DownloadHero";
+import { InstallSteps } from "@/features/download/InstallSteps";
+
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+    ...rest
+  }: {
+    href: string;
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => createElement("a", { href, ...rest }, children),
+}));
 
 afterEach(() => {
   cleanup();
@@ -167,5 +179,31 @@ describe("DownloadActions CTA and copyable link feedback", () => {
 
     expect(writeText).toHaveBeenCalledWith(DEFAULT_ANDROID_APK_URL);
     expect(screen.getByRole("status")).toHaveTextContent(/Đã sao chép/);
+  });
+
+  it("renders selected Studio 3D handoff banner and visual APK install steps", () => {
+    render(
+      createElement(DownloadHero, {
+        apkMeta: getAndroidApkMetadata(undefined),
+        selectedPreview: {
+          templateId: "tpl-premium-gold",
+          templateName: "Premium Gold",
+          coverLabel: "Bìa cứng cao cấp",
+          paperLabel: "Giấy mỹ thuật 200gsm",
+          estimatedPriceLabel: "54.000đ",
+        },
+      })
+    );
+
+    expect(screen.getByText(/Cấu hình vừa xem ở Studio 3D/i)).toBeInTheDocument();
+    expect(screen.getByText("Premium Gold")).toBeInTheDocument();
+    expect(screen.getByText("54.000đ")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Đổi mẫu ở Studio 3D/i })
+    ).toHaveAttribute("href", "/preview?template=tpl-premium-gold");
+
+    render(createElement(InstallSteps));
+    expect(screen.getByText("Pause-v0.1.0.apk")).toBeInTheDocument();
+    expect(screen.getByText("Cho phép từ nguồn này")).toBeInTheDocument();
   });
 });

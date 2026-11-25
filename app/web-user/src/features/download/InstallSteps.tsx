@@ -1,4 +1,4 @@
-import { Cpu, HardDrive, Wifi } from "lucide-react";
+import { Cpu, Download, FolderHeart, HardDrive, ShieldCheck, Wifi } from "lucide-react";
 import styles from "./InstallSteps.module.css";
 
 interface InstallStepItem {
@@ -38,6 +38,59 @@ const DEVICE_SPECS = [
   { icon: Wifi, label: "Kết nối mạng khi đồng bộ ảnh & đặt in" },
 ];
 
+function StepIllustration({ stepNumber }: { stepNumber: string }) {
+  if (stepNumber === "01") {
+    return (
+      <div className={styles.stepMockup} aria-hidden="true">
+        <div className={styles.mockupRow}>
+          <span className={styles.mockupIconCircle}>
+            <Download size={14} />
+          </span>
+          <div className={styles.mockupTextCol}>
+            <strong>Pause-v0.1.0.apk</strong>
+            <span>GitHub Releases · Đang sẵn sàng</span>
+          </div>
+          <span className={styles.mockupActionPill}>Tải về</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (stepNumber === "02") {
+    return (
+      <div className={styles.stepMockup} aria-hidden="true">
+        <div className={styles.mockupRow}>
+          <span className={styles.mockupIconCircle}>
+            <ShieldCheck size={14} />
+          </span>
+          <div className={styles.mockupTextCol}>
+            <strong>Cho phép từ nguồn này</strong>
+            <span>Cài đặt ứng dụng Android</span>
+          </div>
+          <span className={styles.mockupSwitch}>
+            <span className={styles.mockupSwitchThumb} />
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.stepMockup} aria-hidden="true">
+      <div className={styles.mockupRow}>
+        <span className={styles.mockupIconCircle}>
+          <FolderHeart size={14} />
+        </span>
+        <div className={styles.mockupTextCol}>
+          <strong>3 Ngăn kéo miễn phí</strong>
+          <span>50 ảnh / ngăn · Chia sẻ &amp; Đặt in</span>
+        </div>
+        <span className={styles.mockupActionPill}>Mở ngay</span>
+      </div>
+    </div>
+  );
+}
+
 export function InstallSteps() {
   return (
     <section className={styles.section} aria-labelledby="install-steps-title">
@@ -63,6 +116,7 @@ export function InstallSteps() {
               </div>
               <h3 className={styles.stepTitle}>{step.title}</h3>
               <p className={styles.stepDescription}>{step.description}</p>
+              <StepIllustration stepNumber={step.number} />
               <p className={styles.stepHint}>{step.hint}</p>
             </li>
           ))}

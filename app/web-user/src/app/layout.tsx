@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import { Be_Vietnam_Pro, Plus_Jakarta_Sans } from "next/font/google";
+import { Be_Vietnam_Pro, IBM_Plex_Mono, Playfair_Display } from "next/font/google";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import "@/styles/globals.css";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const playfairDisplay = Playfair_Display({
   subsets: ["latin", "vietnamese"],
-  weight: ["600", "700", "800"],
+  weight: ["600", "700"],
+  style: ["normal", "italic"],
   variable: "--font-display",
   display: "swap",
 });
@@ -15,6 +16,13 @@ const beVietnamPro = Be_Vietnam_Pro({
   subsets: ["latin", "vietnamese"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-sans",
+  display: "swap",
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "600"],
+  variable: "--font-mono",
   display: "swap",
 });
 
@@ -35,7 +43,7 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
-      className={`${plusJakartaSans.variable} ${beVietnamPro.variable}`}
+      className={`${playfairDisplay.variable} ${beVietnamPro.variable} ${ibmPlexMono.variable}`}
     >
       <body>
         <Navbar />

@@ -16,10 +16,11 @@
 }
 
 .eyebrow {
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-family: var(--font-mono-family);
+  font-size: 0.74rem;
+  font-weight: 600;
   letter-spacing: 0.12em;
-  color: var(--color-gold);
+  color: var(--color-wine);
   margin-bottom: var(--space-2);
 }
 
@@ -40,17 +41,20 @@
 .stepsGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-6);
+  border-top: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-line);
 }
 
 .stepCard {
-  background-color: var(--color-paper);
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius-lg);
   padding: var(--space-6);
+  border-right: 1px solid var(--color-line);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+}
+
+.stepCard:last-child {
+  border-right: none;
 }
 
 .stepTop {
@@ -60,11 +64,11 @@
 }
 
 .stepNumber {
-  font-family: var(--font-display-family);
-  font-size: 2rem;
-  font-weight: 700;
+  font-family: var(--font-mono-family);
+  font-size: 1.35rem;
+  font-weight: 600;
   line-height: 1;
-  color: var(--color-gold);
+  color: var(--color-wine);
 }
 
 .stepRule {
@@ -85,12 +89,88 @@
   color: var(--color-ink-muted);
 }
 
+/* Miniature Android UI step illustration */
+.stepMockup {
+  margin-top: var(--space-2);
+  padding: 0.7rem 0.85rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-line);
+}
+
+.mockupRow {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.mockupIconCircle {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-wine-soft);
+  color: var(--color-wine);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mockupTextCol {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.mockupTextCol strong {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.mockupTextCol span {
+  font-family: var(--font-mono-family);
+  font-size: 0.68rem;
+  color: var(--color-ink-muted);
+}
+
+.mockupActionPill {
+  padding: 0.22rem 0.58rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-wine);
+  color: var(--color-white);
+  font-size: 0.68rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.mockupSwitch {
+  width: 34px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-wine);
+  padding: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.mockupSwitchThumb {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-white);
+}
+
 .stepHint {
   margin-top: auto;
   padding-top: var(--space-3);
   border-top: 1px dashed var(--color-line);
   font-size: 0.8125rem;
-  color: var(--color-wine);
+  color: var(--color-ink-muted);
   font-weight: 500;
 }
 
@@ -98,8 +178,8 @@
   margin-top: var(--space-8);
   padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-md);
-  background-color: var(--color-gold-soft);
-  border: 1px solid rgba(197, 155, 56, 0.35);
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-line);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -111,7 +191,8 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  font-size: 0.875rem;
+  font-family: var(--font-mono-family);
+  font-size: 0.8rem;
   font-weight: 500;
   color: var(--color-ink);
 }
@@ -125,6 +206,15 @@
   .stepsGrid {
     grid-template-columns: 1fr;
   }
+
+  .stepCard {
+    border-right: none;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .stepCard:last-child {
+    border-bottom: none;
+  }
 }
 
 @media (max-width: 640px) {
@@ -134,5 +224,9 @@
 
   .container {
     padding-inline: var(--space-4);
+  }
+
+  .stepCard {
+    padding-inline: 0;
   }
 }

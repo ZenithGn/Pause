@@ -90,12 +90,12 @@ describe("fallback templates & sample assets", () => {
     expect(vipTemplates.map((t) => t.id)).toEqual(["tpl-premium-gold"]);
   });
 
-  it("exposes 4 local SVG sample photo paths", () => {
+  it("exposes 4 local sample photo paths", () => {
     expect(SAMPLE_PHOTO_URLS).toEqual([
-      "/samples/sample-1.svg",
-      "/samples/sample-2.svg",
-      "/samples/sample-3.svg",
-      "/samples/sample-4.svg",
+      "/samples/sample-1.jpg",
+      "/samples/sample-2.jpg",
+      "/samples/sample-3.jpg",
+      "/samples/sample-4.jpg",
     ]);
   });
 

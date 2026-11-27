@@ -13,6 +13,7 @@
 
 .stageColumn {
   position: relative;
+  min-width: 0;
   height: 100%;
   min-height: 540px;
   background-color: var(--color-paper);
@@ -78,6 +79,8 @@
 }
 
 .panelColumn {
+  position: relative;
+  contain: layout;
   background-color: var(--color-white);
   border-left: 1px solid var(--color-line);
   display: flex;
@@ -359,6 +362,7 @@
 }
 
 .dropZone {
+  position: relative;
   border: 1.5px dashed rgba(17, 17, 17, 0.25);
   border-radius: var(--radius-md);
   background-color: var(--color-paper);
@@ -487,6 +491,7 @@
 }
 
 .slotRow {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -831,7 +836,7 @@
 
 @media (max-width: 1023px) {
   .studioGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     height: auto;
     min-height: auto;
   }
@@ -848,9 +853,14 @@
   }
 
   .panelColumn {
+    contain: none;
     border-left: none;
     height: auto;
     overflow-y: visible;
+  }
+
+  .sectionStack {
+    scroll-margin-top: calc(var(--nav-height) + clamp(255px, 38vh, 340px) + 68px);
   }
 
   .jumpBar {

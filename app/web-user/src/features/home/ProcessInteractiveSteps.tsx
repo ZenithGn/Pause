@@ -88,7 +88,7 @@ export function ProcessInteractiveSteps() {
               </div>
               <div className={styles.stepMiniSquare}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={SAMPLE_PHOTO_URLS[2]} alt="" className={styles.stepMiniSquareImg} />
+                <img src={SAMPLE_PHOTO_URLS[1]} alt="" className={styles.stepMiniSquareImg} />
                 <span className={styles.stepMiniCap}>Family 1:1</span>
               </div>
               <div className={styles.stepMiniVip}>

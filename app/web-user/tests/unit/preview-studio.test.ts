@@ -240,4 +240,37 @@ describe("PreviewStudio component", () => {
       expect(btn.textContent ?? "").not.toMatch(/png|xuất ảnh|tải ảnh xem thử/i);
     }
   });
+
+  it("resets document scrollTop to 0 on mount when no hash is present and scrolls only the desktop panel on section jump", () => {
+    document.documentElement.scrollTop = 640;
+    window.location.hash = "";
+
+    render(
+      React.createElement(PreviewStudio, {
+        templates: FALLBACK_TEMPLATES,
+        initialTemplateId: "tpl-pastel-grid",
+      })
+    );
+
+    expect(document.documentElement.scrollTop).toBe(0);
+
+    const panel = screen.getByRole("complementary", {
+      name: "Bảng tùy chỉnh mẫu in",
+    });
+    Object.defineProperty(panel, "scrollHeight", { value: 2400, configurable: true });
+    Object.defineProperty(panel, "clientHeight", { value: 800, configurable: true });
+    panel.style.overflowY = "auto";
+    const panelScrollTo = vi.fn();
+    panel.scrollTo = panelScrollTo;
+
+    const photoSection = document.getElementById("studio-section-photos");
+    const windowScrollIntoView = vi.fn();
+    if (photoSection) {
+      photoSection.scrollIntoView = windowScrollIntoView;
+    }
+
+    fireEvent.click(screen.getByRole("button", { name: /2\. Ảnh & Tone/i }));
+    expect(panelScrollTo).toHaveBeenCalledTimes(1);
+    expect(windowScrollIntoView).not.toHaveBeenCalled();
+  });
 });

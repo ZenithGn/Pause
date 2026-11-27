@@ -1,5 +1,5 @@
 import { FolderHeart, Lock, Printer, Users } from "lucide-react";
-import { SAMPLE_PHOTO_URLS } from "@/lib/catalog-data";
+import { DRAWER_SAMPLE_PHOTOS } from "@/lib/catalog-data";
 import styles from "./Home.module.css";
 
 const FEATURE_ITEMS = [
@@ -49,8 +49,8 @@ export function FeaturesSection() {
                 <div className={styles.drawerPhotoLarge}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={SAMPLE_PHOTO_URLS[0]}
-                    alt="Ảnh kỷ niệm chuyến đi Đà Lạt"
+                    src={DRAWER_SAMPLE_PHOTOS.dalatLead}
+                    alt="Nhóm bạn chụp ảnh kỷ niệm giữa đồi thông Đà Lạt"
                     className={styles.drawerImg}
                     loading="lazy"
                   />
@@ -59,8 +59,8 @@ export function FeaturesSection() {
                   <div className={styles.drawerPhotoSmall}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={SAMPLE_PHOTO_URLS[1]}
-                      alt="Khoảnh khắc cà phê sáng"
+                      src={DRAWER_SAMPLE_PHOTOS.dalatCoffee}
+                      alt="Khoảnh khắc cà phê sáng bên cửa sổ nắng"
                       className={styles.drawerImg}
                       loading="lazy"
                     />
@@ -68,8 +68,8 @@ export function FeaturesSection() {
                   <div className={styles.drawerPhotoSmall}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={SAMPLE_PHOTO_URLS[2]}
-                      alt="Ảnh chụp cùng nhóm bạn"
+                      src={DRAWER_SAMPLE_PHOTOS.dalatHomestay}
+                      alt="Hiên gỗ homestay Đà Lạt ngập nắng và hoa dã quỳ"
                       className={styles.drawerImg}
                       loading="lazy"
                     />
@@ -87,7 +87,7 @@ export function FeaturesSection() {
               <div className={styles.drawerSecondaryThumb}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={SAMPLE_PHOTO_URLS[3]}
+                  src={DRAWER_SAMPLE_PHOTOS.anniversaryCover}
                   alt="Ảnh bìa ngăn kéo Kỷ niệm 1 năm"
                   className={styles.drawerImg}
                   loading="lazy"

@@ -1,6 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type DragEvent,
+} from "react";
 import dynamic from "next/dynamic";
 import { Upload } from "lucide-react";
 import { PrintPreviewFallback2D } from "@/components/three/PrintPreviewFallback2D";
@@ -18,6 +26,7 @@ import {
   partitionImageFiles,
   removeSlotEntry,
   replaceSlotEntry,
+  resetDocumentScrollTop,
   resolveInitialTemplateId,
   swapSlotEntries,
   type SlotPhotoEntry,
@@ -28,6 +37,9 @@ import styles from "./PreviewStudio.module.css";
 import { TemplateSelector } from "./TemplateSelector";
 
 export type StudioSectionKey = "templates" | "photos" | "materials";
+
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 const DynamicPrintPreviewScene3D = dynamic(
   () =>
@@ -96,6 +108,21 @@ export function PreviewStudio({
   const panelRef = useRef<HTMLElement>(null);
   const slotPhotosRef = useRef<SlotPhotoMap>(slotPhotos);
   slotPhotosRef.current = slotPhotos;
+  const prevInitialTemplateIdRef = useRef(initialTemplateId);
+
+  // Ensure Studio starts cleanly at scrollTop 0 when entering from a scrolled route
+  useIsomorphicLayoutEffect(() => {
+    resetDocumentScrollTop();
+  }, [initialTemplateId]);
+
+  useEffect(() => {
+    if (prevInitialTemplateIdRef.current !== initialTemplateId) {
+      prevInitialTemplateIdRef.current = initialTemplateId;
+      setSelectedTemplateId(
+        resolveInitialTemplateId(safeTemplates, initialTemplateId)
+      );
+    }
+  }, [initialTemplateId, safeTemplates]);
 
   // Revoke any remaining client object URLs on unmount
   useEffect(() => {
@@ -238,7 +265,37 @@ export function PreviewStudio({
   const jumpToSection = (key: StudioSectionKey) => {
     setActiveJumpKey(key);
     const targetEl = document.getElementById(`studio-section-${key}`);
-    if (targetEl && typeof targetEl.scrollIntoView === "function") {
+    if (!targetEl) return;
+
+    const panel = panelRef.current;
+    if (
+      panel &&
+      panel.scrollHeight > panel.clientHeight &&
+      window.getComputedStyle(panel).overflowY !== "visible"
+    ) {
+      if (key === "templates" && typeof panel.scrollTo === "function") {
+        panel.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+
+      const panelRect = panel.getBoundingClientRect();
+      const targetRect = targetEl.getBoundingClientRect();
+      const jumpBar = panel.querySelector<HTMLElement>(`.${styles.jumpBar}`);
+      const stickyOffset = (jumpBar?.offsetHeight ?? 0) + 16;
+      const nextTop = Math.max(
+        0,
+        panel.scrollTop + (targetRect.top - panelRect.top) - stickyOffset
+      );
+
+      if (typeof panel.scrollTo === "function") {
+        panel.scrollTo({ top: nextTop, behavior: "smooth" });
+      } else {
+        panel.scrollTop = nextTop;
+      }
+      return;
+    }
+
+    if (typeof targetEl.scrollIntoView === "function") {
       targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };

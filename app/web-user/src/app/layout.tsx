@@ -43,6 +43,7 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
+      data-scroll-behavior="smooth"
       className={`${playfairDisplay.variable} ${beVietnamPro.variable} ${ibmPlexMono.variable}`}
     >
       <body>

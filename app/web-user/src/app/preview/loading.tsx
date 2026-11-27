@@ -1,8 +1,10 @@
+import { PreviewScrollReset } from "@/features/preview/PreviewScrollReset";
 import styles from "@/features/preview/PreviewStudio.module.css";
 
 export default function PreviewLoading() {
   return (
     <div className={styles.studioPage}>
+      <PreviewScrollReset />
       <div className={styles.studioGrid}>
         <div className={styles.stageColumn}>
           <div className={styles.stageLoading} aria-busy="true">

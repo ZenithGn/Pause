@@ -331,3 +331,24 @@ export function buildDownloadPreviewHref(
   });
   return `/download?${params.toString()}`;
 }
+
+/**
+ * Resets window scroll position to the top immediately during route transitions
+ * without triggering smooth-scroll lag when no URL hash fragment is present.
+ */
+export function resetDocumentScrollTop(): void {
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    return;
+  }
+  if (window.location.hash) {
+    return;
+  }
+  const html = document.documentElement;
+  const previousScrollBehavior = html.style.scrollBehavior;
+  html.style.scrollBehavior = "auto";
+  html.scrollTop = 0;
+  if (document.body) {
+    document.body.scrollTop = 0;
+  }
+  html.style.scrollBehavior = previousScrollBehavior;
+}

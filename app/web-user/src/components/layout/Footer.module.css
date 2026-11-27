@@ -1,7 +1,7 @@
 .footer {
-  background-color: var(--color-ink);
-  color: #eae6e1;
-  border-top: 1px solid rgba(197, 155, 56, 0.25);
+  background-color: var(--color-linen);
+  color: var(--color-ink);
+  border-top: 1px solid rgba(17, 17, 17, 0.08);
   padding-block: var(--space-12) var(--space-8);
 }
 
@@ -52,11 +52,11 @@
   font-family: var(--font-display-family);
   font-size: 1.35rem;
   font-weight: 700;
-  color: var(--color-white);
+  color: var(--color-ink);
 }
 
 .slogan {
-  color: #b8b0a6;
+  color: var(--color-ink-muted);
   font-size: 0.9375rem;
   font-style: italic;
 }
@@ -71,17 +71,17 @@
 .link {
   font-size: 0.9375rem;
   font-weight: 500;
-  color: #eae6e1;
+  color: var(--color-ink);
   transition: color var(--transition-fast);
 }
 
 .link:hover {
-  color: var(--color-gold-bright);
+  color: var(--color-wine);
 }
 
 .divider {
   height: 1px;
-  background-color: rgba(255, 255, 255, 0.12);
+  background-color: rgba(17, 17, 17, 0.1);
   margin-block: var(--space-8) var(--space-6);
 }
 
@@ -92,15 +92,16 @@
   justify-content: space-between;
   gap: var(--space-4);
   font-size: 0.8125rem;
-  color: #9e968d;
+  color: var(--color-ink-muted);
 }
 
 .projectNote {
-  max-width: 680px;
+  max-width: 780px;
 }
 
 .copyright {
-  color: var(--color-gold);
+  color: var(--color-wine);
+  font-weight: 500;
 }
 
 @media (max-width: 640px) {

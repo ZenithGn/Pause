@@ -11,14 +11,24 @@ import type {
 } from "@/types/catalog";
 
 /**
- * Local SVG sample photographs bundled in `public/samples/` for one-click 3D preview.
+ * Local 35mm film & photobooth sample photographs bundled in `public/samples/` for Hero & 3D preview.
  */
 export const SAMPLE_PHOTO_URLS = [
-  "/samples/sample-1.svg",
-  "/samples/sample-2.svg",
-  "/samples/sample-3.svg",
-  "/samples/sample-4.svg",
+  "/samples/sample-1.jpg",
+  "/samples/sample-2.jpg",
+  "/samples/sample-3.jpg",
+  "/samples/sample-4.jpg",
 ] as const;
+
+/**
+ * Curated sample photographs for the "Ngăn kéo Kỷ niệm" (Memory Drawer) showcase section.
+ */
+export const DRAWER_SAMPLE_PHOTOS = {
+  dalatLead: "/samples/dalat-1.jpg",
+  dalatCoffee: "/samples/sample-3.jpg",
+  dalatHomestay: "/samples/dalat-2.jpg",
+  anniversaryCover: "/samples/sample-4.jpg",
+} as const;
 
 const layoutSlotSchema = z.object({
   index: z.number().int().nonnegative(),

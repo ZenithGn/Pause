@@ -5,11 +5,18 @@
 }
 
 /* ==========================================================================
-   Section 1: Darkroom Wine Hero
+   Section 1: Darkroom Wine Hero (Sticky Scroll-Lock Track for Envelope 3D)
    ========================================================================== */
-.hero {
+.heroTrack {
   position: relative;
-  min-height: 100svh;
+  height: 260svh;
+  background-color: #240305;
+}
+
+.hero {
+  position: sticky;
+  top: 0;
+  height: 100svh;
   display: flex;
   align-items: center;
   padding-top: calc(var(--nav-height) + var(--space-10));
@@ -22,6 +29,18 @@
   );
   color: var(--color-white);
   overflow: hidden;
+}
+
+@media (max-width: 899px), (prefers-reduced-motion: reduce) {
+  .heroTrack {
+    height: auto;
+  }
+
+  .hero {
+    position: relative;
+    height: auto;
+    min-height: 100svh;
+  }
 }
 
 .heroGrain {
@@ -266,25 +285,28 @@
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
   gap: var(--space-2);
+  height: 390px;
 }
 
-.drawerPhotoLarge {
-  aspect-ratio: 4 / 5;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  background-color: var(--color-line);
-}
-
-.drawerPhotoCol {
+.drawerColLeft {
   display: grid;
-  grid-template-rows: 1fr 1fr;
+  grid-template-rows: 1.48fr 1fr;
   gap: var(--space-2);
+  min-height: 0;
 }
 
-.drawerPhotoSmall {
+.drawerColRight {
+  display: grid;
+  grid-template-rows: 1fr 1.25fr;
+  gap: var(--space-2);
+  min-height: 0;
+}
+
+.drawerPhotoCell {
   border-radius: var(--radius-sm);
   overflow: hidden;
   background-color: var(--color-line);
+  min-height: 0;
 }
 
 .drawerImg {
@@ -319,6 +341,12 @@
   border-radius: var(--radius-full);
 }
 
+.drawerSecondaryRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
 .drawerCardSecondary {
   display: flex;
   align-items: center;
@@ -328,8 +356,7 @@
   border: 1px solid var(--color-line);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-card);
-  max-width: 320px;
-  align-self: flex-end;
+  width: 100%;
 }
 
 .drawerSecondaryThumb {

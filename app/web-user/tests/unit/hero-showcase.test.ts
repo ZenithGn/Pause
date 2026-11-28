@@ -132,7 +132,7 @@ describe("Home Hero and Final CTA layout without sticky overlay", () => {
     expect(screen.getByText(/PAUSE GOLD · 200GSM/i)).toBeInTheDocument();
   });
 
-  it("lets users switch among 3 Hero templates and flip front/back in HeroPhotoboothStage", () => {
+  it("renders pure frameless 3D photobooth stage without overlay hints or control buttons", () => {
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(null);
 
     render(
@@ -142,27 +142,13 @@ describe("Home Hero and Final CTA layout without sticky overlay", () => {
     );
 
     expect(screen.getByTestId("hero-photobooth-stage")).toBeInTheDocument();
-    expect(screen.getByText(/Rê chuột soi sáng/i)).toBeInTheDocument();
-    expect(screen.getByText("Classic White (2 ảnh)")).toBeInTheDocument();
+    expect(screen.queryByText(/Rê chuột soi sáng/i)).toBeNull();
+    expect(screen.queryByRole("link", { name: /Thử ảnh của bạn/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Lật mặt sau/i })).toBeNull();
 
-    const previewLink = screen.getByRole("link", { name: /Thử ảnh của bạn/i });
-    expect(previewLink).toHaveAttribute(
-      "href",
-      "/preview?template=tpl-classic-white"
-    );
-
-    // Switch to Premium Gold pill
-    fireEvent.click(screen.getByRole("button", { name: "Premium Gold" }));
-    expect(screen.getByText("Premium Gold (4 ảnh)")).toBeInTheDocument();
-    expect(previewLink).toHaveAttribute(
-      "href",
-      "/preview?template=tpl-premium-gold"
-    );
-
-    // Toggle back watermark view
-    const flipButton = screen.getByRole("button", { name: /Lật mặt sau/i });
-    fireEvent.click(flipButton);
-    expect(screen.getByRole("button", { name: /Xem mặt trước/i })).toBeInTheDocument();
+    // Direct click on cards still works in 2D fallback
+    fireEvent.click(screen.getByRole("button", { name: /Chọn mẫu Premium Gold/i }));
+    expect(screen.getByRole("button", { name: /Chọn mẫu Premium Gold/i })).toBeInTheDocument();
   });
 
   it("renders the compact 3-step Photobooth workflow strip cleanly", () => {

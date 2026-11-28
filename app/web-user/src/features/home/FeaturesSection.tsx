@@ -1,5 +1,5 @@
 import { FolderHeart, ImagePlus, Lock, Users } from "lucide-react";
-import { DRAWER_SAMPLE_PHOTOS } from "@/lib/catalog-data";
+import { DRAWER_SAMPLE_PHOTOS, SAMPLE_PHOTO_URLS } from "@/lib/catalog-data";
 import styles from "./Home.module.css";
 
 const FEATURE_ITEMS = [
@@ -46,17 +46,28 @@ export function FeaturesSection() {
               </div>
 
               <div className={styles.drawerMosaic}>
-                <div className={styles.drawerPhotoLarge}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={DRAWER_SAMPLE_PHOTOS.dalatLead}
-                    alt="Nhóm bạn chụp ảnh kỷ niệm giữa đồi thông Đà Lạt"
-                    className={styles.drawerImg}
-                    loading="lazy"
-                  />
+                <div className={styles.drawerColLeft}>
+                  <div className={styles.drawerPhotoCell}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={DRAWER_SAMPLE_PHOTOS.dalatLead}
+                      alt="Nhóm bạn chụp ảnh kỷ niệm giữa đồi thông Đà Lạt"
+                      className={styles.drawerImg}
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className={styles.drawerPhotoCell}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={SAMPLE_PHOTO_URLS[1]}
+                      alt="Ảnh chụp chung của nhóm bạn thân"
+                      className={styles.drawerImg}
+                      loading="lazy"
+                    />
+                  </div>
                 </div>
-                <div className={styles.drawerPhotoCol}>
-                  <div className={styles.drawerPhotoSmall}>
+                <div className={styles.drawerColRight}>
+                  <div className={styles.drawerPhotoCell}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={DRAWER_SAMPLE_PHOTOS.dalatCoffee}
@@ -65,7 +76,7 @@ export function FeaturesSection() {
                       loading="lazy"
                     />
                   </div>
-                  <div className={styles.drawerPhotoSmall}>
+                  <div className={styles.drawerPhotoCell}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={DRAWER_SAMPLE_PHOTOS.dalatHomestay}
@@ -83,22 +94,43 @@ export function FeaturesSection() {
               </div>
             </div>
 
-            <div className={styles.drawerCardSecondary}>
-              <div className={styles.drawerSecondaryThumb}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={DRAWER_SAMPLE_PHOTOS.anniversaryCover}
-                  alt="Ảnh bìa ngăn kéo Kỷ niệm 1 năm"
-                  className={styles.drawerImg}
-                  loading="lazy"
-                />
+            <div className={styles.drawerSecondaryRow}>
+              <div className={styles.drawerCardSecondary}>
+                <div className={styles.drawerSecondaryThumb}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={SAMPLE_PHOTO_URLS[0]}
+                    alt="Ảnh bìa ngăn kéo Hội bạn Đại học"
+                    className={styles.drawerImg}
+                    loading="lazy"
+                  />
+                </div>
+                <div className={styles.drawerSecondaryInfo}>
+                  <span className={styles.drawerSecondaryTitle}>Hội bạn Đại học</span>
+                  <span className={styles.drawerSecondaryMeta}>
+                    <Users size={12} aria-hidden="true" />
+                    <span>Chia sẻ · 31/50 ảnh</span>
+                  </span>
+                </div>
               </div>
-              <div className={styles.drawerSecondaryInfo}>
-                <span className={styles.drawerSecondaryTitle}>Kỷ niệm 1 năm</span>
-                <span className={styles.drawerSecondaryMeta}>
-                  <Lock size={12} aria-hidden="true" />
-                  <span>Riêng tư · 24/50 ảnh</span>
-                </span>
+
+              <div className={styles.drawerCardSecondary}>
+                <div className={styles.drawerSecondaryThumb}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={DRAWER_SAMPLE_PHOTOS.anniversaryCover}
+                    alt="Ảnh bìa ngăn kéo Kỷ niệm 1 năm"
+                    className={styles.drawerImg}
+                    loading="lazy"
+                  />
+                </div>
+                <div className={styles.drawerSecondaryInfo}>
+                  <span className={styles.drawerSecondaryTitle}>Kỷ niệm 1 năm</span>
+                  <span className={styles.drawerSecondaryMeta}>
+                    <Lock size={12} aria-hidden="true" />
+                    <span>Riêng tư · 24/50 ảnh</span>
+                  </span>
+                </div>
               </div>
             </div>
           </div>

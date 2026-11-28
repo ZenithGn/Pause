@@ -30,6 +30,8 @@ data class PrintOrder(
     val shippingPhone: String,
     val shippingAddress: String,
     val note: String? = null,
+    val coverType: String = "soft",
+    val paperType: String = "standard",
     val status: OrderStatus = OrderStatus.PENDING,
     val adminNotes: String? = null,
     val createdAt: Instant? = null,

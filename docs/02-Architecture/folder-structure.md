@@ -1,6 +1,6 @@
 # Cấu trúc thư mục dự án (Folder Structure)
 
-> Cập nhật lần cuối: sau khi hoàn thành **FR-01 – Authentication & Account**.
+> Cập nhật lần cuối: sau khi tách **Web Admin (`app/web-admin/`)** và xây dựng **Web User (`app/web-user/`)**.
 > Cấu trúc dưới đây phản ánh code thực tế trong repo.
 
 ## Tổng quan Monorepo
@@ -8,32 +8,36 @@
 ```
 Pause/
 ├── 📄 AGENTS.md                    # Hướng dẫn AI coding agents
+├── 📄 DESIGN.md                    # Hệ thống thiết kế thương hiệu Pause
 ├── 📄 .gitignore
+├── 📂 .github/workflows/           # GitHub Actions CI/CD (ci-mobile, ci-supabase, ci-web-admin, ci-web-user)
 ├── 📂 docs/                        # 📚 Tài liệu dự án
 │   ├── 📂 01-BA/                   # Business Analysis
 │   │   ├── 📂 SRS/                 # 00-overview, 01-fr, 02-nfr
 │   │   ├── domain-glossary.md
 │   │   └── production.md
-│   ├── 📂 02-Architecture/         # system-design.md, folder-structure.md
-│   ├── 📂 03-References/           # db-schema.md, screen-inventory.md
+│   ├── 📂 02-Architecture/         # system-design.md, folder-structure.md, ci-cd-guide.md
+│   ├── 📂 03-References/           # db-schema.md, screen-inventory.md, storage-strategy.md
 │   └── 📂 04-Plans/
-│       ├── 📂 active/              # task-breakdown.md (FR đang làm)
+│       ├── 📂 active/              # task-breakdown & design prompts đang triển khai
 │       └── 📂 completed/           # Biên bản hoàn thành từng module
 │
 ├── 📂 supabase/                    # 🗄️ Backend (migrations, config, email templates)
 │   ├── config.toml                 # Auth providers, email templates, rate limit
-│   ├── migrations/                 # SQL migrations (profiles, drawers, photos, shares, RLS)
+│   ├── migrations/                 # SQL migrations (profiles, drawers, photos, shares, FR-04..FR-07, FR-06 admin)
+│   ├── seed/                       # admin_seed.sql (dữ liệu mẫu local/staging)
 │   ├── templates/                  # Email xác nhận + khôi phục mật khẩu
-│   ├── functions/create-thumbnail/ # (tuỳ chọn) Edge Function backfill thumbnail
-│   ├── tests/                      # validate_migrations.py (chạy SQL trên Postgres embedded)
+│   ├── functions/                  # Edge Functions (create-thumbnail, payos-webhook, send-notification, ...)
+│   ├── tests/                      # validate_migrations.py (149+ checks trên Postgres embedded)
 │   └── README.md                   # Hướng dẫn setup project Supabase
 │
 └── 📂 app/
-    ├── 📂 mobile/                  # 📱 Android app (Kotlin + Compose) — đã khởi tạo
-    └── 📂 web/                     # 🌐 Next.js (landing + admin) — chưa khởi tạo
+    ├── 📂 mobile/                  # 📱 Android app (Kotlin + Compose)
+    ├── 📂 web-admin/               # 🛠️ Next.js 15 App Router (FR-06 Admin Dashboard, port 3000)
+    └── 📂 web-user/                # 🌐 Next.js 15 App Router (Public Showcase, Preview 3D & Download, port 3001)
 ```
 
-> **Ghi chú**: `supabase/` đặt ở root (không phải `app/web/supabase/`) vì migration
+> **Ghi chú**: `supabase/` đặt ở root (không phải `app/web-admin/supabase/`) vì migration
 > là backend dùng chung cho cả mobile và web, và `supabase` CLI mặc định tìm thư mục
 > này ở root repo.
 
@@ -109,26 +113,123 @@ Khi làm FR-02+ sẽ bổ sung các package `drawer/`, `photo/`, `photobooth/`, 
 
 ---
 
-## Chi tiết Web App (Next.js – dự kiến)
+## Chi tiết Web Admin (`app/web-admin/` – Next.js App Router, FR-06 Admin)
 
-> Sẽ được khởi tạo khi bắt đầu module FR-06 (Admin).
+> Đã triển khai trên nhánh `webapp-dev` (chạy port `3000`, workflow `.github/workflows/ci-web-admin.yml`): TypeScript strict, Vanilla CSS / CSS Modules (MD3 tokens), không dùng TailwindCSS.
 
 ```
-app/web/
-├── 📄 package.json
-├── 📄 next.config.ts
-├── 📄 tsconfig.json
+app/web-admin/
+├── 📄 .env.example
+├── 📄 .gitignore
+├── 📄 eslint.config.mjs
+├── 📄 next.config.ts                       # Security headers (X-Frame-Options, nosniff, Referrer-Policy) + remotePatterns
+├── 📄 package.json · package-lock.json
+├── 📄 playwright.config.ts                 # Cấu hình E2E 4 trình duyệt (chromium, firefox, webkit, msedge)
+├── 📄 README.md                            # Setup, env, deploy Vercel, hướng dẫn UI kit
+├── 📄 tsconfig.json                        # strict: true, @/* -> ./src/*
+├── 📄 vercel.json                          # framework: nextjs, regions: ["sin1"]
+├── 📄 vitest.config.ts · vitest.setup.ts   # Vitest + React Testing Library (jsdom)
+├── 📂 src/
+│   ├── 📄 middleware.ts                    # Refresh Supabase session + chặn /admin/** (trừ /admin/login, /admin/forbidden)
+│   ├── 📂 app/
+│   │   ├── 📄 layout.tsx                   # Root layout + ToastProvider
+│   │   ├── 📄 page.tsx · page.module.css   # Landing placeholder dẫn tới /admin/login
+│   │   ├── 📂 (admin-auth)/admin/login/
+│   │   │   ├── 📄 page.tsx · LoginForm.tsx · login.module.css
+│   │   │   └── 📄 actions.ts               # signInAdminAction (kiểm tra is_admin() & is_locked), signOutAdminAction
+│   │   ├── 📂 (admin)/admin/
+│   │   │   ├── 📄 layout.tsx               # requireAdmin() + AdminShell
+│   │   │   ├── 📄 page.tsx                 # FR-06.5 Dashboard thống kê (Suspense + ErrorBoundary từng widget)
+│   │   │   ├── 📄 error.tsx · loading.tsx · not-found.tsx
+│   │   │   ├── 📂 forbidden/page.tsx
+│   │   │   ├── 📂 users/
+│   │   │   │   ├── 📄 page.tsx · loading.tsx
+│   │   │   │   └── 📂 [id]/ (page.tsx, loading.tsx, not-found.tsx)
+│   │   │   ├── 📂 templates/
+│   │   │   │   ├── 📄 page.tsx · loading.tsx
+│   │   │   │   ├── 📂 new/page.tsx
+│   │   │   │   └── 📂 [id]/page.tsx
+│   │   │   ├── 📂 orders/
+│   │   │   │   ├── 📄 page.tsx · loading.tsx
+│   │   │   │   └── 📂 [id]/ (page.tsx, not-found.tsx, print/page.tsx)
+│   │   │   ├── 📂 membership/
+│   │   │   │   ├── 📄 page.tsx             # Redirect sang /admin/membership/plans
+│   │   │   │   ├── 📂 plans/ (page.tsx, new/page.tsx, [id]/page.tsx)
+│   │   │   │   └── 📂 subscribers/page.tsx
+│   │   │   └── 📂 transactions/page.tsx    # FR-05.2 đối soát giao dịch phía admin
+│   │   └── 📂 api/admin/orders/[id]/print-pack/
+│   │       └── 📄 route.ts                 # GET zip gói in (requireAdmin + JSZip)
+│   ├── 📂 components/
+│   │   ├── 📂 layout/                      # AdminShell, AdminSidebar, AdminHeader, PageHeader (+ .module.css)
+│   │   └── 📂 ui/                          # MD3 UI Kit: Button, IconButton, TextField, Textarea, Select, Switch,
+│   │                                       # Checkbox, Card, StatusChip, DataTable, Pagination, SearchInput, FilterBar,
+│   │                                       # DateRangePicker, Dialog, ConfirmDialog, Toast, EmptyState, ErrorState,
+│   │                                       # Skeleton (+ .module.css & ui.test.tsx)
+│   ├── 📂 features/
+│   │   ├── 📂 dashboard/                   # analytics.ts, date-range.ts, queries.ts, components/ (KPI, RevenueChart, OrderStatus, MembershipDistribution, TopTemplates, RecentActivity, Skeletons, ErrorBoundary)
+│   │   ├── 📂 users/                       # queries.ts, actions.ts (khóa/mở khóa + rollback Auth), schemas.ts, components/ (UsersFilters, UsersTable, UserDetailView, UserLockButton, UserAvatar, UserTierChip)
+│   │   ├── 📂 templates/                   # queries.ts, actions.ts, schemas.ts, mock-store.ts, layout/ (presets, json-line-map), components/ (TemplatesListView, TemplateForm, TemplateImageUploader, VisualLayoutEditor, MobileTemplatePreview)
+│   │   ├── 📂 orders/                      # queries.ts, actions.ts, schemas.ts, status-machine.ts, csv.ts, print-pack.ts, components/ (OrdersListView, OrderStatusPanel, OrderNotesEditor, ShippingInfoCard, PrintShippingSlip, SafeOrderImage)
+│   │   ├── 📂 membership/                  # queries.ts, actions.ts, schemas.ts, mock-store.ts, components/ (PlansView, MembershipPlanForm, SubscribersView)
+│   │   └── 📂 transactions/                # queries.ts, components/ (TransactionsView)
+│   ├── 📂 lib/
+│   │   ├── 📂 auth/require-admin.ts        # Guard server: auth.getUser() + RPC is_admin() + is_locked
+│   │   ├── 📂 cloudinary/sign-upload.ts    # server-only: ký upload Cloudinary pause/templates + fallback Supabase bucket templates
+│   │   ├── 📂 supabase/ (client.ts, server.ts, admin.ts)   # admin.ts = service role, server-only
+│   │   ├── 📄 public-env.ts                # Chỉ NEXT_PUBLIC_* (an toàn cho Client Components)
+│   │   ├── 📄 env.ts                       # Validation biến môi trường server + re-export public-env
+│   │   ├── 📄 action-result.ts · errors.ts · format.ts · pagination.ts · nav.ts · mock-data.ts · payment-timeout.ts
+│   ├── 📂 styles/ (tokens.css, globals.css)
+│   └── 📂 types/ (admin.ts, database.ts)
+└── 📂 tests/
+    ├── 📂 unit/                            # auth-guard.test.ts, dashboard.test.ts, membership.test.ts, orders.test.ts, payment-timeout.test.ts, templates.test.ts, users.test.ts
+    └── 📂 e2e/                             # playwright.d.ts, auth.spec.ts, admin-flows.spec.ts
+```
+
+---
+
+## Chi tiết Web User (`app/web-user/` – Public Showcase, Preview 3D & Download)
+
+> Chạy độc lập ở port `3001`, workflow `.github/workflows/ci-web-user.yml`. TypeScript strict, Vanilla CSS / CSS Modules (3-color palette: Wine `#630D11`, White/Paper `#FFFFFF`/`#F7F6F5`, Gold `#C59B38`), Three.js (`@react-three/fiber`, `@react-three/drei`), chỉ đọc công khai Supabase qua anon key (tuyệt đối không dùng service role hay secret server).
+
+```
+app/web-user/
+├── 📄 .env.example                         # NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, NEXT_PUBLIC_ANDROID_APK_URL, NEXT_PUBLIC_CAMERA_GLB_URL
+├── 📄 .gitignore
+├── 📄 eslint.config.mjs
+├── 📄 next.config.ts                       # transpilePackages: ["three"], security headers, images.remotePatterns
+├── 📄 package.json · package-lock.json
+├── 📄 README.md                            # Hướng dẫn chạy dev port 3001 & scripts kiểm tra
+├── 📄 tsconfig.json                        # strict: true, @/* -> ./src/*
+├── 📄 vercel.json                          # framework: nextjs, regions: ["sin1"]
+├── 📄 vitest.config.ts · vitest.setup.ts   # Vitest + React Testing Library (jsdom)
+├── 📂 public/
+│   └── 📂 samples/                         # sample-1.svg .. sample-4.svg (ảnh mẫu dùng cho nút Điền ảnh mẫu nhanh)
 ├── 📂 src/
 │   ├── 📂 app/
-│   │   ├── layout.tsx
-│   │   ├── page.tsx                  # Landing page
-│   │   ├── about/page.tsx
-│   │   ├── download/page.tsx
-│   │   └── admin/                    # Dashboard, users, templates, orders, membership
-│   ├── 📂 components/                # ui/, layout/, admin/
+│   │   ├── 📄 icon.svg                     # Favicon monogram Pause (Đỏ rượu vang + viền Vàng đồng)
+│   │   ├── 📄 layout.tsx                   # Plus Jakarta Sans + Be Vietnam Pro + Navbar + Footer
+│   │   ├── 📄 page.tsx                     # Trang chủ (/) – Hero, Ngăn kéo, 3 bước in, Bảng giá Membership & Camera 3D bookend
+│   │   ├── 📄 not-found.tsx · error.tsx · status-page.module.css   # Trang 404 & khôi phục lỗi thương hiệu Pause
+│   │   ├── 📄 robots.ts · sitemap.ts       # SEO công khai cho /, /preview, /download
+│   │   ├── 📂 preview/ (page.tsx, loading.tsx)  # Studio Preview mẫu in 3D (/preview)
+│   │   └── 📂 download/page.tsx            # Trang tải phần mềm Android APK, QR SVG, hướng dẫn 3 bước & FAQ (/download)
+│   ├── 📂 components/
+│   │   ├── 📂 layout/                      # Navbar (+ .module.css), Footer (+ .module.css)
+│   │   └── 📂 three/                       # WebGLErrorBoundary, CameraModelSlot, VintageCameraModel, CameraScrollStage, PrintPreviewScene3D, PrintPreviewFallback2D
+│   ├── 📂 features/
+│   │   ├── 📂 home/                        # HomeExperience, scroll-choreography.ts, Hero, Features, Process, Pricing, DownloadCta
+│   │   ├── 📂 preview/                     # PreviewStudio, preview-state.ts, TemplateSelector, PhotoSlotManager, MaterialControls
+│   │   └── 📂 download/                    # apk-config.ts, qr-svg.ts, DownloadHero, DownloadActions, QrCodeCard, InstallSteps, DownloadFaq
 │   ├── 📂 lib/
-│   │   └── supabase.ts
-│   └── 📂 styles/globals.css
+│   │   ├── 📄 supabase-public.ts           # Anon-only read client (photobooth_templates, membership_plans)
+│   │   ├── 📄 catalog-data.ts              # Fetch Supabase + fallback 6 templates & 4 gói membership chuẩn
+│   │   ├── 📄 template-canvas.ts           # Pure Canvas2D renderer (front crop-fill + back watermark) -> THREE.CanvasTexture
+│   │   └── 📄 webgl-support.ts             # Kiểm tra khả năng WebGL an toàn & tự giải phóng probe context
+│   ├── 📂 styles/ (tokens.css, globals.css)
+│   └── 📂 types/catalog.ts
+└── 📂 tests/
+    └── 📂 unit/                            # home-scroll.test.ts, template-canvas.test.ts, preview-studio.test.ts, download.test.ts, webgl-and-shell.test.ts
 ```
 
 ---

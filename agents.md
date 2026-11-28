@@ -9,8 +9,9 @@
 
 **Pause** là ứng dụng kết hợp **lưu trữ kỷ niệm số** và **in ấn photobooth theo yêu cầu (print-on-demand)**.
 
-- Người dùng tạo "Ngăn kéo Kỷ niệm" để lưu ảnh → chia sẻ với bạn bè → chọn template photobooth → fill ảnh → đặt in
-- Mô hình Freemium: Free (3 ngăn kéo × 256 MB) + Gói hội viên trả phí + Doanh thu in ấn
+- Người dùng tạo "Ngăn kéo" để lưu ảnh → chia sẻ với bạn bè → chọn template photobooth → fill ảnh → đặt in
+- Mô hình Freemium: Free (3 ngăn kéo, tối đa 50 ảnh / ngăn kéo) + Gói hội viên trả phí (PAUSE Go, Plus, Premium) + Doanh thu in ấn
+- Thanh toán: **VietQR Pro / PayOS** (App-to-App Open Banking với auto-detection khi quay lại app) & COD in ấn
 
 ---
 
@@ -22,7 +23,7 @@
 | **Web App** | Next.js 14+ (App Router) + TypeScript | Landing page + Admin dashboard. KHÔNG chứa logic nghiệp vụ mobile |
 | **Backend** | Supabase (PostgreSQL + Auth + Storage + Edge Functions) | Managed BaaS – không tự deploy backend riêng |
 | **Auth** | Supabase Auth (Email/Password + Google OAuth) | JWT-based, RLS cho phân quyền |
-| **Storage** | Supabase Storage (S3-compatible) | Private buckets, signed URL |
+| **Storage** | **Cloudinary** (ảnh ngăn kéo + preview photobooth) + Supabase Storage (avatar/templates, private buckets, signed URL) | Chi tiết: `docs/03-References/storage-strategy.md` |
 | **Push Notification** | Firebase Cloud Messaging (FCM) | Android only |
 | **CI/CD** | Vercel (web), Manual (mobile → Play Store) | |
 
@@ -65,7 +66,7 @@ Pause/
   - `domain/` → Use Cases + Repository interfaces + Domain models
   - `data/` → Repository implementations + DTOs + Supabase SDK calls
 - UI: **Jetpack Compose** (không dùng XML layouts)
-- DI: **Hilt** (ưu tiên) hoặc Koin
+- DI: **Koin** (dự án Mobile đang sử dụng Koin)
 - Image loading: **Coil**
 - Navigation: **Compose Navigation**
 - Naming: PascalCase cho classes/files, camelCase cho functions/variables
@@ -91,7 +92,9 @@ Pause/
 1. **KHÔNG bao giờ** hardcode credentials, API keys, hoặc secrets trong source code
 2. Sử dụng environment variables cho tất cả config nhạy cảm
 3. **KHÔNG** disable RLS trên bất kỳ bảng nào
-4. Ảnh người dùng **phải** nằm trong private bucket, truy cập qua signed URL
+4. Ảnh người dùng không được liệt kê công khai: ảnh ngăn kéo/preview dùng Cloudinary
+   URL không đoán được (unsigned preset), avatar dùng private bucket + signed URL;
+   khi lên production nên chuyển sang signed upload/authenticated delivery
 5. Validate input ở cả client và server (Edge Functions)
 6. Không lưu thông tin thanh toán (thẻ, tài khoản) trên hệ thống
 
@@ -124,4 +127,4 @@ Theo thứ tự ưu tiên:
 - **Supabase là backend duy nhất**. Không tạo backend riêng (Express, NestJS...).
 - Khi thêm bảng mới → cập nhật `db-schema.md`.
 - Khi thêm FR mới → cập nhật `01-fr.md`.
-- Giới hạn storage: **256 MB / ngăn kéo (free tier), 3 ngăn kéo / user**. Logic này phải enforce ở cả client và server. Chi tiết: `docs/03-References/storage-strategy.md`.
+- Giới hạn storage: **Tối đa 50 ảnh / ngăn kéo (free tier), 3 ngăn kéo / user**. Gói hội viên mở rộng dung lượng đám mây (5GB – 20GB/năm) và mở khóa toàn bộ VIP Templates. Chi tiết: `docs/03-References/storage-strategy.md`.

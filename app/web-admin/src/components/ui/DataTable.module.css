@@ -1,0 +1,96 @@
+.wrapper {
+  width: 100%;
+  background-color: var(--md-sys-color-surface);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+}
+
+.scrollArea {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: var(--text-body-md);
+}
+
+.thead {
+  background-color: var(--md-sys-color-surface-container-low);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.th {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-label-md);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--md-sys-color-on-surface-variant);
+  white-space: nowrap;
+}
+
+.sortButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+
+.sortButton:hover {
+  color: var(--md-sys-color-primary);
+}
+
+.sortIconActive {
+  color: var(--md-sys-color-primary);
+}
+
+.tr {
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  transition: background-color var(--transition-fast);
+}
+
+.tr:last-child {
+  border-bottom: none;
+}
+
+.tr:hover {
+  background-color: var(--md-sys-color-surface-container-low);
+}
+
+.trClickable {
+  cursor: pointer;
+}
+
+.td {
+  padding: var(--space-3) var(--space-4);
+  color: var(--md-sys-color-on-surface);
+  vertical-align: middle;
+}
+
+.alignLeft {
+  text-align: left;
+}
+
+.alignCenter {
+  text-align: center;
+}
+
+.alignRight {
+  text-align: right;
+}
+
+.alignRight .sortButton {
+  flex-direction: row-reverse;
+}

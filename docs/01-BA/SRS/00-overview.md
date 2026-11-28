@@ -10,9 +10,9 @@ Tài liệu Đặc tả Yêu cầu Phần mềm (SRS) mô tả chi tiết các y
 
 **Pause** là nền tảng giúp người dùng:
 
-- **Lưu trữ & phân loại** ảnh kỷ niệm vào các "Ngăn kéo kỷ niệm" (Memory Drawers)
+- **Lưu trữ & phân loại** ảnh kỷ niệm vào các "Ngăn kéo" (Memory Drawers)
 - **Thiết kế & in ấn** ảnh photobooth từ các template có sẵn
-- **Chia sẻ** kỷ niệm với bạn bè, người thân thông qua cơ chế phân quyền
+- **Chia sẻ** kỷ niệm với bạn bè, người thân thông qua cơ chế phân quyền (Xem / Chỉnh sửa)
 
 ### 1.3 Đối tượng người dùng
 
@@ -60,15 +60,16 @@ Trong thời đại số, ảnh chụp bị phân tán trên nhiều nền tản
 ┌─────────────────────────────────────────────────────────────┐
 │                      PAUSE PLATFORM                         │
 ├─────────────────────┬────────────────────┬──────────────────┤
-│  Ngăn kéo Kỷ niệm  │  Photobooth Print  │  Gói Hội viên   │
+│      Ngăn kéo       │  Photobooth Print  │  Gói Hội viên   │
 │  (Memory Drawers)   │  (Print-on-Demand) │  (Membership)    │
 ├─────────────────────┼────────────────────┼──────────────────┤
 │ • Tạo/quản lý       │ • Chọn template    │ • Thêm ngăn kéo  │
-│   ngăn kéo          │ • Fill ảnh từ      │ • Template mới   │
-│ • Upload ảnh        │   ngăn kéo         │ • Tăng dung lượng│
-│ • Phân quyền        │ • Preview & đặt in │                  │
-│   chia sẻ           │ • Theo dõi đơn hàng│                  │
-│ • Giới hạn 256MB/   │                    │                  │
+│   ngăn kéo          │ • Fill ảnh từ      │   (10, 25, 50)   │
+│ • Đặt ảnh bìa       │   ngăn kéo         │ • 100% VIP Frame │
+│ • Upload ảnh        │ • Preview & đặt in │ • Tăng dung lượng│
+│ • Phân quyền        │ • Theo dõi đơn hàng│   đám mây 5-20GB │
+│   chia sẻ           │                    │ • VietQR PayOS   │
+│ • Giới hạn 50 ảnh/  │                    │   App-to-App     │
 │   ngăn kéo          │                    │                  │
 │ • Mặc định 3        │                    │                  │
 │   ngăn kéo/user     │                    │                  │
@@ -83,13 +84,13 @@ Trong thời đại số, ảnh chụp bị phân tán trên nhiều nền tản
 
 - Hệ thống là dự án EXE (Entrepreneurship) tại FPT University
 - MVP cần hoàn thành trong 1 học kỳ
-- Mô hình doanh thu: **Freemium** (miễn phí cơ bản + gói hội viên trả phí) + **doanh thu từ in ấn**
+- Mô hình doanh thu: **Freemium** (miễn phí cơ bản + gói hội viên trả phí PAUSE Go, Plus, Premium) + **doanh thu từ in ấn**
 
 ### 3.2 Ràng buộc kỹ thuật
 
 - Mobile app chỉ hỗ trợ **Android** trong MVP
 - Backend sử dụng **Supabase** (managed service) để giảm chi phí vận hành
-- Giới hạn dung lượng lưu trữ: **256 MB / ngăn kéo** (free tier, tổng ~768 MB), **3 ngăn kéo / user**
+- Giới hạn dung lượng lưu trữ: **50 ảnh / ngăn kéo** (free tier, tối đa 3 ngăn kéo / user). Gói hội viên mở rộng dung lượng đám mây (5GB – 20GB/năm) và số ngăn kéo (10 – 50 ngăn kéo).
 
 ### 3.3 Ràng buộc pháp lý
 

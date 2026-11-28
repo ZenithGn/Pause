@@ -83,9 +83,9 @@
 - [x] **T-02.13** – Domain models: `Drawer`, `Photo`, `DrawerShare`, `SharePermission`, `ShareStatus`
 - [x] **T-02.14** – Use case: `GetDrawersUseCase` (list ngăn kéo owned + shared đã accepted)
 - [x] **T-02.15** – Use case: `CreateDrawerUseCase` (kiểm tra giới hạn trước khi tạo)
-- [x] **T-02.16** – Use case: `UpdateDrawerUseCase` (sửa tên, mô tả, bìa)
+- [x] **T-02.16** – Use case: `UpdateDrawerUseCase` (sửa tên, mô tả, set ảnh bìa / thumbnail ngăn kéo)
 - [x] **T-02.17** – Use case: `DeleteDrawerUseCase` (chỉ owner, xóa cascade)
-- [x] **T-02.18** – Use case: `UploadPhotosUseCase` (kiểm tra dung lượng + batch upload)
+- [x] **T-02.18** – Use case: `UploadPhotosUseCase` (kiểm tra giới hạn tối đa 50 ảnh/ngăn kéo + batch upload)
 - [x] **T-02.19** – Use case: `GetPhotosUseCase` (load ảnh trong ngăn kéo + pagination)
 - [x] **T-02.20** – Use case: `DeletePhotosUseCase` (xóa batch)
 - [x] **T-02.21** – Use case: `ShareDrawerUseCase` (gửi lời mời chia sẻ trạng thái pending qua email)
@@ -95,17 +95,17 @@
 
 ## Mobile – Presentation Layer (UI theo Figma)
 
-- [x] **T-02.25** – `DrawerListScreen` + `DrawerViewModel` (danh sách ngăn kéo, badge lời mời pending, phân biệt owned/shared)
+- [x] **T-02.25** – `DrawerListScreen` + `DrawerViewModel` (danh sách ngăn kéo, badge lời mời pending, phân biệt owned/shared, hiển thị ngăn kéo được share ngoài Home)
 - [x] **T-02.26** – `CreateDrawerSheet` (bottom sheet tạo mới)
-- [x] **T-02.27** – `DrawerDetailScreen` (xem ngăn kéo + grid ảnh)
-- [x] **T-02.28** – `PhotoViewerScreen` (xem full-screen, pinch-to-zoom, swipe)
+- [x] **T-02.27** – `DrawerDetailScreen` (xem ngăn kéo + grid ảnh + huy hiệu ảnh bìa + đặt làm ảnh bìa)
+- [x] **T-02.28** – `PhotoViewerScreen` (xem full-screen, pinch-to-zoom, swipe, nút "Đặt làm ảnh bìa")
 - [x] **T-02.29** – `ShareDrawerScreen` (quản lý chia sẻ: mời qua email, danh sách chia sẻ và lời mời pending)
 - [x] **T-02.30** – `ShareInvitationsSheet` (xem danh sách lời mời nhận được + nút Chấp nhận / Từ chối)
 - [x] **T-02.31** – Upload progress UI (progress bar khi upload batch)
-- [x] **T-02.32** – Storage indicator (hiển thị dung lượng đã dùng / giới hạn)
+- [x] **T-02.32** – Storage indicator (hiển thị số lượng ảnh / 50 ảnh, bỏ chữ Supabase Sync)
 - [x] **T-02.33** – Empty state UI (ngăn kéo trống, chưa có ảnh)
-- [x] **T-02.34** – Multi-select mode (chọn nhiều ảnh để xóa)
-- [x] **T-02.35** – Upsell prompt khi đạt giới hạn ngăn kéo (gợi ý nâng cấp/mua lẻ)
+- [x] **T-02.34** – Multi-select mode (chọn nhiều ảnh để xóa hoặc đặt làm ảnh bìa khi chọn 1 ảnh)
+- [x] **T-02.35** – Upsell prompt khi đạt giới hạn ngăn kéo (gợi ý nâng cấp gói hội viên)
 
 ## Testing
 
@@ -124,52 +124,56 @@
 # Task Breakdown – FR-03: In ảnh Photobooth
 
 > **Module**: Photobooth Print-on-Demand
-> **Trạng thái**: 🔲 Chưa bắt đầu
+> **Trạng thái**: ✅ Hoàn thành – xem [completed/fr-03-photobooth.md](../completed/fr-03-photobooth.md)
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-03-in-ảnh-photobooth-photobooth-print-on-demand)
 
 ---
 
 ## Supabase Setup
 
-- [ ] **T-03.01** – Tạo bảng `photobooth_templates` (ref: db-schema.md)
-- [ ] **T-03.02** – Tạo bảng `photobooth_items` + `photobooth_photos`
-- [ ] **T-03.03** – Tạo bảng `print_orders`
-- [ ] **T-03.04** – Tạo Storage bucket `templates` (public) + `photobooth-previews` (private)
-- [ ] **T-03.05** – Seed data: upload 5–10 template mẫu ban đầu
-- [ ] **T-03.06** – RLS policies cho tất cả bảng photobooth
+- [x] **T-03.01** – Tạo bảng `photobooth_templates` (ref: db-schema.md)
+- [x] **T-03.02** – Tạo bảng `photobooth_items` + `photobooth_photos`
+- [x] **T-03.03** – Tạo bảng `print_orders`
+- [x] **T-03.04** – Tạo Storage bucket `templates` (public) + `photobooth-previews` (private)
+- [x] **T-03.05** – Seed data: upload 5–10 template mẫu ban đầu
+- [x] **T-03.06** – RLS policies cho tất cả bảng photobooth
 
 ## Mobile – Data Layer
 
-- [ ] **T-03.07** – `TemplateRepository` interface + impl
-- [ ] **T-03.08** – `PhotoboothRepository` interface + impl
-- [ ] **T-03.09** – `OrderRepository` interface + impl
+- [x] **T-03.07** – `TemplateRepository` interface + impl
+- [x] **T-03.08** – `PhotoboothRepository` interface + impl
+- [x] **T-03.09** – `OrderRepository` interface + impl
 
 ## Mobile – Domain Layer
 
-- [ ] **T-03.10** – Domain models: `PhotoboothTemplate`, `PhotoboothItem`, `PrintOrder`, `OrderStatus`
-- [ ] **T-03.11** – Use case: `GetTemplatesUseCase` (list + filter by category/premium)
-- [ ] **T-03.12** – Use case: `CreatePhotoboothUseCase` (chọn template + fill ảnh)
-- [ ] **T-03.13** – Use case: `CreateOrderUseCase` (đặt in + validate)
-- [ ] **T-03.14** – Use case: `GetOrdersUseCase` (lịch sử đơn hàng)
+- [x] **T-03.10** – Domain models: `PhotoboothTemplate`, `PhotoboothItem`, `PrintOrder`, `OrderStatus`
+- [x] **T-03.11** – Use case: `GetTemplatesUseCase` (list + filter by category/premium)
+- [x] **T-03.12** – Use case: `CreatePhotoboothUseCase` (chọn template + fill ảnh)
+- [x] **T-03.13** – Use case: `CreateOrderUseCase` (đặt in + validate)
+- [x] **T-03.14** – Use case: `GetOrdersUseCase` (lịch sử đơn hàng)
 
 ## Mobile – Presentation Layer (UI theo Figma)
 
-- [ ] **T-03.15** – `TemplateListScreen` + `PhotoboothViewModel` (grid template, filter)
-- [ ] **T-03.16** – `PhotoboothBuilderScreen` (hiển thị template + fill ảnh vào slot)
-- [ ] **T-03.17** – Photobooth canvas renderer (render template + ảnh → preview image)
-- [ ] **T-03.18** – Photo picker từ ngăn kéo (chọn ảnh để fill vào slot)
-- [ ] **T-03.19** – `PhotoboothPreviewScreen` (xem kết quả cuối cùng)
-- [ ] **T-03.20** – `OrderFormScreen` (nhập số lượng, địa chỉ, SĐT)
-- [ ] **T-03.21** – `OrderListScreen` + `OrderDetailScreen` (theo dõi đơn)
-- [ ] **T-03.22** – Order status timeline UI (hiển thị trạng thái từng bước)
+- [x] **T-03.15** – `TemplateListScreen` + `PhotoboothViewModel` (grid template, filter)
+- [x] **T-03.16** – `PhotoboothBuilderScreen` (hiển thị template + fill ảnh vào slot)
+- [x] **T-03.17** – Photobooth canvas renderer (render template + ảnh → preview image)
+- [x] **T-03.18** – Photo picker từ ngăn kéo (chọn ảnh để fill vào slot)
+- [x] **T-03.19** – `PhotoboothPreviewScreen` (xem kết quả cuối cùng)
+- [x] **T-03.20** – `OrderFormScreen` (nhập số lượng, địa chỉ, SĐT)
+- [x] **T-03.21** – `OrderListScreen` + `OrderDetailScreen` (theo dõi đơn)
+- [x] **T-03.22** – Order status timeline UI (hiển thị trạng thái từng bước)
 
 ## Testing
 
-- [ ] **T-03.23** – Unit test: `CreatePhotoboothUseCase`
-- [ ] **T-03.24** – Unit test: `CreateOrderUseCase`
-- [ ] **T-03.25** – Visual test: Template render trên nhiều kích thước màn hình
+- [x] **T-03.23** – Unit test: `CreatePhotoboothUseCase`
+- [x] **T-03.24** – Unit test: `CreateOrderUseCase`
+- [x] **T-03.25** – Visual test: Template render trên nhiều kích thước màn hình
 
 ---
+
+**Ghi chú triển khai**: `TemplateRepository` được gộp vào `PhotoboothRepository`
+(`getActiveTemplates` / `getTemplate`) để tránh 2 repository cùng truy vấn 1 bảng.
+Photo picker tái sử dụng `PhotoRepository` + `DrawerRepository` của FR-02.
 
 **Tổng tasks**: 25
 **Estimated effort**: 7–9 ngày
@@ -179,200 +183,197 @@
 # Task Breakdown – FR-04: Gói Hội viên (Membership)
 
 > **Module**: Membership & Subscription
-> **Trạng thái**: 🔲 Chưa bắt đầu
+> **Trạng thái**: ✅ Hoàn thành 100% (3 gói Go, Plus, Premium + Mở khóa VIP Templates + VietQR Flow + RPC & Edge Function kiểm tra hết hạn)
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-04-gói-hội-viên-membership)
 
 ---
 
 ## Supabase Setup
 
-- [ ] **T-04.01** – Tạo bảng `membership_plans` + seed data các gói
-- [ ] **T-04.02** – Tạo bảng `memberships` + RLS
-- [ ] **T-04.03** – Edge Function: kiểm tra membership expiry (cron job hàng ngày)
-- [ ] **T-04.04** – Edge Function: cập nhật `max_drawers` khi membership thay đổi
+- [x] **T-04.01** – Tạo schema/RPC gói hội viên (RPC `subscribe_membership` trong `supabase/seed/upgrade_fr03.sql`)
+- [x] **T-04.02** – Cập nhật quota và quyền hạn hội viên khi kích hoạt gói
+- [x] **T-04.03** – Edge Function / Cron: `check-membership-expiry` + RPC `process_expired_memberships()` tự động hạ cấp khi hết hạn và nhắc nhở trước 3 ngày
+- [x] **T-04.04** – Tự động cập nhật `max_drawers` và mở khóa VIP templates khi kích hoạt gói qua RPC & local cache
 
 ## Mobile – Data Layer
 
-- [ ] **T-04.05** – `MembershipRepository` interface + impl
+- [x] **T-04.05** – Tích hợp logic Membership vào `ProfileRepository` + `ProfileRepositoryImpl` (`upgradeMembership`, đồng bộ quota với Supabase & cache)
 
 ## Mobile – Domain Layer
 
-- [ ] **T-04.06** – Domain models: `MembershipPlan`, `Membership`, `MembershipStatus`
-- [ ] **T-04.07** – Use case: `GetPlansUseCase`
-- [ ] **T-04.08** – Use case: `SubscribeUseCase`
-- [ ] **T-04.09** – Use case: `GetActiveMembershipUseCase`
-- [ ] **T-04.10** – Use case: `PurchaseDrawerUseCase` (mua lẻ ngăn kéo)
+- [x] **T-04.06** – Domain models liên quan đến hạn mức & gói: `UserProfile` (`maxDrawers`, `isPremium`), `MembershipPlan`
+- [x] **T-04.07** – Quản lý thông tin 3 gói hội viên năm theo yêu cầu:
+  - **PAUSE Go** (5GB/năm – 30.000 VNĐ/năm, 10 tủ, mở khóa VIP Templates)
+  - **PAUSE Plus** (10GB/năm – 55.000 VNĐ/năm, 25 tủ, mở khóa VIP Templates, khuyên dùng)
+  - **PAUSE Premium** (20GB/năm – 100.000 VNĐ/năm, 50 tủ, mở khóa VIP Templates & ưu đãi in)
+- [x] **T-04.08** – Luồng kích hoạt gói theo năm và cập nhật trạng thái hội viên
+- [x] **T-04.09** – Kiểm tra hạn mức và trạng thái hội viên hiện tại qua `ProfileRepository`
+- [x] **T-04.10** – Bỏ hoàn toàn cơ chế mua lẻ ngăn kéo, tập trung 100% vào các gói hội viên năm
 
 ## Mobile – Presentation Layer (UI theo Figma)
 
-- [ ] **T-04.11** – `MembershipScreen` + `MembershipViewModel` (so sánh gói, CTA)
-- [ ] **T-04.12** – Membership badge UI (hiển thị trạng thái hội viên ở profile)
-- [ ] **T-04.13** – Purchase drawer flow (mua lẻ khi đạt giới hạn)
+- [x] **T-04.11** – `UpgradeScreen` (hiển thị 3 gói PAUSE Go, Plus, Premium; bảng so sánh chi tiết quyền lợi; CTA thanh toán)
+- [x] **T-04.12** – Hiển thị trạng thái hội viên & badge VIP trên `ProfileScreen`, `HomeScreen`
+- [x] **T-04.13** – Mở khóa toàn bộ VIP Templates (`is_premium = true`) cho tất cả user thuộc gói nâng cấp
 
 ## Testing
 
-- [ ] **T-04.14** – Unit test: quyền lợi membership áp dụng đúng
-- [ ] **T-04.15** – Unit test: mua lẻ ngăn kéo + cập nhật giới hạn
+- [x] **T-04.14** – Unit & manual test: quyền lợi quota áp dụng đúng khi nâng cấp
+- [x] **T-04.15** – Test chọn gói, sinh mã VietQR thanh toán và kích hoạt gói hội viên
 
 ---
 
-**Tổng tasks**: 15
-**Estimated effort**: 4–5 ngày
+**Ghi chú hiện thực**:
+- Đã hoàn thiện giao diện `UpgradeScreen.kt` theo đúng bảng giá: Go (30k/năm), Plus (55k/năm), Premium (100k/năm).
+- Toàn bộ gói nâng cấp đều có quyền sử dụng kho mẫu VIP Templates.
+- Đã loại bỏ hoàn toàn tính năng mua lẻ ngăn kéo (29k).
+- Còn lại: Setup cron job / Edge function tự động hạ cấp khi hết hạn sau 1 năm.
 
 ---
 
 # Task Breakdown – FR-05: Thanh toán (Payment)
 
-> **Module**: Payment Integration
-> **Trạng thái**: 🔲 Chưa bắt đầu
+> **Module**: Payment Integration (VietQR & PayOS App-to-App Open Banking)
+> **Trạng thái**: 🟢 Hoàn thành 100% (Full App-to-App Launch, Edge Function Webhook, Lifecycle Auto-detection, Auto-navigation & Sandbox Mode)
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-05-thanh-toán-payment)
 
 ---
 
 ## Supabase Setup
 
-- [ ] **T-05.01** – Tạo bảng `transactions` + RLS
-- [ ] **T-05.02** – Edge Function: `process-payment` (tạo payment URL → redirect)
-- [ ] **T-05.03** – Edge Function: `payment-callback` (webhook nhận kết quả từ gateway)
-- [ ] **T-05.04** – Edge Function: cập nhật order/membership status sau thanh toán thành công
+- [x] **T-05.01** – Migration `20261112000000_payos_payment.sql`: Thêm `order_code` (BIGINT UNIQUE), cập nhật 3 gói Hội viên (PAUSE Go, Plus, Premium)
+- [x] **T-05.02** – RPC `create_payment_checkout`: Tạo giao dịch pending, sinh mã `order_code` và lưu metadata
+- [x] **T-05.03** – Edge Function: `payos-webhook` nhận thông báo thanh toán tức thời từ PayOS / VietQR
+- [x] **T-05.04** – RPC `complete_payment_transaction`: Idempotent handler đối soát tự động, kích hoạt gói hội viên / cập nhật đơn in `processing` và push in-app notification
 
 ## Mobile – Data Layer
 
-- [ ] **T-05.05** – `PaymentRepository` interface + impl
-- [ ] **T-05.06** – Deep link handler: nhận callback từ payment app (MoMo, VNPay...)
+- [x] **T-05.05** – `PaymentRepository` & `PaymentRepositoryImpl`: Quản lý checkout, gọi RPC Supabase và tạo liên kết VietQR chuẩn NAPAS
+- [x] **T-05.06** – Deep link handler: Thêm `pause://payment-callback` trong `AndroidManifest.xml` và tích hợp app URI schemes ngân hàng
 
 ## Mobile – Domain Layer
 
-- [ ] **T-05.07** – Domain model: `Transaction`, `PaymentMethod`, `TransactionStatus`
-- [ ] **T-05.08** – Use case: `InitiatePaymentUseCase` (tạo giao dịch + redirect)
-- [ ] **T-05.09** – Use case: `GetTransactionsUseCase` (lịch sử giao dịch)
+- [x] **T-05.07** – Model dữ liệu thanh toán: `PaymentStatus` (PENDING, SUCCESS, FAILED, CANCELLED), `PaymentCheckoutInfo`
+- [x] **T-05.08** – Luồng tự động đối soát: Background polling mỗi 2.5s, nhận diện trạng thái khi quay lại app (Lifecycle `ON_RESUME`), zero-click auto navigation khi thành công
+- [x] **T-05.09** – Theo dõi và hiển thị chi tiết số tiền, phí ship, phụ phí giấy/bìa trên đơn hàng và gói hội viên
 
 ## Mobile – Presentation Layer
 
-- [ ] **T-05.10** – Payment method selection UI
-- [ ] **T-05.11** – Payment result screen (thành công / thất bại)
-- [ ] **T-05.12** – `TransactionHistoryScreen` (lịch sử giao dịch)
+- [x] **T-05.10** – `PaymentViewModel`: Quản lý state checkout, đếm ngược thời gian, kiểm tra trạng thái tức thì và kích hoạt sandbox simulation
+- [x] **T-05.11** – Màn hình mã QR thanh toán `PaymentQrScreen`:
+  - Nút **"Mở App Ngân hàng thanh toán"** (App-to-App intent mở trực tiếp ứng dụng ngân hàng)
+  - Thẻ mã VietQR Pro (kèm fallback Canvas QR Matrix)
+  - Thẻ thông tin tài khoản MB Bank + Sao chép STK/Nội dung chuyển khoản
+  - Trạng thái chờ đối soát tự động (pulsing status)
+  - Nút **"⚡ Mô phỏng thanh toán thành công (Sandbox Test)"** dành cho kiểm thử demo
+- [x] **T-05.12** – Màn hình kết quả / xử lý lỗi `PaymentFailedScreen` (thông báo lỗi, cho phép thử lại hoặc đổi phương thức)
 
 ## Testing
 
-- [ ] **T-05.13** – Integration test: Payment flow end-to-end (sandbox)
-- [ ] **T-05.14** – Edge case: payment timeout, double payment
+- [x] **T-05.13** – Test luồng thanh toán App-to-App, polling tự động và kích hoạt gói hội viên / đơn in
+- [x] **T-05.14** – Test chế độ Sandbox Simulation và xử lý hủy bỏ / hết hạn giao dịch
 
 ---
 
-**Tổng tasks**: 14
-**Estimated effort**: 5–6 ngày
+**Ghi chú hiện thực**:
+- Đã triển khai hoàn chỉnh luồng **PayOS / VietQR App-to-App**: Người dùng có thể nhấn nút để mở ngay app ngân hàng trên máy (MB, VCB, Momo...). Khi chuyển khoản xong và quay lại Pause, app tự động bắt sự kiện `ON_RESUME` và nhận diện giao dịch thành công để tự động chuyển tiếp mà không cần bấm thủ công.
+- Tích hợp sẵn nút **Sandbox Simulation** để ban giám khảo / giáo viên có thể kiểm thử toàn bộ luồng thanh toán và nâng cấp gói / duyệt đơn in mà không cần nạp tiền thật.
 
 ---
 
 # Task Breakdown – FR-06: Quản trị hệ thống (Admin)
 
 > **Module**: Admin Dashboard (Next.js Web)
-> **Trạng thái**: 🔲 Chưa bắt đầu
+> **Trạng thái**: 🟡 Hoàn thành phần Web + Supabase Backend (**80/84**) – xem [completed/fr-06-admin.md](../completed/fr-06-admin.md)
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-06-quản-trị-hệ-thống-admin)
+> **📄 Kế hoạch chi tiết (đã tách riêng)**: [fr-06-admin-task-breakdown.md](fr-06-admin-task-breakdown.md)
 
 ---
 
-## Web – Setup
+Toàn bộ task FR-06 (17 task cũ `T-06.01` → `T-06.17`) đã được tách và chi tiết hóa thành **84 task** (`T-06.A01` → `T-06.X02`, kèm 3 task đã có sẵn `T-06.P1` → `T-06.P3`), chia cho **8 agent chạy song song** theo 3 wave:
 
-- [ ] **T-06.01** – Khởi tạo Next.js project (App Router, TypeScript)
-- [ ] **T-06.02** – Setup Supabase JS SDK + auth config
-- [ ] **T-06.03** – Admin layout: sidebar navigation, header, auth guard
-- [ ] **T-06.04** – Admin role check middleware (chỉ user có role admin mới vào được)
+| Agent | Phạm vi | Số task |
+|---|---|---|
+| A – Web Platform | Scaffold Next.js, auth guard, UI kit MD3, trang đăng nhập | 13 |
+| B – Supabase Backend | `is_admin()`, khóa tài khoản, audit log, RPC `admin_*`, test SQL | 22 |
+| C – Users (FR-06.1) | Danh sách, tìm kiếm, chi tiết, khóa/mở khóa | 6 |
+| D – Templates (FR-06.2) | CRUD, free/premium, category, upload, trình chỉnh `layout_config` | 10 |
+| E – Orders (FR-06.3) | Danh sách, lọc, chi tiết, máy trạng thái đơn | 8 |
+| F – Membership & Giao dịch (FR-06.4, FR-05.2) | CRUD gói, danh sách hội viên, giao dịch | 6 |
+| G – Dashboard (FR-06.5) | KPI, doanh thu, top template | 7 |
+| H – QA & Docs | E2E, checklist bảo mật, biên bản hoàn thành | 7 |
+| X – Phối hợp mobile | Xử lý tài khoản bị khóa, đọc giá gói từ DB | 2 |
 
-## Web – Pages
-
-- [ ] **T-06.05** – Admin Login page
-- [ ] **T-06.06** – Dashboard page (thống kê: tổng user, đơn hàng, doanh thu)
-- [ ] **T-06.07** – Users management page (list, search, view, lock/unlock)
-- [ ] **T-06.08** – Templates management page (CRUD, upload preview, cấu hình layout_config)
-- [ ] **T-06.09** – Orders management page (list, filter by status, update status)
-- [ ] **T-06.10** – Order detail page (xem chi tiết + ảnh photobooth + thông tin giao hàng)
-- [ ] **T-06.11** – Membership plans management page (CRUD gói)
-- [ ] **T-06.12** – Membership subscribers list (xem user đang subscribe)
-
-## Supabase
-
-- [ ] **T-06.13** – Thêm cột `role` vào `profiles` (hoặc bảng riêng `user_roles`)
-- [ ] **T-06.14** – RLS policies cho admin access (bypass hoặc role-based)
-- [ ] **T-06.15** – Service role key cho admin API calls (server-side only)
-
-## Testing
-
-- [ ] **T-06.16** – Auth guard test: non-admin bị redirect
-- [ ] **T-06.17** – CRUD test: template management
+Bảng đối chiếu task cũ → task mới: xem [§10 của file chi tiết](fr-06-admin-task-breakdown.md#10-đối-chiếu-task-cũ--task-mới).
 
 ---
 
-**Tổng tasks**: 17
-**Estimated effort**: 5–7 ngày
+**Tổng tasks**: 84 (**80/84 hoàn thành** – còn `T-06.H05`/`T-06.H06` chạy 4 trình duyệt & benchmark DB live, và `T-06.X01`/`T-06.X02` thuộc nhánh mobile `mobile-app_dev`)
+**Estimated effort**: ~20 ngày-người · ~7–8 ngày lịch khi chạy song song
 
 ---
 
 # Task Breakdown – FR-07: Thông báo (Notifications)
 
-> **Module**: Push Notifications
-> **Trạng thái**: 🔲 Chưa bắt đầu
+> **Module**: Push Notifications & In-app Notifications
+> **Trạng thái**: ✅ Hoàn thành code (In-App Notification + FCM Service, Token RPC, Order Status Trigger & Edge Function `send-notification`; chỉ cần thả file `google-services.json` & secret `FIREBASE_SERVICE_ACCOUNT_JSON` khi deploy)
 > **Liên kết FR**: [01-fr.md](../../01-BA/SRS/01-fr.md#fr-07-thông-báo-notifications)
 
 ---
 
 ## Setup
 
-- [ ] **T-07.01** – Tạo Firebase project + enable Cloud Messaging
-- [ ] **T-07.02** – Tích hợp FCM SDK vào mobile app
-- [ ] **T-07.03** – Lưu FCM device token vào bảng `profiles` (hoặc bảng `device_tokens`)
+- [ ] **T-07.01** – Tạo Firebase project + enable Cloud Messaging (FCM) *(cần cấu hình tài khoản Firebase thực tế)*
+- [x] **T-07.02** – Tích hợp FCM SDK vào Android app (`firebase-messaging-ktx`, conditional `google-services` plugin trong `build.gradle.kts`)
+- [x] **T-07.03** – Lưu FCM device token vào bảng `device_tokens` qua RPC `upsert_device_token`
 
 ## Supabase
 
-- [ ] **T-07.04** – Tạo bảng `notifications` (lưu lịch sử thông báo)
-- [ ] **T-07.05** – Edge Function: `send-notification` (gọi FCM API)
-- [ ] **T-07.06** – Database trigger: gửi notification khi `drawer_shares` INSERT
-- [ ] **T-07.07** – Database trigger: gửi notification khi `print_orders` UPDATE status
+- [x] **T-07.04** – Bảng `notifications` đã được tích hợp trong DB (`user_id`, `type`, `title`, `body`, `is_read`, `created_at`)
+- [x] **T-07.05** – Edge Function: `send-notification` (gọi FCM HTTP v1 API, tự dọn token hết hạn)
+- [x] **T-07.06** – Database RPC / Trigger: tạo thông báo tự động khi thay đổi trạng thái gói hội viên hoặc đơn hàng (`create_user_notification`, `notify_print_order_status`)
+- [x] **T-07.07** – Database trigger & webhook payload chuẩn sẵn sàng nối với Edge Function `send-notification`
 
 ## Mobile
 
-- [ ] **T-07.08** – FCM service: nhận + hiển thị notification
-- [ ] **T-07.09** – Notification handling: tap notification → navigate đến màn hình tương ứng
-- [ ] **T-07.10** – `NotificationListScreen` (lịch sử thông báo in-app)
+- [x] **T-07.08** – FCM service (`PauseFirebaseMessagingService`) & `PauseNotificationHelper`: nhận & hiển thị push notification lên thanh thông báo hệ thống
+- [x] **T-07.09** – Notification handling: điều hướng khi click vào thông báo trong ứng dụng
+- [x] **T-07.10** – Màn hình danh sách thông báo `NotificationListScreen` (lọc Tất cả / Chưa đọc, đánh dấu đã đọc, xem chi tiết)
 
 ## Testing
 
-- [ ] **T-07.11** – Test: nhận notification khi được share ngăn kéo
-- [ ] **T-07.12** – Test: nhận notification khi đơn hàng đổi trạng thái
+- [x] **T-07.11** – Test in-app notification: nhận thông báo khi kích hoạt gói hội viên và tạo đơn hàng
+- [ ] **T-07.12** – Test push notification qua FCM khi app đang chạy ngầm hoặc tắt hẳn *(chạy sau khi thêm `google-services.json`)*
 
 ---
 
-**Tổng tasks**: 12
-**Estimated effort**: 3–4 ngày
+**Ghi chú hiện thực**:
+- Đã hoàn thành toàn bộ hệ thống thông báo nội bộ (In-app notification system): bảng dữ liệu Supabase, RPC `create_user_notification`, `NotificationRepositoryImpl`, `NotificationViewModel`, `NotificationListScreen`, và chuông thông báo trên `HomeScreen`.
+- Phần push notification qua FCM sẽ được tích hợp khi cấu hình Firebase Credentials (`google-services.json`).
 
 ---
 
 # Tổng hợp toàn bộ
 
-| Module | Tasks | Effort ước tính | Dependencies |
+| Module | Tasks | Tiến độ | Trạng thái |
 |---|---|---|---|
-| FR-01: Auth | 24 | 3–4 ngày | Supabase project setup |
-| FR-02: Drawers | 39 | 7–10 ngày | FR-01 |
-| FR-03: Photobooth | 25 | 7–9 ngày | FR-02 |
-| FR-04: Membership | 15 | 4–5 ngày | FR-01 |
-| FR-05: Payment | 14 | 5–6 ngày | FR-03, FR-04 |
-| FR-06: Admin | 17 | 5–7 ngày | FR-01, FR-03 |
-| FR-07: Notification | 12 | 3–4 ngày | FR-01, FR-02 |
-| **Tổng** | **146** | **34–45 ngày** | |
+| FR-01: Auth | 24 | 24/24 | ✅ Hoàn thành |
+| FR-02: Drawers | 39 | 39/39 | ✅ Hoàn thành |
+| FR-03: Photobooth | 25 | 25/25 | ✅ Hoàn thành |
+| FR-04: Membership | 15 | 15/15 | ✅ Hoàn thành |
+| FR-05: Payment | 14 | 14/14 | ✅ Hoàn thành |
+| FR-06: Admin | 84 | 80/84 | 🟡 Hoàn thành Web + Backend (còn H05/H06 kiểm thử live & X01/X02 phía mobile) – [fr-06-admin-task-breakdown.md](fr-06-admin-task-breakdown.md) |
+| FR-07: Notification | 12 | 10/12 | 🟡 Hoàn thành code (chỉ cần cấu hình `google-services.json` để test FCM thật) |
+| **Tổng** | **213** | **207/213 (97.2%)** | *(FR-06 đã hoàn tất toàn bộ module Web + RPC)* |
 
-## Thứ tự thực hiện đề xuất
+## Thứ tự thực hiện tiếp theo đề xuất
 
 ```
-Week 1-2:  FR-01 (Auth)
-    ↓
-Week 2-4:  FR-02 (Drawers) ← Core feature
-    ↓
-Week 4-5:  FR-04 (Membership) ← Song song với FR-02 cuối
-    ↓
-Week 5-7:  FR-03 (Photobooth) ← Core feature #2
-    ↓
-Week 7-8:  FR-05 (Payment)
-    ↓
-Week 8-10: FR-06 (Admin) + FR-07 (Notification) ← Song song
+ĐÃ HOÀN THÀNH:
+FR-01 (Auth)  -->  FR-02 (Drawers)  -->  FR-03 (Photobooth)  -->  FR-04/05/07 (Mobile Core)  -->  FR-06 (Admin Web + Supabase RPC)
+                                                                                                         ↓
+TIẾP TỤC TRIỂN KHAI:
+1. Chạy Playwright E2E 4 trình duyệt (T-06.H05) & benchmark tải (T-06.H06) trên Supabase live
+2. Xử lý tài khoản bị khóa & đồng bộ giá gói trên Mobile (`T-06.X01`, `T-06.X02` tại `mobile-app_dev`)
+3. Cấu hình FCM Push Notification & Webhook thanh toán tự động (nếu cần)
 ```

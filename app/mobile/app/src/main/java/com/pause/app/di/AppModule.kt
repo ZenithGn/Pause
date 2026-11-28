@@ -1,15 +1,20 @@
 package com.pause.app.di
 
+import android.content.Context
 import androidx.room.Room
 import com.pause.app.BuildConfig
 import com.pause.app.data.local.DrawerDao
 import com.pause.app.data.local.PauseDatabase
 import com.pause.app.data.local.PhotoDao
 import com.pause.app.data.local.ShareDao
+import com.pause.app.data.media.AndroidPhotoboothRenderer
 import com.pause.app.data.media.AndroidPhotoProcessor
+import com.pause.app.data.remote.CloudinaryPreviewUploader
 import com.pause.app.data.remote.CloudinaryUploader
 import com.pause.app.data.repository.AuthRepositoryImpl
 import com.pause.app.data.repository.DrawerRepositoryImpl
+import com.pause.app.data.repository.NotificationRepositoryImpl
+import com.pause.app.data.repository.PaymentRepositoryImpl
 import com.pause.app.data.repository.PhotoRepositoryImpl
 import com.pause.app.data.repository.ProfileRepositoryImpl
 import com.pause.app.data.repository.PhotoboothRepositoryImpl
@@ -18,11 +23,16 @@ import com.pause.app.data.session.InMemoryLoginAttemptStore
 import com.pause.app.domain.repository.AuthRepository
 import com.pause.app.domain.repository.DrawerRepository
 import com.pause.app.domain.repository.LoginAttemptStore
+import com.pause.app.domain.repository.NotificationRepository
+import com.pause.app.domain.repository.PaymentRepository
 import com.pause.app.domain.repository.PhotoProcessor
+import com.pause.app.domain.model.PhotoboothRenderer
+import com.pause.app.domain.model.PreviewUploader
 import com.pause.app.domain.repository.PhotoRepository
 import com.pause.app.domain.repository.PhotoboothRepository
 import com.pause.app.domain.repository.ProfileRepository
 import com.pause.app.domain.repository.ShareRepository
+import com.pause.app.presentation.payment.PaymentViewModel
 import com.pause.app.domain.usecase.CreateDrawerUseCase
 import com.pause.app.domain.usecase.DeleteDrawerUseCase
 import com.pause.app.domain.usecase.DeletePhotosUseCase
@@ -53,6 +63,7 @@ import com.pause.app.domain.usecase.UploadPhotosUseCase
 import com.pause.app.presentation.auth.AuthViewModel
 import com.pause.app.presentation.drawer.DrawerDetailViewModel
 import com.pause.app.presentation.drawer.DrawerListViewModel
+import com.pause.app.presentation.notification.NotificationViewModel
 import com.pause.app.presentation.order.OrderViewModel
 import com.pause.app.presentation.profile.ProfileViewModel
 import com.pause.app.presentation.photobooth.PhotoboothViewModel
@@ -61,6 +72,7 @@ import com.pause.app.presentation.splash.SplashViewModel
 import com.pause.app.data.repository.OrderRepositoryImpl
 import com.pause.app.domain.repository.OrderRepository
 import com.pause.app.domain.usecase.CreateOrderUseCase
+import com.pause.app.domain.usecase.CreatePhotoboothUseCase
 import com.pause.app.domain.usecase.GetOrdersUseCase
 import com.pause.app.domain.usecase.GetOrderDetailUseCase
 import io.github.jan.supabase.SupabaseClient
@@ -125,7 +137,12 @@ val repositoryModule = module {
             },
         )
     }
-    single<ProfileRepository> { ProfileRepositoryImpl(client = get()) }
+    single<ProfileRepository> {
+        ProfileRepositoryImpl(
+            client = get(),
+            prefs = androidContext().getSharedPreferences("pause_quota_prefs", Context.MODE_PRIVATE),
+        )
+    }
     single<LoginAttemptStore> { InMemoryLoginAttemptStore() }
 
     // Cloudinary uploader (hybrid storage: Cloudinary for photos, Supabase for DB)
@@ -138,7 +155,7 @@ val repositoryModule = module {
         )
     }
 
-    // FR-02 & FR-03
+    // FR-02, FR-03 & FR-07
     single<DrawerRepository> { DrawerRepositoryImpl(client = get(), drawerDao = get()) }
     single<PhotoRepository> {
         PhotoRepositoryImpl(
@@ -149,8 +166,12 @@ val repositoryModule = module {
     }
     single<PhotoboothRepository> { PhotoboothRepositoryImpl(client = get()) }
     single<ShareRepository> { ShareRepositoryImpl(client = get(), shareDao = get()) }
+    single<NotificationRepository> { NotificationRepositoryImpl(client = get(), shareRepository = get()) }
     single<PhotoProcessor> { AndroidPhotoProcessor() }
+    single<PhotoboothRenderer> { AndroidPhotoboothRenderer() }
+    single<PreviewUploader> { CloudinaryPreviewUploader(client = get(), uploader = get()) }
     single<OrderRepository> { OrderRepositoryImpl(client = get()) }
+    single<PaymentRepository> { PaymentRepositoryImpl(client = get(), httpClient = get()) }
 }
 
 val useCaseModule = module {
@@ -186,6 +207,7 @@ val useCaseModule = module {
 
     // FR-03
     factory { CreateOrderUseCase(orderRepository = get()) }
+    factory { CreatePhotoboothUseCase(photoboothRepository = get(), renderer = get(), previewUploader = get()) }
     factory { GetOrdersUseCase(orderRepository = get()) }
     factory { GetOrderDetailUseCase(orderRepository = get()) }
 }
@@ -233,11 +255,13 @@ val viewModelModule = module {
             deletePhotosUseCase = get(),
             updateDrawerUseCase = get(),
             deleteDrawerUseCase = get(),
+            cloudinaryUploader = get(),
         )
     }
     viewModel {
         PhotoboothViewModel(
             photoboothRepository = get(),
+            createPhotoboothUseCase = get(),
             drawerRepository = get(),
             photoRepository = get(),
         )
@@ -256,6 +280,16 @@ val viewModelModule = module {
             createOrderUseCase = get(),
             getOrdersUseCase = get(),
             getOrderDetailUseCase = get(),
+        )
+    }
+    viewModel {
+        NotificationViewModel(
+            notificationRepository = get(),
+        )
+    }
+    viewModel {
+        PaymentViewModel(
+            paymentRepository = get(),
         )
     }
 }

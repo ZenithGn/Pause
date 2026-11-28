@@ -1,0 +1,141 @@
+name: CI/CD – Web User (Next.js)
+
+on:
+  push:
+    branches:
+      - main
+      - webapp-dev
+    paths:
+      - "app/web-user/**"
+      - ".github/workflows/ci-web-user.yml"
+  pull_request:
+    branches:
+      - main
+      - webapp-dev
+    paths:
+      - "app/web-user/**"
+      - ".github/workflows/ci-web-user.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: web-user-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Typecheck, Lint, Test & Build (Web User)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/web-user
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: app/web-user/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript typecheck
+        run: npm run typecheck
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Unit tests (Vitest)
+        run: npm run test
+
+      - name: Production build (Next.js)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key' }}
+          NEXT_PUBLIC_ANDROID_APK_URL: ${{ secrets.NEXT_PUBLIC_ANDROID_APK_URL || 'https://github.com/ZenithGn/Pause/releases/latest' }}
+        run: npm run build
+
+      - name: Security check – ensure no server secrets in client bundle
+        run: |
+          if grep -rnE "SUPABASE_SERVICE_ROLE_KEY|CLOUDINARY_API_SECRET" .next/static; then
+            echo "::error::Server secret reference detected in .next/static client bundle!"
+            exit 1
+          fi
+          echo "Client bundle security scan passed (0 secret leaks)."
+
+  deploy-vercel:
+    name: Deploy Web User to Vercel
+    needs: verify
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/web-user
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check Vercel credentials
+        id: vercel_check
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_USER_PROJECT_ID: ${{ secrets.VERCEL_USER_PROJECT_ID }}
+        run: |
+          if [ -n "$VERCEL_TOKEN" ] && [ -n "$VERCEL_ORG_ID" ] && [ -n "$VERCEL_USER_PROJECT_ID" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping Vercel CLI deploy (secrets not configured; Vercel GitHub App may handle deploys)."
+          fi
+
+      - name: Setup Node.js 22
+        if: steps.vercel_check.outputs.enabled == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Vercel CLI
+        if: steps.vercel_check.outputs.enabled == 'true'
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel environment configuration
+        if: steps.vercel_check.outputs.enabled == 'true'
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_USER_PROJECT_ID }}
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            vercel pull --yes --environment=production --token="${{ secrets.VERCEL_TOKEN }}"
+          else
+            vercel pull --yes --environment=preview --token="${{ secrets.VERCEL_TOKEN }}"
+          fi
+
+      - name: Build project artifacts for Vercel
+        if: steps.vercel_check.outputs.enabled == 'true'
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_USER_PROJECT_ID }}
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            vercel build --prod --token="${{ secrets.VERCEL_TOKEN }}"
+          else
+            vercel build --token="${{ secrets.VERCEL_TOKEN }}"
+          fi
+
+      - name: Deploy to Vercel
+        if: steps.vercel_check.outputs.enabled == 'true'
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_USER_PROJECT_ID }}
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            vercel deploy --prebuilt --prod --token="${{ secrets.VERCEL_TOKEN }}"
+          else
+            vercel deploy --prebuilt --token="${{ secrets.VERCEL_TOKEN }}"
+          fi

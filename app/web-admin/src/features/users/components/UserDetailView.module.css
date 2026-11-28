@@ -1,0 +1,318 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.lockedBanner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background-color: var(--md-sys-color-error-container);
+  border: 1px solid rgba(179, 38, 30, 0.28);
+  color: var(--md-sys-color-on-error-container);
+}
+
+.lockedBannerMain {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.lockedBannerIcon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.lockedBannerTitle {
+  font-size: var(--text-title-sm);
+  font-weight: 700;
+}
+
+.lockedBannerReason {
+  margin-top: 4px;
+  font-size: var(--text-body-md);
+}
+
+.lockedBannerMeta {
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.topGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.rightStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.profileHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.profileIdentity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.profileName {
+  font-size: var(--text-title-lg);
+  font-weight: 700;
+  color: var(--md-sys-color-on-surface);
+  word-break: break-word;
+}
+
+.badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.metaList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-4) 0 0;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metaItemFull {
+  grid-column: 1 / -1;
+}
+
+.metaLabel {
+  font-size: var(--text-label-md);
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.metaValue {
+  font-size: var(--text-body-md);
+  color: var(--md-sys-color-on-surface);
+  word-break: break-word;
+}
+
+.monoValue {
+  font-family: var(--font-mono);
+  font-size: var(--text-body-sm);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.lockBox {
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background-color: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lockBoxHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.lockBoxTime {
+  font-size: var(--text-label-md);
+  font-weight: 600;
+}
+
+.lockBoxReason {
+  font-size: var(--text-body-sm);
+}
+
+.statsGrid3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.statsGrid2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.statTile {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background-color: var(--md-sys-color-surface-container-low);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statLabel {
+  font-size: var(--text-label-md);
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.statValue {
+  font-size: var(--text-title-lg);
+  font-weight: 700;
+  color: var(--md-sys-color-on-surface);
+}
+
+.statSub {
+  font-size: var(--text-label-md);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.privacyNote {
+  margin-top: var(--space-3);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background-color: var(--md-sys-color-info-container);
+  color: var(--md-sys-color-on-info-container);
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-normal);
+}
+
+.privacyIcon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.sectionLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-label-lg);
+  font-weight: 600;
+  color: var(--md-sys-color-primary);
+  white-space: nowrap;
+}
+
+.sectionLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.tableScroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: var(--text-body-md);
+}
+
+.table thead {
+  background-color: var(--md-sys-color-surface-container-low);
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.table th {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-label-md);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--md-sys-color-on-surface-variant);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  color: var(--md-sys-color-on-surface);
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.alignRight {
+  text-align: right;
+}
+
+.codeLink {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--md-sys-color-primary);
+}
+
+.codeLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.inlineActionLink {
+  font-size: var(--text-label-lg);
+  font-weight: 600;
+  color: var(--md-sys-color-primary);
+  white-space: nowrap;
+}
+
+.inlineActionLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.mutedText {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+@media (max-width: 1024px) {
+  .topGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .metaList {
+    grid-template-columns: 1fr;
+  }
+
+  .statsGrid3 {
+    grid-template-columns: 1fr;
+  }
+
+  .statsGrid2 {
+    grid-template-columns: 1fr;
+  }
+}

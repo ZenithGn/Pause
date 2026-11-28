@@ -7,6 +7,7 @@ import com.pause.app.domain.model.Photo
 import com.pause.app.domain.repository.DrawerRepository
 import com.pause.app.domain.repository.PhotoRepository
 import com.pause.app.domain.repository.PhotoboothRepository
+import com.pause.app.domain.usecase.CreatePhotoboothUseCase
 import com.pause.app.presentation.common.UiText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +17,7 @@ import kotlinx.coroutines.launch
 
 class PhotoboothViewModel(
     private val photoboothRepository: PhotoboothRepository,
+    private val createPhotoboothUseCase: CreatePhotoboothUseCase,
     private val drawerRepository: DrawerRepository,
     private val photoRepository: PhotoRepository,
 ) : ViewModel() {
@@ -25,19 +27,45 @@ class PhotoboothViewModel(
 
     fun start(drawerId: String? = null) {
         requestedDrawerId = drawerId
+        _state.update {
+            it.copy(
+                selectedSlotCount = null,
+                selectedTemplate = null,
+                selectedPhotoIds = emptyList(),
+                savedDraftId = null,
+                previewUrl = null,
+                caption = "",
+                error = null,
+            )
+        }
         loadTemplates()
+    }
+
+    fun selectSlotCount(slotCount: Int?) {
+        _state.update { it.copy(selectedSlotCount = slotCount, error = null) }
     }
 
     fun loadTemplates() = viewModelScope.launch {
         _state.update { it.copy(isLoadingTemplates = true, error = null) }
         runCatching { photoboothRepository.getActiveTemplates() }
             .onSuccess { templates -> _state.update { it.copy(isLoadingTemplates = false, templates = templates) } }
-            .onFailure { _state.update { it.copy(isLoadingTemplates = false, error = UiText.Resource(R.string.photobooth_error_templates)) } }
+            .onFailure { exception ->
+                android.util.Log.e("Photobooth", "Failed to load templates", exception)
+                _state.update { it.copy(isLoadingTemplates = false, error = UiText.Resource(R.string.photobooth_error_templates)) }
+            }
     }
 
     fun selectTemplate(templateId: String) {
         val template = _state.value.templates.firstOrNull { it.id == templateId } ?: return
-        _state.update { it.copy(selectedTemplate = template, selectedPhotoIds = emptyList(), savedDraftId = null) }
+        _state.update {
+            it.copy(
+                selectedTemplate = template,
+                selectedPhotoIds = emptyList(),
+                savedDraftId = null,
+                previewUrl = null,
+                caption = "",
+            )
+        }
         loadDrawers()
     }
 
@@ -52,7 +80,7 @@ class PhotoboothViewModel(
     }
 
     fun selectDrawer(drawerId: String) {
-        _state.update { it.copy(selectedDrawerId = drawerId, selectedPhotoIds = emptyList()) }
+        _state.update { it.copy(selectedDrawerId = drawerId, selectedPhotoIds = emptyList(), savedDraftId = null, previewUrl = null) }
         loadPhotos(drawerId)
     }
 
@@ -77,16 +105,47 @@ class PhotoboothViewModel(
             chosen.size >= current.requiredSlots -> chosen
             else -> chosen + photo.id
         }
-        _state.update { it.copy(selectedPhotoIds = next, savedDraftId = null) }
+        _state.update { it.copy(selectedPhotoIds = next, savedDraftId = null, previewUrl = null) }
     }
 
+    fun onCaptionChange(value: String) {
+        val next = value.take(40)
+        if (next == _state.value.caption) return
+        // Caption is baked into the render, so an existing preview/draft becomes stale.
+        _state.update { it.copy(caption = next, savedDraftId = null, previewUrl = null, error = null) }
+    }
+
+    /** FR-03.2 – render preview + upload Cloudinary + persist draft. */
     fun saveDraft() = viewModelScope.launch {
         val current = _state.value
         val template = current.selectedTemplate ?: return@launch
-        if (!current.canPreview) return@launch
+        if (!current.canPreview || current.isSaving) return@launch
+
+        val orderedUrls = current.selectedPhotoIds.map { id ->
+            current.photoUrls[id].orEmpty()
+        }
+
         _state.update { it.copy(isSaving = true, error = null) }
-        runCatching { photoboothRepository.createDraft(template.id, current.selectedPhotoIds) }
-            .onSuccess { draft -> _state.update { it.copy(isSaving = false, savedDraftId = draft.id) } }
-            .onFailure { _state.update { it.copy(isSaving = false, error = UiText.Resource(R.string.photobooth_error_save)) } }
+        createPhotoboothUseCase(
+            template = template,
+            photoIds = current.selectedPhotoIds,
+            photoUrls = orderedUrls,
+            caption = current.caption.trim().ifBlank { null },
+        )
+            .onSuccess { draft ->
+                _state.update {
+                    it.copy(
+                        isSaving = false,
+                        savedDraftId = draft.id,
+                        previewUrl = draft.previewUrl,
+                    )
+                }
+            }
+            .onFailure { exception ->
+                android.util.Log.e("Photobooth", "Failed to create photobooth preview", exception)
+                _state.update {
+                    it.copy(isSaving = false, error = UiText.Resource(R.string.photobooth_error_save))
+                }
+            }
     }
 }

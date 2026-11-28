@@ -57,15 +57,19 @@ data class Drawer(
     val canWrite: Boolean get() = isOwner || permission.canWrite
 
     val storageUsedFraction: Float
-        get() = if (storageLimitBytes <= 0) 0f
-        else (storageUsedBytes.toFloat() / storageLimitBytes.toFloat()).coerceIn(0f, 1f)
+        get() = (photoCount.toFloat() / MAX_PHOTO_COUNT.toFloat()).coerceIn(0f, 1f)
 
     val remainingBytes: Long get() = (storageLimitBytes - storageUsedBytes).coerceAtLeast(0)
 
-    val isFull: Boolean get() = remainingBytes <= 0
+    val remainingPhotos: Int get() = (MAX_PHOTO_COUNT - photoCount).coerceAtLeast(0)
+
+    val isFull: Boolean get() = photoCount >= MAX_PHOTO_COUNT || remainingBytes <= 0
 
     companion object {
-        /** 256 MB free-tier quota (docs/03-References/storage-strategy.md). */
+        /** 50 photos limit per drawer. */
+        const val MAX_PHOTO_COUNT = 50
+
+        /** 256 MB storage quota fallback (docs/03-References/storage-strategy.md). */
         const val DEFAULT_LIMIT_BYTES = 268_435_456L
     }
 }

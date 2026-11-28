@@ -38,6 +38,7 @@ class OrderViewModel(
         previewUrl: String? = null,
         slotCount: Int = 4,
         unitPriceVnd: Int = 25_000,
+        isPremiumUser: Boolean = false,
     ) {
         _formState.update {
             it.copy(
@@ -46,12 +47,18 @@ class OrderViewModel(
                 previewUrl = previewUrl,
                 slotCount = slotCount,
                 unitPriceVnd = unitPriceVnd,
+                isPremiumUser = isPremiumUser,
+                promoCode = if (isPremiumUser && it.promoCode.isBlank()) "PAUSE20" else it.promoCode,
                 quantity = 1,
                 error = null,
                 createdOrder = null,
                 isSubmitting = false,
             )
         }
+    }
+
+    fun onPromoCodeChanged(code: String) {
+        _formState.update { it.copy(promoCode = code) }
     }
 
     fun onShippingNameChanged(name: String) {
@@ -68,6 +75,14 @@ class OrderViewModel(
 
     fun onNoteChanged(note: String) {
         _formState.update { it.copy(note = note) }
+    }
+
+    fun onCoverTypeChanged(coverType: String) {
+        _formState.update { it.copy(coverType = coverType) }
+    }
+
+    fun onPaperTypeChanged(paperType: String) {
+        _formState.update { it.copy(paperType = paperType) }
     }
 
     fun incrementQuantity() {
@@ -100,13 +115,15 @@ class OrderViewModel(
                 createOrderUseCase(
                     photoboothItemId = current.photoboothItemId,
                     quantity = current.quantity,
-                    unitPriceVnd = current.unitPriceVnd,
+                    unitPriceVnd = current.effectiveUnitPriceVnd,
                     shipping = ShippingInfo(
                         name = current.shippingName.trim(),
                         phone = cleanPhone,
                         address = current.shippingAddress.trim(),
                         note = current.note.trim(),
                     ),
+                    coverType = current.coverType,
+                    paperType = current.paperType,
                 )
             }.onSuccess { created ->
                 _formState.update { it.copy(isSubmitting = false, createdOrder = created) }

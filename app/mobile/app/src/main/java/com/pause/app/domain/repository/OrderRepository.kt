@@ -12,6 +12,8 @@ interface OrderRepository {
         quantity: Int,
         unitPriceVnd: Int,
         shipping: ShippingInfo,
+        coverType: String = "soft",
+        paperType: String = "standard",
     ): PrintOrder
 
     /** List all orders for the current user, newest first. */

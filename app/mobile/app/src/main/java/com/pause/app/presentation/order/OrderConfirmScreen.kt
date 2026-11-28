@@ -91,7 +91,9 @@ fun OrderConfirmScreen(
 
             Spacer(Modifier.height(28.dp))
 
-            // Order ID Card
+            // Order ID & Estimated Delivery Card
+            val estimatedDate = java.time.LocalDate.now().plusDays(3)
+                .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -100,22 +102,41 @@ fun OrderConfirmScreen(
                     .border(1.dp, PauseColors.Line, RoundedCornerShape(12.dp))
                     .padding(vertical = 16.dp, horizontal = 20.dp),
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = stringResource(R.string.order_code_label),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = PauseColors.Muted,
-                    )
-                    Text(
-                        text = "#${orderId.takeLast(8).uppercase()}",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = PauseColors.Wine,
-                    )
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.order_code_label),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = PauseColors.Muted,
+                        )
+                        Text(
+                            text = "#${orderId.takeLast(8).uppercase()}",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = PauseColors.Wine,
+                        )
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "Dự kiến giao hàng",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = PauseColors.Muted,
+                        )
+                        Text(
+                            text = estimatedDate,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = PauseColors.Ink,
+                        )
+                    }
                 }
             }
 

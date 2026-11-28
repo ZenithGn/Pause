@@ -1,0 +1,1045 @@
+.homeStageWrapper {
+  position: relative;
+  width: 100%;
+  overflow-x: clip;
+}
+
+/* ==========================================================================
+   Section 1: Darkroom Wine Hero (Sticky Scroll-Lock Track for Envelope 3D)
+   ========================================================================== */
+.heroTrack {
+  position: relative;
+  height: 260svh;
+  background-color: #240305;
+}
+
+.hero {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  padding-top: calc(var(--nav-height) + var(--space-10));
+  padding-bottom: var(--space-16);
+  background: radial-gradient(
+    circle at 75% 38%,
+    #7a1419 0%,
+    #4a090d 46%,
+    #240305 100%
+  );
+  color: var(--color-white);
+  overflow: hidden;
+}
+
+@media (max-width: 899px), (prefers-reduced-motion: reduce) {
+  .heroTrack {
+    height: auto;
+  }
+
+  .hero {
+    position: relative;
+    height: auto;
+    min-height: 100svh;
+  }
+}
+
+.heroGrain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.75) 0.6px, transparent 0.6px);
+  background-size: 4px 4px;
+}
+
+.heroInner {
+  position: relative;
+  z-index: var(--z-content);
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--space-6);
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 560px;
+}
+
+.heroEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: fit-content;
+  padding: 0.375rem 0.875rem;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background-color: rgba(36, 3, 5, 0.45);
+  color: rgba(255, 255, 255, 0.92);
+  font-family: var(--font-mono-family);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
+.heroTitle {
+  font-family: var(--font-display-family);
+  font-size: clamp(2.5rem, 5vw, 4.125rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--color-white);
+}
+
+.heroAccent {
+  font-style: normal;
+  font-weight: 800;
+  color: var(--color-gold-bright);
+}
+
+.heroDescription {
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.86);
+  max-width: 480px;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.primaryLightBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0.875rem 1.625rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-white);
+  color: var(--color-wine);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  border: 1px solid var(--color-white);
+  transition: transform var(--transition-fast), background-color var(--transition-fast);
+}
+
+.primaryLightBtn:hover {
+  transform: translateY(-2px);
+  background-color: var(--color-wine-soft);
+}
+
+.secondaryGoldBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0.875rem 1.5rem;
+  border-radius: var(--radius-full);
+  background-color: transparent;
+  color: var(--color-white);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  transition: transform var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.secondaryGoldBtn:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-white);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.heroShowcaseCol {
+  min-width: 0;
+  width: 100%;
+}
+
+/* ==========================================================================
+   Shared Editorial Section Typography
+   ========================================================================== */
+.sectionContainer {
+  position: relative;
+  z-index: var(--z-content);
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--space-6);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans-family);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-wine);
+}
+
+.eyebrow::before {
+  content: "";
+  width: 16px;
+  height: 1.5px;
+  background-color: var(--color-wine);
+}
+
+.sectionHeading {
+  font-family: var(--font-display-family);
+  font-size: clamp(1.9rem, 3.4vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: var(--color-ink);
+  margin-top: var(--space-3);
+}
+
+.sectionLead {
+  margin-top: var(--space-4);
+  font-size: 1rem;
+  line-height: var(--leading-normal);
+  color: var(--color-ink-muted);
+}
+
+/* ==========================================================================
+   Section 2: Memory Drawers Features (Editorial Hairline List)
+   ========================================================================== */
+.featuresSection {
+  position: relative;
+  background-color: var(--color-white);
+  border-bottom: 1px solid var(--color-line);
+  padding-block: var(--space-24);
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.96fr) minmax(0, 1.04fr);
+  gap: var(--space-12);
+  align-items: center;
+}
+
+.drawerShowcase {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.drawerCardPrimary {
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-editorial);
+}
+
+.drawerCardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.drawerLabel {
+  display: block;
+  font-family: var(--font-mono-family);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--color-wine);
+}
+
+.drawerTitle {
+  font-family: var(--font-display-family);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  margin-top: 2px;
+}
+
+.drawerPermPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-wine-soft);
+  border: 1px solid rgba(99, 13, 17, 0.18);
+  color: var(--color-wine);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.drawerMosaic {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: var(--space-2);
+  height: 390px;
+}
+
+.drawerColLeft {
+  display: grid;
+  grid-template-rows: 1.48fr 1fr;
+  gap: var(--space-2);
+  min-height: 0;
+}
+
+.drawerColRight {
+  display: grid;
+  grid-template-rows: 1fr 1.25fr;
+  gap: var(--space-2);
+  min-height: 0;
+}
+
+.drawerPhotoCell {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background-color: var(--color-line);
+  min-height: 0;
+}
+
+.drawerImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.drawerCardFooter {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.drawerCount {
+  font-family: var(--font-mono-family);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ink-muted);
+}
+
+.drawerReadyTag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-wine);
+  background-color: var(--color-wine-soft);
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-full);
+}
+
+.drawerSecondaryRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.drawerCardSecondary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  width: 100%;
+}
+
+.drawerSecondaryThumb {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  flex-shrink: 0;
+  background-color: var(--color-line);
+}
+
+.drawerSecondaryInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.drawerSecondaryTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.drawerSecondaryMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-mono-family);
+  font-size: 0.75rem;
+  color: var(--color-ink-muted);
+}
+
+.featuresContent {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hairline editorial rows (replaces heavy card-in-card boxes) */
+.featureList {
+  margin-top: var(--space-6);
+  border-top: 1px solid var(--color-line);
+}
+
+.featureRow {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: baseline;
+  padding-block: var(--space-5);
+  border-bottom: 1px solid var(--color-line);
+  transition: border-color var(--transition-fast);
+}
+
+.featureRow:hover {
+  border-bottom-color: var(--color-wine);
+}
+
+.featureIndex {
+  font-family: var(--font-mono-family);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-wine);
+}
+
+.featureBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.featureHeadingRow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.featureRowIcon {
+  color: var(--color-wine);
+  flex-shrink: 0;
+}
+
+.featureCardTitle {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.featureCardDesc {
+  font-size: 0.9375rem;
+  color: var(--color-ink-muted);
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   Section 3: Compact 3-Step Strip + Borderless Template Experience Showcase
+   ========================================================================== */
+.processSection {
+  position: relative;
+  background-color: var(--color-paper);
+  border-bottom: 1px solid var(--color-line);
+  padding-block: var(--space-24);
+}
+
+.processIntro {
+  max-width: 660px;
+}
+
+.processStepsRail {
+  margin-top: var(--space-8);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-line);
+  background-color: rgba(255, 255, 255, 0.45);
+}
+
+.processStepItem {
+  position: relative;
+  border-right: 1px solid var(--color-line);
+}
+
+.processStepItem:last-child {
+  border-right: none;
+}
+
+.processStepCard {
+  height: 100%;
+  padding: var(--space-5) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.stepNumber {
+  font-family: var(--font-display-family);
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-wine);
+}
+
+.stepTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  margin-top: var(--space-1);
+}
+
+.stepDesc {
+  font-size: 0.875rem;
+  color: var(--color-ink-muted);
+  line-height: 1.5;
+}
+
+/* Featured Print Templates Showcase Strip (Frameless Gallery) */
+.templatesShowcase {
+  margin-top: var(--space-12);
+}
+
+.templatesHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.templatesTitle {
+  font-family: var(--font-display-family);
+  font-size: clamp(1.25rem, 2vw, 1.625rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+
+.templatesLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-wine);
+}
+
+.templatesLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.templatesGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--space-6);
+  align-items: end;
+}
+
+.templateCard {
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition-fast);
+}
+
+.templateCard:hover {
+  transform: translateY(-5px);
+}
+
+.templateThumbWrap {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 220px;
+}
+
+.templateSvg {
+  width: 100%;
+  max-height: 250px;
+  filter: drop-shadow(0 10px 22px rgba(17, 17, 17, 0.12));
+  transition: filter var(--transition-fast);
+}
+
+.templateCard:hover .templateSvg {
+  filter: drop-shadow(0 16px 28px rgba(99, 13, 17, 0.18));
+}
+
+.vipBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-wine);
+  border: 1px solid var(--color-gold);
+  color: var(--color-gold-bright);
+  font-family: var(--font-mono-family);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.templateMeta {
+  margin-top: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.templateName {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.templateDetail {
+  font-family: var(--font-mono-family);
+  font-size: 0.75rem;
+  color: var(--color-ink-muted);
+}
+
+/* ==========================================================================
+   Section 4: 4-Tier Membership Pricing
+   ========================================================================== */
+.pricingSection {
+  position: relative;
+  background-color: var(--color-white);
+  border-bottom: 1px solid var(--color-line);
+  padding-block: var(--space-24);
+}
+
+.pricingHeader {
+  max-width: 640px;
+}
+
+.pricingGrid {
+  position: relative;
+  z-index: var(--z-content);
+  margin-top: var(--space-12);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-5);
+  align-items: stretch;
+}
+
+.pricingCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-line);
+  background-color: var(--color-white);
+}
+
+.pricingCardPopular {
+  border-color: var(--color-wine);
+  background: linear-gradient(160deg, var(--color-wine) 0%, var(--color-wine-deep) 100%);
+  color: var(--color-white);
+  box-shadow: 0 18px 40px rgba(99, 13, 17, 0.22);
+}
+
+.popularBadge {
+  position: absolute;
+  top: -12px;
+  left: var(--space-6);
+  padding: 0.24rem 0.75rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-wine);
+  color: var(--color-wine);
+  font-family: var(--font-mono-family);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.tierName {
+  font-family: var(--font-display-family);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+
+.pricingCardPopular .tierName {
+  color: var(--color-white);
+}
+
+.tierPriceRow {
+  margin-top: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-line);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.pricingCardPopular .tierPriceRow {
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+.tierPrice {
+  font-family: var(--font-display-family);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--color-wine);
+}
+
+.pricingCardPopular .tierPrice {
+  color: var(--color-white);
+}
+
+.tierDuration {
+  font-size: 0.875rem;
+  color: var(--color-ink-muted);
+}
+
+.pricingCardPopular .tierDuration {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.tierSpecLine {
+  margin-top: var(--space-4);
+  font-family: var(--font-mono-family);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-wine);
+}
+
+.pricingCardPopular .tierSpecLine {
+  color: var(--color-gold-bright);
+}
+
+.tierFeatures {
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.tierFeatureItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: 0.875rem;
+  color: var(--color-ink);
+  line-height: 1.45;
+}
+
+.pricingCardPopular .tierFeatureItem {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.tierFeatureIcon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-wine);
+}
+
+.pricingCardPopular .tierFeatureIcon {
+  color: var(--color-gold-bright);
+}
+
+.tierCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid var(--color-wine);
+  color: var(--color-wine);
+  background-color: transparent;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.tierCta:hover {
+  background-color: var(--color-wine-soft);
+}
+
+.tierCtaPopular {
+  background-color: var(--color-white);
+  border-color: var(--color-white);
+  color: var(--color-wine);
+}
+
+.tierCtaPopular:hover {
+  background-color: var(--color-wine-soft);
+}
+
+/* ==========================================================================
+   Section 5: Final Wine CTA Banner (Open Editorial Left + Keepsake Card Right)
+   ========================================================================== */
+.ctaSection {
+  position: relative;
+  background: linear-gradient(150deg, #630d11 0%, #3b0609 68%, #240305 100%);
+  color: var(--color-white);
+  padding-block: var(--space-24);
+  overflow: hidden;
+}
+
+.ctaGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  gap: var(--space-10);
+  align-items: center;
+}
+
+.ctaEditorialBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 560px;
+}
+
+.ctaEyebrow {
+  font-family: var(--font-sans-family);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--color-gold-bright);
+  text-transform: uppercase;
+}
+
+.ctaHeading {
+  font-family: var(--font-display-family);
+  font-size: clamp(1.9rem, 3.3vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  margin-top: var(--space-3);
+  color: var(--color-white);
+}
+
+.ctaCopy {
+  margin-top: var(--space-4);
+  font-size: 1rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ctaActions {
+  margin-top: var(--space-6);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.ctaShowcaseCard {
+  position: relative;
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(25, 3, 5, 0.46) 100%
+  );
+  display: grid;
+  grid-template-columns: 168px minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: center;
+}
+
+.ctaStripsFan {
+  position: relative;
+  height: 196px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ctaMiniStrip {
+  position: absolute;
+  width: 96px;
+  padding: 7px 7px 10px;
+  border-radius: var(--radius-xs);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  box-shadow: 0 14px 28px rgba(17, 3, 5, 0.45);
+}
+
+.ctaMiniStripBack {
+  background-color: var(--color-white);
+  color: var(--color-ink);
+  transform: translate(-24px, -6px) rotate(-10deg);
+}
+
+.ctaMiniStripFront {
+  background-color: #141212;
+  border: 1px solid rgba(212, 175, 55, 0.65);
+  color: var(--color-gold-bright);
+  transform: translate(22px, 8px) rotate(7deg);
+}
+
+.ctaMiniStripImg {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+.ctaMiniStripBrand {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.04em;
+  color: var(--color-ink);
+}
+
+.ctaMiniStripBrandVip {
+  font-size: 0.525rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.05em;
+  color: var(--color-gold-bright);
+}
+
+.ctaShowcaseBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.ctaShowcaseBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: fit-content;
+  padding: 0.3rem 0.72rem;
+  border-radius: var(--radius-full);
+  background-color: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  color: var(--color-white);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.ctaHighlightList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.ctaHighlightItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.ctaHighlightIcon {
+  color: var(--color-gold-bright);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+@media (max-width: 1120px) {
+  .templatesGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .pricingGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 899px) {
+  .hero {
+    min-height: auto;
+    padding-top: calc(var(--nav-height) + var(--space-8));
+    padding-bottom: var(--space-12);
+  }
+
+  .heroInner {
+    grid-template-columns: minmax(0, 1fr);
+    padding-inline: var(--space-4);
+  }
+
+  .sectionContainer {
+    padding-inline: var(--space-4);
+  }
+
+  .featuresSection,
+  .processSection,
+  .pricingSection,
+  .ctaSection {
+    padding-block: var(--space-16);
+  }
+
+  .featuresGrid,
+  .ctaGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .processStepsRail {
+    grid-template-columns: 1fr;
+  }
+
+  .processStepItem {
+    border-right: none;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .processStepItem:last-child {
+    border-bottom: none;
+  }
+
+  .drawerCardSecondary {
+    align-self: stretch;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .templatesGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pricingGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ctaShowcaseCard {
+    padding: var(--space-6);
+    grid-template-columns: 1fr;
+  }
+
+  .ctaStripsFan {
+    margin-inline: auto;
+    width: 168px;
+  }
+}

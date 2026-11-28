@@ -51,7 +51,7 @@ class UploadPhotosUseCase(
             rawPhotos.forEachIndexed { index, raw ->
                 onProgress(index, rawPhotos.size)
 
-                if (remaining <= 0) {
+                if (drawer.photoCount + uploaded.size >= Drawer.MAX_PHOTO_COUNT || remaining <= 0) {
                     failures += PhotoUploadFailure(
                         index,
                         DrawerFailure.StorageFull(drawer.storageUsedBytes, drawer.storageLimitBytes),

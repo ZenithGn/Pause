@@ -46,6 +46,11 @@ android {
         // Cloudinary (Hybrid storage: Cloudinary for photos, Supabase for DB + Auth)
         buildConfigField("String", "CLOUDINARY_CLOUD_NAME", "\"${escape(secret("CLOUDINARY_CLOUD_NAME"))}\"")
         buildConfigField("String", "CLOUDINARY_UPLOAD_PRESET", "\"${escape(secret("CLOUDINARY_UPLOAD_PRESET"))}\"")
+
+        // PayOS (Real Payment Gateway API)
+        buildConfigField("String", "PAYOS_CLIENT_ID", "\"${escape(secret("PAYOS_CLIENT_ID"))}\"")
+        buildConfigField("String", "PAYOS_API_KEY", "\"${escape(secret("PAYOS_API_KEY"))}\"")
+        buildConfigField("String", "PAYOS_CHECKSUM_KEY", "\"${escape(secret("PAYOS_CHECKSUM_KEY"))}\"")
     }
 
     buildFeatures {
@@ -131,9 +136,17 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
+    // FR-07: Firebase Cloud Messaging (FCM)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging.ktx)
+
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
 
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+}
+
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
 }

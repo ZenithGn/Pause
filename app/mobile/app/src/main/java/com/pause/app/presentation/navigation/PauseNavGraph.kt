@@ -1,8 +1,11 @@
 package com.pause.app.presentation.navigation
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -34,6 +37,10 @@ import com.pause.app.presentation.drawer.DrawerDetailViewModel
 import com.pause.app.presentation.drawer.DrawerListScreen
 import com.pause.app.presentation.drawer.DrawerListViewModel
 import com.pause.app.presentation.home.HomeScreen
+import com.pause.app.presentation.notification.NotificationListScreen
+import com.pause.app.presentation.notification.NotificationViewModel
+import com.pause.app.presentation.payment.PaymentFailedScreen
+import com.pause.app.presentation.payment.PaymentQrScreen
 import com.pause.app.presentation.profile.ProfileScreen
 import com.pause.app.presentation.profile.ProfileViewModel
 import com.pause.app.presentation.order.OrderConfirmScreen
@@ -49,6 +56,7 @@ import com.pause.app.presentation.share.ShareDrawerScreen
 import com.pause.app.presentation.share.ShareDrawerViewModel
 import com.pause.app.presentation.splash.SplashScreen
 import com.pause.app.presentation.splash.SplashViewModel
+import com.pause.app.presentation.upgrade.UpgradeScreen
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -73,12 +81,20 @@ object Routes {
     const val ORDER_CONFIRM = "order/confirm/{orderId}"
     const val ORDER_LIST = "order/list"
     const val ORDER_DETAIL = "order/detail/{orderId}"
+    const val UPGRADE = "upgrade"
+    const val NOTIFICATIONS = "notifications"
+    const val PAYMENT_QR = "payment/qr/{paymentType}/{refId}/{amountVnd}"
+    const val PAYMENT_FAILED = "payment/failed/{paymentType}/{refId}/{amountVnd}"
 
     fun drawerDetail(drawerId: String) = "drawer/$drawerId"
     fun shareDrawer(drawerId: String) = "drawer/$drawerId/share"
     fun orderForm(itemId: String) = "order/form/$itemId"
     fun orderConfirm(orderId: String) = "order/confirm/$orderId"
     fun orderDetail(orderId: String) = "order/detail/$orderId"
+    fun paymentQr(paymentType: String, refId: String, amountVnd: Int) =
+        "payment/qr/$paymentType/$refId/$amountVnd"
+    fun paymentFailed(paymentType: String, refId: String, amountVnd: Int) =
+        "payment/failed/$paymentType/$refId/$amountVnd"
 }
 
 @Composable
@@ -102,6 +118,8 @@ fun PauseNavGraph(
     val orderFormState by orderViewModel.formState.collectAsStateWithLifecycle()
     val orderListState by orderViewModel.listState.collectAsStateWithLifecycle()
     val orderDetailState by orderViewModel.detailState.collectAsStateWithLifecycle()
+    val notificationViewModel: NotificationViewModel = koinViewModel()
+    val notificationState by notificationViewModel.state.collectAsStateWithLifecycle()
 
     var toast by remember { mutableStateOf<UiText?> (null) }
 
@@ -115,7 +133,12 @@ fun PauseNavGraph(
     // DrawerListViewModel lives at this graph's scope and therefore outlives
     // navigation back to Login. Keep its state tied to the active account.
     LaunchedEffect(authState.session?.user?.id) {
-        drawerListViewModel.onSessionChanged(authState.session?.user?.id)
+        val currentUserId = authState.session?.user?.id
+        drawerListViewModel.onSessionChanged(currentUserId)
+        if (currentUserId != null) {
+            profileViewModel.load(force = true)
+            notificationViewModel.loadNotifications()
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -147,6 +170,9 @@ fun PauseNavGraph(
             PauseTab.PROFILE -> Routes.PROFILE
         }
         if (navController.currentDestination?.route != route) {
+            if (tab == PauseTab.PHOTOBOOTH) {
+                photoboothViewModel.start()
+            }
             navController.navigate(route) {
                 popUpTo(Routes.HOME) { inclusive = false }
                 launchSingleTop = true
@@ -155,7 +181,34 @@ fun PauseNavGraph(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        NavHost(navController = navController, startDestination = Routes.SPLASH) {
+        NavHost(
+            navController = navController,
+            startDestination = Routes.SPLASH,
+            enterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { fullWidth -> (fullWidth * 0.15f).toInt() },
+                    animationSpec = tween(durationMillis = 280),
+                ) + fadeIn(animationSpec = tween(durationMillis = 280))
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> -(fullWidth * 0.15f).toInt() },
+                    animationSpec = tween(durationMillis = 240),
+                ) + fadeOut(animationSpec = tween(durationMillis = 240))
+            },
+            popEnterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { fullWidth -> -(fullWidth * 0.15f).toInt() },
+                    animationSpec = tween(durationMillis = 280),
+                ) + fadeIn(animationSpec = tween(durationMillis = 280))
+            },
+            popExitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> (fullWidth * 0.15f).toInt() },
+                    animationSpec = tween(durationMillis = 240),
+                ) + fadeOut(animationSpec = tween(durationMillis = 240))
+            },
+        ) {
             composable(Routes.SPLASH) {
                 SplashScreen()
                 LaunchedEffect(signedIn) {
@@ -218,14 +271,36 @@ fun PauseNavGraph(
             }
 
             composable(Routes.HOME) {
-                LaunchedEffect(Unit) { drawerListViewModel.loadIfNeeded() }
+                LaunchedEffect(Unit) {
+                    profileViewModel.load()
+                    drawerListViewModel.load()
+                    notificationViewModel.loadNotifications()
+                    orderViewModel.loadOrders()
+                }
                 HomeScreen(
                     displayName = profileState.profile?.displayName
                         ?: authState.session?.user?.email?.substringBefore('@'),
+                    avatarUrl = profileState.avatarUrl,
+                    isPremium = profileState.profile?.isPremium ?: false,
+                    maxDrawers = profileState.profile?.maxDrawers ?: 3,
+                    ownedDrawerCount = drawerState.owned.size,
                     recentDrawers = drawerState.recent,
                     hasError = drawerState.error != null,
+                    onRetry = {
+                        profileViewModel.load(force = true)
+                        drawerListViewModel.load()
+                    },
+                    isRefreshing = drawerState.isLoading || profileState.isLoading,
+                    onRefresh = {
+                        profileViewModel.load(force = true)
+                        drawerListViewModel.load()
+                        notificationViewModel.loadNotifications()
+                        orderViewModel.loadOrders()
+                    },
                     pendingInvitationCount = drawerState.pendingInvitationCount,
+                    unreadNotificationCount = notificationState.unreadCount,
                     onOpenInvitations = { onTabSelected(PauseTab.MEMORIES) },
+                    onOpenNotifications = { navController.navigate(Routes.NOTIFICATIONS) },
                     onCreateDrawer = drawerListViewModel::openCreateSheet,
                     onOpenDrawer = { drawer ->
                         navController.navigate(Routes.drawerDetail(drawer.id))
@@ -234,6 +309,13 @@ fun PauseNavGraph(
                         photoboothViewModel.start()
                         navController.navigate(Routes.PHOTOBOOTH_TEMPLATES)
                     },
+                    onStartPhotoboothWithSlot = { slotCount ->
+                        photoboothViewModel.start()
+                        photoboothViewModel.selectSlotCount(slotCount)
+                        navController.navigate(Routes.PHOTOBOOTH_TEMPLATES)
+                    },
+                    recentOrders = orderListState.orders,
+                    onOrderClick = { orderId -> navController.navigate(Routes.orderDetail(orderId)) },
                     onViewOrders = { navController.navigate(Routes.ORDER_LIST) },
                     onNavigate = ::onTabSelected,
                 )
@@ -246,6 +328,9 @@ fun PauseNavGraph(
                 TemplateListScreen(
                     state = photoboothState,
                     onBack = { navController.popBackStack() },
+                    onSlotCountSelected = photoboothViewModel::selectSlotCount,
+                    isUserPremium = profileState.profile?.isPremium == true,
+                    onRequireUpgrade = { navController.navigate(Routes.UPGRADE) },
                     onTemplateSelected = { templateId ->
                         photoboothViewModel.selectTemplate(templateId)
                         navController.navigate(Routes.PHOTOBOOTH_PHOTOS)
@@ -269,6 +354,7 @@ fun PauseNavGraph(
                     onBack = { navController.popBackStack() },
                     onEditPhotos = { navController.popBackStack() },
                     onSave = photoboothViewModel::saveDraft,
+                    onCaptionChange = photoboothViewModel::onCaptionChange,
                     onOrderClick = { draftId ->
                         navController.navigate(Routes.orderForm(draftId))
                     },
@@ -276,9 +362,10 @@ fun PauseNavGraph(
             }
 
             composable(Routes.MEMORIES) {
-                LaunchedEffect(Unit) { drawerListViewModel.loadIfNeeded() }
+                LaunchedEffect(Unit) { drawerListViewModel.load() }
                 DrawerListScreen(
                     state = drawerState,
+                    maxDrawers = profileState.profile?.maxDrawers ?: 3,
                     onDrawerClick = { drawer -> navController.navigate(Routes.drawerDetail(drawer.id)) },
                     onCreateClick = drawerListViewModel::openCreateSheet,
                     onDismissQuota = drawerListViewModel::dismissQuotaDialog,
@@ -286,6 +373,7 @@ fun PauseNavGraph(
                     onNavigate = ::onTabSelected,
                     onConsumeToast = drawerListViewModel::consumeToast,
                     onRespondInvitation = drawerListViewModel::respondInvitation,
+                    onUpgradeClick = { navController.navigate(Routes.UPGRADE) },
                 )
             }
 
@@ -301,7 +389,10 @@ fun PauseNavGraph(
 
                 DrawerDetailScreen(
                     state = detailState,
-                    onBack = { navController.popBackStack() },
+                    onBack = {
+                        drawerListViewModel.load()
+                        navController.popBackStack()
+                    },
                     onShare = { navController.navigate(Routes.shareDrawer(drawerId)) },
                     onStartPhotobooth = {
                         photoboothViewModel.start(drawerId)
@@ -315,6 +406,14 @@ fun PauseNavGraph(
                     onDeleteDrawer = detailViewModel::deleteDrawer,
                     onLoadMore = detailViewModel::loadMore,
                     onConsumeToast = detailViewModel::consumeToast,
+                    onSetAsCover = { photo ->
+                        detailViewModel.setAsCover(photo)
+                        drawerListViewModel.load()
+                    },
+                    onUploadCoverPhoto = { rawPhoto ->
+                        detailViewModel.uploadCoverPhoto(rawPhoto)
+                        drawerListViewModel.load()
+                    },
                     onDeleted = {
                         drawerListViewModel.onDrawerDeleted(drawerId)
                         navController.popBackStack()
@@ -347,6 +446,7 @@ fun PauseNavGraph(
                 LaunchedEffect(Unit) { profileViewModel.load() }
                 ProfileScreen(
                     state = profileState,
+                    userEmail = authState.session?.user?.email,
                     onBack = { navController.popBackStack() },
                     onEdit = profileViewModel::startEditing,
                     onCancelEdit = profileViewModel::cancelEditing,
@@ -359,8 +459,148 @@ fun PauseNavGraph(
                         navController.navigateClearingBackStack(Routes.LOGIN)
                     },
                     onViewOrders = { navController.navigate(Routes.ORDER_LIST) },
+                    onUpgrade = { navController.navigate(Routes.UPGRADE) },
                     onConsumeMessage = profileViewModel::consumeMessage,
                     onNavigate = ::onTabSelected,
+                )
+            }
+
+            composable(Routes.UPGRADE) {
+                LaunchedEffect(Unit) { profileViewModel.load() }
+                UpgradeScreen(
+                    isPremium = profileState.profile?.isPremium == true,
+                    maxDrawers = profileState.profile?.maxDrawers ?: 3,
+                    onBack = { navController.popBackStack() },
+                    onSelectPlan = { plan ->
+                        val refId = (authState.session?.user?.id ?: "VIP").take(8)
+                        navController.navigate(Routes.paymentQr(plan.id, refId, plan.priceVnd))
+                    },
+                )
+            }
+
+            composable(Routes.NOTIFICATIONS) {
+                LaunchedEffect(Unit) { notificationViewModel.loadNotifications() }
+                NotificationListScreen(
+                    state = notificationState,
+                    onBack = { navController.popBackStack() },
+                    onFilterChange = notificationViewModel::setFilter,
+                    onMarkAllRead = notificationViewModel::markAllAsRead,
+                    onNotificationClick = { notif ->
+                        notificationViewModel.markAsRead(notif.id)
+                        when (notif.type) {
+                            "drawer_share" -> {
+                                navController.popBackStack()
+                                onTabSelected(PauseTab.MEMORIES)
+                            }
+                            "print_order" -> {
+                                val refId = notif.referenceId
+                                if (!refId.isNullOrBlank()) {
+                                    navController.navigate(Routes.orderDetail(refId))
+                                } else {
+                                    navController.navigate(Routes.ORDER_LIST)
+                                }
+                            }
+                            "membership" -> {
+                                navController.navigate(Routes.UPGRADE)
+                            }
+                            else -> Unit
+                        }
+                    },
+                )
+            }
+
+            composable(
+                route = Routes.PAYMENT_QR,
+                arguments = listOf(
+                    navArgument("paymentType") { type = NavType.StringType },
+                    navArgument("refId") { type = NavType.StringType },
+                    navArgument("amountVnd") { type = NavType.IntType },
+                ),
+            ) { entry ->
+                val paymentType = entry.arguments?.getString("paymentType").orEmpty()
+                val refId = entry.arguments?.getString("refId").orEmpty()
+                val amountVnd = entry.arguments?.getInt("amountVnd") ?: 0
+
+                PaymentQrScreen(
+                    paymentType = paymentType,
+                    referenceId = refId,
+                    amountVnd = amountVnd,
+                    isProcessing = profileState.isSaving,
+                    onConfirmPayment = {
+                        when (paymentType) {
+                            "pause_go", "pause_plus", "pause_premium", "membership_yearly", "membership_monthly" -> {
+                                val planTitle = when (paymentType) {
+                                    "pause_go" -> "PAUSE Go (5GB/năm)"
+                                    "pause_plus" -> "PAUSE Plus (10GB/năm)"
+                                    "pause_premium" -> "PAUSE Premium (20GB/năm)"
+                                    else -> "Pause VIP"
+                                }
+                                profileViewModel.upgradeToPremium(isYearly = true, planType = paymentType) { updatedProfile ->
+                                    drawerListViewModel.dismissQuotaDialog()
+                                    notificationViewModel.pushNotification(
+                                        type = "membership",
+                                        title = "Kích hoạt $planTitle thành công!",
+                                        body = "Tài khoản của bạn đã nâng cấp thành công $planTitle: Mở khóa 100% VIP Templates và mở rộng lưu trữ đám mây (${updatedProfile.maxDrawers} ngăn kéo).",
+                                    )
+                                    toast = UiText.Dynamic(
+                                        "Đã kích hoạt $planTitle thành công!",
+                                    )
+                                    navController.popBackStack()
+                                }
+                            }
+                            "single_drawer" -> {
+                                profileViewModel.purchaseSingleDrawer { updatedProfile ->
+                                    drawerListViewModel.dismissQuotaDialog()
+                                    notificationViewModel.pushNotification(
+                                        type = "membership",
+                                        title = "Đã mở thêm ngăn kéo",
+                                        body = "Hạn mức ngăn kéo của bạn đã tăng lên ${updatedProfile.maxDrawers} ngăn kéo.",
+                                    )
+                                    toast = UiText.Dynamic(
+                                        "Đã mở thêm ngăn kéo thành công!",
+                                    )
+                                    navController.popBackStack()
+                                }
+                            }
+                            else -> {
+                                notificationViewModel.pushNotification(
+                                    type = "print_order",
+                                    title = "Đã thanh toán đơn in #${refId.take(8).uppercase()}",
+                                    body = "Chúng tôi đã nhận chuyển khoản VietQR của bạn và đang tiến hành in ảnh.",
+                                    referenceId = refId,
+                                )
+                                toast = UiText.Dynamic("Thanh toán VietQR thành công!")
+                                navController.navigate(Routes.orderConfirm(refId)) {
+                                    popUpTo(Routes.PHOTOBOOTH_PREVIEW) { inclusive = true }
+                                }
+                            }
+                        }
+                    },
+                    onCancel = {
+                        navController.navigate(Routes.paymentFailed(paymentType, refId, amountVnd))
+                    },
+                    onBack = { navController.popBackStack() },
+                )
+            }
+
+            composable(
+                route = Routes.PAYMENT_FAILED,
+                arguments = listOf(
+                    navArgument("paymentType") { type = NavType.StringType },
+                    navArgument("refId") { type = NavType.StringType },
+                    navArgument("amountVnd") { type = NavType.IntType },
+                ),
+            ) { entry ->
+                val paymentType = entry.arguments?.getString("paymentType").orEmpty()
+                val refId = entry.arguments?.getString("refId").orEmpty()
+                val amountVnd = entry.arguments?.getInt("amountVnd") ?: 0
+
+                PaymentFailedScreen(
+                    paymentType = paymentType,
+                    referenceId = refId,
+                    amountVnd = amountVnd,
+                    onRetry = { navController.popBackStack() },
+                    onBackHome = { navController.navigateClearingBackStack(Routes.HOME) },
                 )
             }
 
@@ -369,12 +609,13 @@ fun PauseNavGraph(
                 arguments = listOf(navArgument("itemId") { type = NavType.StringType }),
             ) { entry ->
                 val itemId = entry.arguments?.getString("itemId").orEmpty()
-                LaunchedEffect(itemId) {
+                LaunchedEffect(itemId, profileState.profile?.isPremium) {
                     orderViewModel.initOrderForm(
                         itemId = itemId,
                         templateName = photoboothState.selectedTemplate?.name ?: "Photobooth Strip",
-                        previewUrl = null,
+                        previewUrl = photoboothState.previewUrl,
                         slotCount = photoboothState.selectedTemplate?.slotCount ?: 4,
+                        isPremiumUser = profileState.profile?.isPremium == true,
                     )
                 }
                 OrderFormScreen(
@@ -384,12 +625,39 @@ fun PauseNavGraph(
                     onPhoneChange = orderViewModel::onShippingPhoneChanged,
                     onAddressChange = orderViewModel::onShippingAddressChanged,
                     onNoteChange = orderViewModel::onNoteChanged,
+                    onCoverTypeChange = orderViewModel::onCoverTypeChanged,
+                    onPaperTypeChange = orderViewModel::onPaperTypeChanged,
+                    onPromoCodeChange = orderViewModel::onPromoCodeChanged,
                     onIncrementQuantity = orderViewModel::incrementQuantity,
                     onDecrementQuantity = orderViewModel::decrementQuantity,
                     onSubmit = {
                         orderViewModel.submitOrder { orderId ->
                             navController.navigate(Routes.orderConfirm(orderId)) {
                                 popUpTo(Routes.PHOTOBOOTH_PREVIEW) { inclusive = true }
+                            }
+                        }
+                    },
+                    onSubmitWithPayment = { isBankQr ->
+                        val amountToPay = orderFormState.grandTotalVnd
+                        orderViewModel.submitOrder { orderId ->
+                            if (isBankQr) {
+                                navController.navigate(
+                                    Routes.paymentQr(
+                                        paymentType = "order",
+                                        refId = orderId,
+                                        amountVnd = amountToPay,
+                                    ),
+                                )
+                            } else {
+                                notificationViewModel.pushNotification(
+                                    type = "print_order",
+                                    title = "Đặt in thành công #${orderId.take(8).uppercase()}",
+                                    body = "Đơn đặt in Photobooth (COD) của bạn đã được tiếp nhận và đang chờ xử lý.",
+                                    referenceId = orderId,
+                                )
+                                navController.navigate(Routes.orderConfirm(orderId)) {
+                                    popUpTo(Routes.PHOTOBOOTH_PREVIEW) { inclusive = true }
+                                }
                             }
                         }
                     },
@@ -418,6 +686,9 @@ fun PauseNavGraph(
                     onBack = { navController.popBackStack() },
                     onFilterSelected = orderViewModel::setFilter,
                     onOrderClick = { orderId -> navController.navigate(Routes.orderDetail(orderId)) },
+                    onReorderClick = { order ->
+                        navController.navigate(Routes.orderForm(order.photoboothItemId))
+                    },
                     onRefresh = orderViewModel::loadOrders,
                 )
             }

@@ -32,6 +32,11 @@ erDiagram
         string avatar_url
         string phone
         int max_drawers
+        string role
+        boolean is_premium
+        boolean is_locked
+        timestamp locked_at
+        string locked_reason
         timestamp created_at
     }
 
@@ -131,6 +136,8 @@ erDiagram
         string shipping_phone
         string shipping_address
         string status
+        string cover_type
+        string paper_type
         timestamp created_at
         timestamp updated_at
     }
@@ -163,6 +170,11 @@ CREATE TABLE public.profiles (
     avatar_url TEXT,
     phone TEXT,
     max_drawers INTEGER NOT NULL DEFAULT 3,  -- Free tier: 3
+    role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+    is_premium BOOLEAN NOT NULL DEFAULT FALSE,
+    is_locked BOOLEAN NOT NULL DEFAULT FALSE,
+    locked_at TIMESTAMPTZ,
+    locked_reason TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -198,8 +210,12 @@ CREATE POLICY "Users can update own profile"
 > migration bổ sung, không thay đổi lịch sử baseline đã áp.
 > - `profiles` chỉ cấp `SELECT/UPDATE` cho role `authenticated`; `INSERT/DELETE`
 >   do trigger `handle_new_user()` (SECURITY DEFINER) và `ON DELETE CASCADE` xử lý.
-> - Trigger `protect_profiles_columns()` chặn user tự đổi `max_drawers`
->   (chỉ `service_role` được đổi – dùng cho gói hội viên/mua lẻ).
+> - Trigger `protect_profile_columns()` chặn user tự đổi `max_drawers`, `role`,
+>   `is_premium`, `is_locked`, `locked_at`, `locked_reason` (chỉ `service_role`
+>   hoặc RPC `SECURITY DEFINER` nội bộ bật `app.bypass_profile_protection = 'on'` mới
+>   được ghi).
+> - Hàm `public.is_admin()` (`SECURITY DEFINER`, `STABLE`) trả về `true` chỉ khi
+>   `role = 'admin'` **và** `NOT is_locked`. Admin bị khóa mất quyền lập tức.
 > - **Đã bỏ** trigger `on_profile_created_create_default_drawers` (migration
 >   `20251114090000_fr02_repair.sql`): trước đây nó tạo sẵn 3 ngăn kéo trống và
 >   chiếm hết quota free tier khiến tài khoản mới không tạo thêm được ngăn kéo.
@@ -507,7 +523,7 @@ CREATE INDEX idx_orders_status ON print_orders(status);
 
 ---
 
-### 11. `transactions` (Giao dịch thanh toán)
+### 11. `transactions` (Giao dịch thanh toán VietQR & PayOS)
 
 ```sql
 CREATE TABLE public.transactions (
@@ -516,17 +532,28 @@ CREATE TABLE public.transactions (
     order_id UUID REFERENCES public.print_orders(id),    -- NULL nếu mua hội viên/ngăn kéo
     type TEXT NOT NULL CHECK (type IN ('print_order', 'membership', 'drawer_purchase')),
     amount_vnd INTEGER NOT NULL,
-    payment_method TEXT,                -- 'vnpay', 'momo', 'zalopay'
-    payment_gateway_ref TEXT,           -- Mã giao dịch từ payment gateway
+    payment_method TEXT,                -- 'vietqr_payos', 'vietqr', 'vnpay', 'momo'
+    payment_gateway_ref TEXT,           -- Mã giao dịch từ payment gateway / PayOS
+    order_code BIGINT UNIQUE,           -- Mã đơn hàng numeric của cổng PayOS / VietQR Open Banking
     status TEXT NOT NULL DEFAULT 'pending'
         CHECK (status IN ('pending', 'success', 'failed', 'refunded')),
-    metadata JSONB,                     -- Thông tin thêm từ gateway
+    metadata JSONB,                     -- Thông tin thêm từ gateway (payment_type, ref_id...)
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX idx_transactions_user ON transactions(user_id);
 CREATE INDEX idx_transactions_status ON transactions(status);
+CREATE UNIQUE INDEX idx_transactions_order_code ON transactions(order_code) WHERE order_code IS NOT NULL;
 ```
+
+#### RPC Functions hỗ trợ Thanh toán & Webhook (FR-05)
+
+- **`create_payment_checkout(p_payment_type text, p_ref_id text, p_amount_vnd integer, p_order_code bigint default null) -> JSONB`**:
+  Khởi tạo giao dịch pending, sinh `order_code` 9 chữ số và lưu vào `public.transactions`.
+- **`complete_payment_transaction(p_order_code bigint, p_gateway_ref text default 'vietqr_auto', p_metadata jsonb default '{}'::jsonb) -> JSONB`**:
+  Hàm idempotent (bảo toàn tính nhất quán) dùng cho Webhook Edge Function hoặc Client Sandbox: cập nhật giao dịch thành `success`, tự động kích hoạt gói hội viên (`is_premium = true`, nâng `max_drawers` theo gói Go/Plus/Premium) hoặc chuyển đơn in sang `processing`, đồng thời gửi thông báo in-app.
+- **`get_payment_transaction_status(p_order_code bigint) -> JSONB`**:
+  Trả về trạng thái hiện tại của giao dịch cho Mobile client polling hoặc kiểm tra khi `ON_RESUME`.
 
 ---
 
@@ -633,6 +660,41 @@ cover_photo_url)`; `storage_used_bytes`, `storage_limit_bytes`, `is_purchased`,
 - `create or replace` toàn bộ RPC FR-02 để DB đang ở trạng thái dở dang cũng
   hội tụ về hành vi chỉ-hiển-thị-khi-accepted.
 
+
+### Lưu trữ ảnh: Cloudinary (hybrid)
+
+- **Ảnh ngăn kéo** (`photos.original_url`) = `secure_url` từ Cloudinary
+  (upload preset unsigned, folder `pause/photos/{drawer_id}`).
+- **Thumbnail** (`photos.thumbnail_url`) = URL transformation
+  `.../image/upload/w_480,q_70,c_limit,f_auto/...` — Cloudinary sinh on-the-fly,
+  **không upload file thumbnail**.
+- **Preview photobooth** (`photobooth_items.preview_url`) = ảnh render trên máy,
+  upload Cloudinary folder `pause/photobooth/{user_id}`.
+- **Avatar** vẫn nằm ở bucket private `avatars` (Supabase Storage, signed URL).
+- Ảnh legacy dạng object path (`{drawer_id}/{photo_id}.jpg`) vẫn được hỗ trợ:
+  code phân biệt bằng `CloudinaryUploader.isCloudinaryUrl()` và resolve signed URL.
+- Chi tiết + trade-off bảo mật: [storage-strategy.md](storage-strategy.md).
+
+### `layout_config` (photobooth_templates)
+
+JSON do admin cấu hình, renderer mobile đọc để vẽ preview:
+
+```json
+{
+  "width": 1200,
+  "height": 1800,
+  "background_color": "#FFFFFF",
+  "slots": [
+    { "index": 0, "x": 60, "y": 80, "width": 1080, "height": 700 },
+    { "index": 1, "x": 60, "y": 820, "width": 1080, "height": 700 }
+  ],
+  "texts": [
+    { "content": "Pause", "x": 600, "y": 1700, "font_size": 48, "color": "#111111" }
+  ],
+  "frame_url": null
+}
+```
+
 ### RPC (gọi từ mobile)
 
 | RPC | Dùng cho |
@@ -651,3 +713,85 @@ cover_photo_url)`; `storage_used_bytes`, `storage_limit_bytes`, `is_purchased`,
 - `thumbnails` (private, 1 MB/file, jpeg/png/webp)
 - Policy: đọc = owner hoặc share `accepted`; ghi/xoá = owner hoặc share
   `accepted` + `edit`.
+
+---
+
+## Bảng & RPC quản trị hệ thống (FR-06 Admin Dashboard)
+
+> Triển khai tại `supabase/migrations/20261120120000_fr06_admin.sql`.
+> Seed local/staging: `supabase/seed/admin_seed.sql`.
+
+### 12. `admin_audit_logs` (Nhật ký thao tác quản trị)
+
+```sql
+CREATE TABLE public.admin_audit_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    admin_id UUID NOT NULL REFERENCES public.profiles(id),
+    action TEXT NOT NULL,
+    entity_type TEXT NOT NULL,
+    entity_id TEXT,
+    before JSONB,
+    after JSONB,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+- **RLS**: chỉ `admin` hợp lệ (`public.is_admin()`) được `SELECT`. Không cho phép client `INSERT`/`UPDATE`/`DELETE` trực tiếp; mọi ghi log đi qua hàm nội bộ `SECURITY DEFINER` `public.log_admin_action(...)` bên trong các RPC `admin_*`.
+
+### 13. `print_order_status_history` (Lịch sử chuyển trạng thái đơn in)
+
+```sql
+CREATE TABLE public.print_order_status_history (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_id UUID NOT NULL REFERENCES public.print_orders(id) ON DELETE CASCADE,
+    from_status TEXT,
+    to_status TEXT NOT NULL CHECK (to_status IN ('pending', 'processing', 'printing', 'shipping', 'completed', 'cancelled')),
+    changed_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+    note TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+- **RLS**: chủ đơn (`print_orders.user_id = auth.uid()`) và admin (`is_admin()`) được `SELECT`. Trigger `record_print_order_status_history()` tự động ghi lại lúc tạo đơn và khi webhook/hệ thống chuyển trạng thái; `admin_update_order_status()` ghi kèm `note` và `changed_by`.
+- **Trigger thông báo FR-07 (`notify_print_order_status`)**: đã đồng bộ với 6 trạng thái chuẩn (`processing`, `printing`, `shipping`, `completed`, `cancelled`).
+
+### Quyền riêng tư & RLS bổ sung (NFR-04.2)
+
+- **`photos`**: Policy `"Admins can view photos in print orders"` **chỉ** cho phép admin đọc những dòng `photos` nằm trong `photobooth_photos` thuộc một `print_orders` thực tế. Admin **không thể** duyệt ảnh riêng tư trong ngăn kéo của người dùng.
+- **`photobooth_templates`**: Policy ghi (`INSERT`/`UPDATE`/`DELETE`) và xem cả mẫu ẩn (`is_active = false`) dành cho admin; trigger `validate_template_layout_config()` kiểm tra `width > 0`, `height > 0`, mảng `slots` hợp lệ, nằm trong khung, `index` liên tục từ `0`, và tự động đồng bộ `slot_count = jsonb_array_length(layout_config->'slots')`. Bucket `templates` cấp quyền `INSERT`/`UPDATE`/`DELETE` trên `storage.objects` cho admin.
+- **`membership_plans`**: Admin xem được cả gói `is_active = false` và có quyền `INSERT`/`UPDATE`/`DELETE` (chặn xóa bằng `PLAN_IN_USE` nếu đã có `memberships` tham chiếu).
+- **`print_orders`**: Admin có policy `UPDATE` (chuyển trạng thái thông qua RPC `admin_update_order_status` có khóa `FOR UPDATE` theo máy trạng thái chuẩn).
+
+### Danh sách Admin RPC (`SECURITY DEFINER`, kiểm tra `is_admin()`)
+
+Tất cả RPC `admin_*` đều `REVOKE ALL FROM PUBLIC, ANON` và chỉ `GRANT EXECUTE TO authenticated`, kiểm tra `public.is_admin()` ở dòng đầu (nếu không hợp lệ ném mã lỗi `ADMIN_REQUIRED` với `errcode = 'P0001'`).
+
+| Nhóm | RPC | Chức năng chính |
+|---|---|---|
+| **Auth** | `is_admin()` | Kiểm tra `role = 'admin' AND NOT is_locked` |
+| **Users** | `admin_list_users(...)` | Danh sách user (join `auth.users` lấy `email`, `last_sign_in_at`; suy ra `tier`; đếm `drawer_count`; `total_count`) |
+| **Users** | `admin_get_user_detail(p_user_id)` | Hồ sơ + thống kê tổng hợp `drawer_stats` (không trả URL ảnh ngăn kéo) + đơn & giao dịch gần đây |
+| **Users** | `admin_set_user_lock(p_user_id, p_locked, p_reason)` | Khóa/mở khóa tài khoản (chặn tự khóa & khóa admin khác), ghi audit log & gửi notification `system` |
+| **Templates** | `admin_list_templates(...)` | Danh sách template kèm `usage_count` & `total_count` |
+| **Templates** | `admin_upsert_template(...)` | Tạo/cập nhật template (validate `layout_config`, bắt trùng tên `TEMPLATE_NAME_TAKEN`) |
+| **Templates** | `admin_set_template_active(p_id, p_active)` | Ẩn/hiện template nhanh & ghi audit log |
+| **Templates** | `admin_delete_template(p_id)` | Xóa template chưa sử dụng (ném `TEMPLATE_IN_USE` nếu đã có `photobooth_items`) |
+| **Orders** | `admin_list_orders(...)` | Danh sách đơn in kèm `short_code`, `payment_status`, `payment_method`, lọc ngày `Asia/Ho_Chi_Minh` |
+| **Orders** | `admin_order_status_counts(p_from, p_to)` | Đếm số đơn theo đủ 6 trạng thái |
+| **Orders** | `admin_get_order_detail(p_order_id)` | Chi tiết đơn: `order`, `customer`, `photobooth_item`, `template`, `slot_photos`, `transactions`, `status_history` |
+| **Orders** | `admin_update_order_status(p_order_id, p_new_status, p_note)` | Chuyển trạng thái theo state machine (`FOR UPDATE`), bắt buộc `p_note` khi `cancelled`, ghi history & audit |
+| **Orders** | `admin_update_order_notes(p_order_id, p_admin_notes)` | Cập nhật ghi chú nội bộ của admin |
+| **Membership** | `admin_list_membership_plans(p_include_inactive)` | Danh sách gói kèm `subscriber_count` & `active_subscriber_count` |
+| **Membership** | `admin_upsert_membership_plan(...)` | Tạo/sửa gói hội viên (bắt trùng tên `PLAN_NAME_TAKEN`) |
+| **Membership** | `admin_delete_membership_plan(p_id)` | Xóa gói chưa có người đăng ký (ném `PLAN_IN_USE` nếu đang được tham chiếu) |
+| **Membership** | `admin_list_memberships(...)` | Danh sách hội viên, lọc trạng thái/gói/sắp hết hạn, tính `days_left` |
+| **Transactions** | `admin_list_transactions(...)` | Tra cứu giao dịch theo loại, trạng thái, ngày, `order_code`, `payment_gateway_ref` |
+| **Dashboard** | `admin_dashboard_stats(p_from, p_to)` | KPI tổng hợp (`transactions.status = 'success'`, múi giờ VN `UTC+07:00`) |
+| **Dashboard** | `admin_revenue_series(p_from, p_to, p_granularity)` | Chuỗi doanh thu tách `print_revenue_vnd` vs `membership_revenue_vnd` & `order_count` |
+| **Dashboard** | `admin_top_templates(p_from, p_to, p_limit)` | Top template theo số đơn (trừ đơn `cancelled`) & doanh thu đã thanh toán |
+| **Dashboard** | `admin_membership_distribution()` | Phân bố user theo gói đang hoạt động + dòng `Free` |
+
+### Bảo mật Service Role Key
+
+- **`SUPABASE_SERVICE_ROLE_KEY` chỉ được phép sử dụng phía server** (Next.js Server Actions / Route Handlers có `import "server-only"`, và Supabase Edge Functions).
+- Tuyệt đối không đưa `SUPABASE_SERVICE_ROLE_KEY` vào client bundle hoặc dùng để đọc dữ liệu bảng thay cho JWT admin (JWT admin + RLS + `is_admin()` là lớp bảo vệ bắt buộc). Service role ở Web Admin chỉ dùng cho thao tác Auth Admin API (như `auth.admin.updateUserById` để ban/unban phiên đăng nhập khi khóa/mở khóa tài khoản).

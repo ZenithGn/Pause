@@ -7,11 +7,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -35,7 +44,122 @@ import com.pause.app.domain.model.Drawer
 import com.pause.app.presentation.common.StorageFormat
 import com.pause.app.presentation.theme.PauseColors
 
-/** Figma card: cover + name + photo count + storage usage + access badges. */
+/** Editorial Grid Card for Memories tab (2 columns layout) */
+@Composable
+fun DrawerGridCard(
+    drawer: Drawer,
+    thumbnailUrl: String?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val fraction = (drawer.photoCount.toFloat() / 50f).coerceIn(0f, 1f)
+
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(18.dp),
+        color = PauseColors.Surface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, PauseColors.Line),
+        shadowElevation = 1.dp,
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // Photo Cover Thumbnail
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1.05f)
+                    .background(PauseColors.CategoryBg),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (!thumbnailUrl.isNullOrBlank()) {
+                    AsyncImage(
+                        model = thumbnailUrl,
+                        contentDescription = drawer.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(54.dp)
+                            .background(PauseColors.WineLight, RoundedCornerShape(16.dp)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.pause_mark),
+                            contentDescription = null,
+                            modifier = Modifier.size(28.dp),
+                            tint = PauseColors.Wine,
+                        )
+                    }
+                }
+
+                // Badge top-end
+                Surface(
+                    color = if (drawer.isOwner) Color.Black.copy(alpha = 0.55f) else PauseColors.Wine.copy(alpha = 0.85f),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp),
+                ) {
+                    Text(
+                        text = if (drawer.isOwner) {
+                            stringResource(R.string.drawers_role_owner)
+                        } else if (drawer.canWrite) {
+                            stringResource(R.string.drawers_role_edit)
+                        } else {
+                            stringResource(R.string.drawers_role_view)
+                        },
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp),
+                    )
+                }
+            }
+
+            // Information bottom section
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(
+                    text = drawer.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = PauseColors.Ink,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                Spacer(modifier = Modifier.height(3.dp))
+
+                Text(
+                    text = if (drawer.isOwner) {
+                        "${drawer.photoCount}/50 ảnh"
+                    } else {
+                        "Từ ${drawer.ownerName} • ${drawer.photoCount} ảnh"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = PauseColors.Muted,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LinearProgressIndicator(
+                    progress = { fraction },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(4.dp)
+                        .clip(RoundedCornerShape(2.dp)),
+                    color = if (fraction > 0.85f) PauseColors.Error else PauseColors.Wine,
+                    trackColor = PauseColors.Line,
+                )
+            }
+        }
+    }
+}
+
 @Composable
 fun DrawerCard(
     drawer: Drawer,
@@ -43,92 +167,161 @@ fun DrawerCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val fraction = (drawer.photoCount.toFloat() / 50f).coerceIn(0f, 1f)
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(18.dp),
         color = PauseColors.Surface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, PauseColors.Line),
+        shadowElevation = 1.dp,
     ) {
-        Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            // Thumbnail / Icon
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(140.dp)
-                    .background(PauseColors.Paper),
+                    .size(76.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(PauseColors.Ink),
+                contentAlignment = Alignment.Center,
             ) {
                 if (thumbnailUrl != null) {
                     AsyncImage(
                         model = thumbnailUrl,
-                        contentDescription = null,
+                        contentDescription = drawer.name,
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(140.dp),
+                        modifier = Modifier.fillMaxSize(),
                     )
                 } else {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(140.dp)
-                            .background(PauseColors.Wine),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.pause_mark),
-                            contentDescription = null,
-                            modifier = Modifier.size(56.dp),
-                            tint = Color.White,
-                        )
-                    }
-                }
-
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(10.dp),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    if (!drawer.isOwner) {
-                        BadgeChip(
-                            text = stringResource(R.string.drawers_shared_badge),
-                            filled = true,
-                        )
-                    }
-                    if (!drawer.canWrite) {
-                        BadgeChip(text = stringResource(R.string.drawers_view_only_badge), filled = false)
-                    }
-                    if (drawer.isPurchased) {
-                        BadgeChip(text = stringResource(R.string.drawers_purchased_badge), filled = false)
-                    }
+                    Icon(
+                        painter = painterResource(R.drawable.pause_mark_white),
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp),
+                        tint = Color.White,
+                    )
                 }
             }
 
-            Column(modifier = Modifier.padding(14.dp)) {
+            Spacer(modifier = Modifier.width(14.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = drawer.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = PauseColors.Ink,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Surface(
+                        color = if (drawer.isOwner) PauseColors.CategoryBg else PauseColors.WineLight,
+                        shape = RoundedCornerShape(6.dp),
+                    ) {
+                        Text(
+                            text = if (drawer.isOwner) "Của tôi" else if (drawer.canWrite) "Chia sẻ (Sửa)" else "Chia sẻ (Xem)",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = if (drawer.isOwner) PauseColors.Muted else PauseColors.Wine,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
                 Text(
-                    text = drawer.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = PauseColors.Ink,
+                    text = if (drawer.isOwner) {
+                        "${drawer.photoCount} ảnh"
+                    } else {
+                        "Được chia sẻ bởi ${drawer.ownerName} • ${drawer.photoCount} ảnh"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = PauseColors.Muted,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = if (drawer.isOwner) {
-                        stringResource(R.string.drawers_photo_count, drawer.photoCount)
-                    } else {
-                        stringResource(R.string.drawers_photo_count, drawer.photoCount) +
-                            " · " + stringResource(R.string.drawers_owner_label, drawer.ownerName)
-                    },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = PauseColors.Muted,
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LinearProgressIndicator(
+                    progress = { fraction },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(6.dp)
+                        .clip(RoundedCornerShape(3.dp)),
+                    color = if (fraction > 0.85f) PauseColors.Error else PauseColors.Ink,
+                    trackColor = PauseColors.CategoryBg,
                 )
-                Spacer(modifier = Modifier.height(10.dp))
-                StorageIndicator(
-                    usedBytes = drawer.storageUsedBytes,
-                    limitBytes = drawer.storageLimitBytes,
-                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "${drawer.photoCount} / 50 ảnh",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = PauseColors.Muted,
+                    )
+                    Text(
+                        text = if (drawer.photoCount >= 50) "Đầy (50/50)" else "Còn ${50 - drawer.photoCount} ảnh",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = PauseColors.Muted,
+                    )
+                }
             }
+        }
+    }
+}
+
+@Composable
+fun StorageIndicator(
+    photoCount: Int,
+    maxPhotos: Int = 50,
+    modifier: Modifier = Modifier,
+) {
+    val fraction = if (maxPhotos <= 0) 0f
+    else (photoCount.toFloat() / maxPhotos.toFloat()).coerceIn(0f, 1f)
+    Column(modifier = modifier.fillMaxWidth()) {
+        LinearProgressIndicator(
+            progress = { fraction },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(6.dp),
+            color = if (fraction > 0.9f) PauseColors.Error else PauseColors.Wine,
+            trackColor = PauseColors.Line
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = "$photoCount / $maxPhotos ảnh",
+                style = MaterialTheme.typography.bodyMedium,
+                color = PauseColors.Muted,
+            )
+            Text(
+                text = if (photoCount >= maxPhotos) "Đã đầy" else "Còn ${maxPhotos - photoCount} ảnh",
+                style = MaterialTheme.typography.bodyMedium,
+                color = PauseColors.Muted,
+            )
         }
     }
 }
@@ -210,31 +403,62 @@ fun DrawerEmptyState(
             .padding(horizontal = 24.dp, vertical = 48.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box(
-            modifier = Modifier
-                .size(72.dp)
-                .background(PauseColors.Surface, RoundedCornerShape(24.dp)),
-            contentAlignment = Alignment.Center,
+        Surface(
+            modifier = Modifier.size(76.dp),
+            shape = RoundedCornerShape(24.dp),
+            color = PauseColors.WineLight,
+            border = androidx.compose.foundation.BorderStroke(1.dp, PauseColors.Wine.copy(alpha = 0.2f)),
         ) {
-            Text(text = "✿", style = MaterialTheme.typography.headlineMedium)
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.pause_mark),
+                    contentDescription = null,
+                    tint = PauseColors.Wine,
+                    modifier = Modifier.size(36.dp),
+                )
+            }
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(18.dp))
         Text(
             text = title,
             style = MaterialTheme.typography.titleLarge,
             color = PauseColors.Ink,
-            fontWeight = FontWeight.SemiBold,
+            fontWeight = FontWeight.Bold,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = message,
             style = MaterialTheme.typography.bodyMedium,
             color = PauseColors.Muted,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 16.dp),
         )
         if (actionLabel != null && onAction != null) {
-            Spacer(modifier = Modifier.height(20.dp))
-            OutlinedButton(onClick = onAction, shape = RoundedCornerShape(999.dp)) {
-                Text(text = actionLabel)
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(
+                onClick = onAction,
+                shape = RoundedCornerShape(999.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = PauseColors.Wine,
+                    contentColor = Color.White,
+                ),
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = actionLabel,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                )
             }
         }
     }

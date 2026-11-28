@@ -1,0 +1,221 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.label {
+  font-size: var(--text-label-lg);
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.requiredMark {
+  color: var(--md-sys-color-error);
+}
+
+.controlWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: var(--md-sys-color-surface);
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--radius-sm);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.controlWrap:hover:not(.controlDisabled) {
+  border-color: var(--md-sys-color-on-surface-variant);
+}
+
+.controlWrap:focus-within:not(.controlDisabled) {
+  border-color: var(--md-sys-color-primary);
+  box-shadow: var(--md-sys-state-focus-ring);
+}
+
+.controlError {
+  border-color: var(--md-sys-color-error);
+}
+
+.controlError:focus-within:not(.controlDisabled) {
+  border-color: var(--md-sys-color-error);
+  box-shadow: 0 0 0 3px rgba(179, 38, 30, 0.2);
+}
+
+.controlDisabled {
+  background-color: var(--md-sys-color-surface-container);
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.adornment {
+  display: inline-flex;
+  align-items: center;
+  color: var(--md-sys-color-on-surface-variant);
+  padding-inline: var(--space-3);
+  flex-shrink: 0;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--md-sys-color-on-surface);
+  font-size: var(--text-body-md);
+  line-height: var(--leading-normal);
+  outline: none;
+}
+
+.input,
+.select {
+  height: 40px;
+  padding: 0 var(--space-3);
+}
+
+.inputWithLeft {
+  padding-left: 0;
+}
+
+.inputWithRight {
+  padding-right: 0;
+}
+
+.textarea {
+  min-height: 96px;
+  padding: var(--space-2) var(--space-3);
+  resize: vertical;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--md-sys-color-on-surface-variant);
+  opacity: 0.85;
+}
+
+.select {
+  cursor: pointer;
+  padding-right: var(--space-8);
+  appearance: none;
+}
+
+.selectArrow {
+  position: absolute;
+  right: var(--space-3);
+  pointer-events: none;
+  color: var(--md-sys-color-on-surface-variant);
+  display: inline-flex;
+}
+
+.helperText {
+  font-size: var(--text-label-md);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.errorText {
+  font-size: var(--text-label-md);
+  color: var(--md-sys-color-error);
+  font-weight: 500;
+}
+
+/* Switch */
+.switchRow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  cursor: pointer;
+  user-select: none;
+}
+
+.switchRowDisabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.switchTrack {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--md-sys-color-outline);
+  background-color: var(--md-sys-color-surface-container-high);
+  padding: 0;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.switchTrackChecked {
+  background-color: var(--md-sys-color-primary);
+  border-color: var(--md-sys-color-primary);
+}
+
+.switchThumb {
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--md-sys-color-on-surface-variant);
+  transform: translateY(-50%);
+  transition:
+    transform var(--transition-fast),
+    width var(--transition-fast),
+    height var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.switchTrackChecked .switchThumb {
+  width: 20px;
+  height: 20px;
+  background-color: var(--md-sys-color-on-primary);
+  transform: translate(20px, -50%);
+}
+
+.choiceText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.choiceLabel {
+  font-size: var(--text-body-md);
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+}
+
+.choiceDescription {
+  font-size: var(--text-label-md);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Checkbox */
+.checkboxRow {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkboxInput {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--md-sys-color-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}

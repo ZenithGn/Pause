@@ -77,14 +77,10 @@ export function DownloadActions({
       </div>
 
       <p className={styles.platformMeta}>
-        Android 8.0 trở lên · Phiên bản Google Play &amp; iOS sắp ra mắt
+        {isBetaRelease
+          ? "Bản thử nghiệm Beta, không quảng cáo · Google Play & iOS sắp ra mắt"
+          : "Không quảng cáo · Google Play & iOS sắp ra mắt"}
       </p>
-
-      <ul className={styles.releaseSpecs} aria-label="Thông số gói cài đặt APK">
-        <li>Phiên bản: v0.1.0</li>
-        <li>Nguồn: GitHub Releases</li>
-        <li>Không quảng cáo</li>
-      </ul>
 
       {copied || copyError ? (
         <p className={styles.liveFeedback} role="status" aria-live="polite">
@@ -92,16 +88,6 @@ export function DownloadActions({
             ? "Đã sao chép liên kết tải Pause Android vào bộ nhớ tạm."
             : "Không thể tự động sao chép, vui lòng bấm trực tiếp nút Tải file APK Android."}
         </p>
-      ) : null}
-
-      {isBetaRelease ? (
-        <div className={styles.betaNotice}>
-          <span className={styles.betaDot} aria-hidden="true" />
-          <p>
-            <strong>Bản thử nghiệm Beta (v0.1.0):</strong> Phát hành trực tiếp
-            cho Android để bạn trải nghiệm sớm trước khi lên Google Play.
-          </p>
-        </div>
       ) : null}
     </div>
   );

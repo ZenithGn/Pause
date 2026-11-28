@@ -71,24 +71,24 @@
 
 .heroTitle {
   font-family: var(--font-display-family);
-  font-size: clamp(2.5rem, 5vw, 4.25rem);
-  font-weight: 700;
-  line-height: 1.08;
-  letter-spacing: -0.02em;
+  font-size: clamp(2.5rem, 5vw, 4.125rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
   color: var(--color-white);
 }
 
 .heroAccent {
-  font-style: italic;
-  font-weight: 600;
+  font-style: normal;
+  font-weight: 800;
   color: var(--color-gold-bright);
 }
 
 .heroDescription {
   font-size: 1.0625rem;
-  line-height: 1.7;
+  line-height: 1.65;
   color: rgba(255, 255, 255, 0.86);
-  max-width: 520px;
+  max-width: 480px;
 }
 
 .heroActions {
@@ -139,21 +139,6 @@
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-.heroMetrics {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
-  padding-top: var(--space-2);
-  font-family: var(--font-mono-family);
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.metricDot {
-  color: var(--color-gold-bright);
-}
-
 .heroShowcaseCol {
   min-width: 0;
   width: 100%;
@@ -174,9 +159,9 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  font-family: var(--font-mono-family);
+  font-family: var(--font-sans-family);
   font-size: 0.72rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-wine);
@@ -191,10 +176,10 @@
 
 .sectionHeading {
   font-family: var(--font-display-family);
-  font-size: clamp(1.95rem, 3.5vw, 2.85rem);
-  font-weight: 700;
-  line-height: var(--leading-tight);
-  letter-spacing: -0.02em;
+  font-size: clamp(1.9rem, 3.4vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
   color: var(--color-ink);
   margin-top: var(--space-3);
 }
@@ -384,7 +369,7 @@
 
 /* Hairline editorial rows (replaces heavy card-in-card boxes) */
 .featureList {
-  margin-top: var(--space-8);
+  margin-top: var(--space-6);
   border-top: 1px solid var(--color-line);
 }
 
@@ -439,7 +424,7 @@
 }
 
 /* ==========================================================================
-   Section 3: Interactive 3-Step Process Rail + Borderless Template Showcase
+   Section 3: Compact 3-Step Strip + Borderless Template Experience Showcase
    ========================================================================== */
 .processSection {
   position: relative;
@@ -452,18 +437,13 @@
   max-width: 660px;
 }
 
-.processRailBlock {
-  margin-top: var(--space-10);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-}
-
 .processStepsRail {
+  margin-top: var(--space-8);
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   border-top: 1px solid var(--color-line);
   border-bottom: 1px solid var(--color-line);
+  background-color: rgba(255, 255, 255, 0.45);
 }
 
 .processStepItem {
@@ -475,324 +455,56 @@
   border-right: none;
 }
 
-.processStepButton {
-  width: 100%;
+.processStepCard {
   height: 100%;
-  padding: var(--space-6);
-  background: transparent;
-  border: 0;
-  text-align: left;
+  padding: var(--space-5) var(--space-6);
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  border-top: 2.5px solid transparent;
-  transition: background-color var(--transition-fast), border-color var(--transition-fast);
-}
-
-.processStepButton:hover {
-  background-color: rgba(255, 255, 255, 0.65);
-}
-
-.processStepItemActive .processStepButton {
-  background-color: var(--color-white);
-  border-top-color: var(--color-wine);
-}
-
-.processStepTop {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: var(--space-2);
 }
 
 .stepNumber {
-  font-family: var(--font-mono-family);
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-family: var(--font-display-family);
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
+  font-weight: 700;
   line-height: 1;
   color: var(--color-wine);
 }
 
-.stepTag {
-  font-family: var(--font-mono-family);
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: var(--color-ink-muted);
-}
-
 .stepTitle {
-  font-size: 1.0625rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
   color: var(--color-ink);
   margin-top: var(--space-1);
 }
 
 .stepDesc {
-  font-size: 0.9rem;
-  color: var(--color-ink-muted);
-  line-height: 1.55;
-}
-
-.processVisualBar {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-  gap: var(--space-8);
-  align-items: center;
-  padding: var(--space-6);
-  background-color: var(--color-white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-subtle);
-}
-
-.processVisualStage {
-  min-height: 168px;
-  padding: var(--space-5);
-  border-radius: var(--radius-md);
-  background-color: var(--color-linen);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.stepVisualRow {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: var(--space-4);
-  flex-wrap: wrap;
-}
-
-.stepMiniStrip,
-.stepMiniSquare,
-.stepMiniVip {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 6px 6px 8px;
-  border-radius: 5px;
-  box-shadow: 0 8px 20px rgba(17, 17, 17, 0.12);
-}
-
-.stepMiniStrip {
-  width: 78px;
-  background-color: var(--color-white);
-}
-
-.stepMiniSquare {
-  width: 96px;
-  background-color: var(--color-white);
-}
-
-.stepMiniVip {
-  width: 78px;
-  background-color: #141212;
-  border: 1px solid rgba(197, 155, 56, 0.75);
-}
-
-.stepMiniImg {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: 2px;
-}
-
-.stepMiniSquareImg {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-  border-radius: 2px;
-}
-
-.stepMiniCap {
-  font-size: 0.625rem;
-  font-weight: 700;
-  text-align: center;
-  color: var(--color-ink);
-}
-
-.stepMiniCapVip {
-  font-size: 0.625rem;
-  font-weight: 700;
-  text-align: center;
-  color: var(--color-gold-bright);
-}
-
-.stepFillPreview {
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-5);
-}
-
-.stepFillFrame {
-  width: 126px;
-  padding: 8px 8px 10px;
-  background-color: var(--color-white);
-  border-radius: 6px;
-  box-shadow: 0 10px 24px rgba(17, 17, 17, 0.12);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.stepFillSlot {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.stepFillImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.stepCropPill {
-  position: absolute;
-  bottom: 4px;
-  right: 4px;
-  padding: 1px 6px;
-  border-radius: var(--radius-full);
-  background-color: rgba(17, 17, 17, 0.78);
-  color: var(--color-white);
-  font-family: var(--font-mono-family);
-  font-size: 0.5625rem;
-}
-
-.stepFillCaption {
-  font-family: var(--font-display-family);
-  font-style: italic;
-  font-size: 0.75rem;
-  text-align: center;
-  color: var(--color-ink);
-}
-
-.stepFillSpecs {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.stepSpecChip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.42rem 0.8rem;
-  border-radius: var(--radius-full);
-  background-color: var(--color-white);
-  color: var(--color-ink);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  box-shadow: var(--shadow-subtle);
-}
-
-.stepPrintPreview {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.stepPrintSpecItem {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  background-color: var(--color-white);
-  border-radius: var(--radius-sm);
-}
-
-.stepPrintIcon {
-  color: var(--color-wine);
-  flex-shrink: 0;
-}
-
-.stepPrintTitle {
-  display: block;
   font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-ink);
-}
-
-.stepPrintSub {
-  display: block;
-  font-size: 0.78rem;
   color: var(--color-ink-muted);
-}
-
-.processVisualCopy {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-3);
-}
-
-.processVisualStepCode {
-  font-family: var(--font-mono-family);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--color-wine);
-}
-
-.calloutText {
-  font-size: 0.9375rem;
-  color: var(--color-ink);
-  font-weight: 500;
-  line-height: 1.55;
-}
-
-.wineCtaBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  padding: 0.75rem 1.375rem;
-  border-radius: var(--radius-full);
-  background-color: var(--color-wine);
-  color: var(--color-white);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  border: 1px solid var(--color-wine);
-  transition: background-color var(--transition-fast), transform var(--transition-fast);
-}
-
-.wineCtaBtn:hover {
-  background-color: var(--color-wine-deep);
-  transform: translateY(-1px);
+  line-height: 1.5;
 }
 
 /* Featured Print Templates Showcase Strip (Frameless Gallery) */
 .templatesShowcase {
-  margin-top: var(--space-16);
-  padding-top: var(--space-12);
-  border-top: 1px solid var(--color-line);
+  margin-top: var(--space-12);
 }
 
 .templatesHeader {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  margin-bottom: var(--space-8);
+  margin-bottom: var(--space-6);
 }
 
 .templatesTitle {
   font-family: var(--font-display-family);
-  font-size: clamp(1.375rem, 2.2vw, 1.85rem);
+  font-size: clamp(1.25rem, 2vw, 1.625rem);
   font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--color-ink);
-}
-
-.templatesSub {
-  margin-top: var(--space-1);
-  font-size: 0.9375rem;
-  color: var(--color-ink-muted);
 }
 
 .templatesLink {
@@ -938,8 +650,9 @@
 
 .tierName {
   font-family: var(--font-display-family);
-  font-size: 1.45rem;
+  font-size: 1.35rem;
   font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--color-ink);
 }
 
@@ -947,19 +660,8 @@
   color: var(--color-white);
 }
 
-.tierDesc {
-  margin-top: var(--space-2);
-  font-size: 0.875rem;
-  color: var(--color-ink-muted);
-  min-height: 44px;
-}
-
-.pricingCardPopular .tierDesc {
-  color: rgba(255, 255, 255, 0.82);
-}
-
 .tierPriceRow {
-  margin-top: var(--space-5);
+  margin-top: var(--space-4);
   padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--color-line);
   display: flex;
@@ -973,8 +675,10 @@
 
 .tierPrice {
   font-family: var(--font-display-family);
-  font-size: 2rem;
-  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
   color: var(--color-wine);
 }
 
@@ -1089,9 +793,9 @@
 }
 
 .ctaEyebrow {
-  font-family: var(--font-mono-family);
+  font-family: var(--font-sans-family);
   font-size: 0.72rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.12em;
   color: var(--color-gold-bright);
   text-transform: uppercase;
@@ -1099,9 +803,10 @@
 
 .ctaHeading {
   font-family: var(--font-display-family);
-  font-size: clamp(1.95rem, 3.4vw, 2.85rem);
-  font-weight: 700;
-  line-height: 1.12;
+  font-size: clamp(1.9rem, 3.3vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
   margin-top: var(--space-3);
   color: var(--color-white);
 }
@@ -1269,8 +974,7 @@
   }
 
   .featuresGrid,
-  .ctaGrid,
-  .processVisualBar {
+  .ctaGrid {
     grid-template-columns: minmax(0, 1fr);
   }
 

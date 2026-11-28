@@ -369,9 +369,6 @@ export function PhotoSlotManager({
           placeholder={`Ví dụ: ${defaultCaptionHint}`}
           className={styles.textInput}
         />
-        <span className={styles.fieldHelper}>
-          Cập nhật trực tiếp lên mặt trước bản in 3D (tối đa 60 ký tự).
-        </span>
       </div>
     </section>
   );

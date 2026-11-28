@@ -1,25 +1,25 @@
-import { FolderHeart, Lock, Printer, Users } from "lucide-react";
+import { FolderHeart, ImagePlus, Lock, Users } from "lucide-react";
 import { DRAWER_SAMPLE_PHOTOS } from "@/lib/catalog-data";
 import styles from "./Home.module.css";
 
 const FEATURE_ITEMS = [
   {
-    title: "Ngăn kéo theo chủ đề",
+    title: "Phân loại theo từng dịp",
     description:
-      "Tách biệt kỷ niệm Đà Lạt, kỷ niệm 1 năm, ảnh gia đình khỏi ảnh công việc lộn xộn.",
+      "Tách riêng chuyến đi, buổi hẹn hò và gia đình khỏi ảnh vặt hằng ngày.",
     Icon: FolderHeart,
   },
   {
-    title: "Chia sẻ phân quyền (Xem / Chỉnh sửa)",
+    title: "Chia sẻ quyền Xem / Sửa",
     description:
-      "Mời bạn bè, người yêu qua email cùng góp ảnh vào một ngăn kéo chung an toàn.",
+      "Mời bạn bè hoặc người thương cùng góp ảnh vào ngăn kéo chung.",
     Icon: Users,
   },
   {
-    title: "Chuyển hóa thành bản in thật",
+    title: "Sẵn sàng để ghép mẫu in",
     description:
-      "Chọn mẫu thiết kế sẵn, ghép ảnh từ ngăn kéo và đặt in giao tận nhà, thanh toán VietQR/PayOS hoặc COD.",
-    Icon: Printer,
+      "Chọn thẳng những khoảnh khắc ưng ý nhất từ ngăn kéo khi cần in.",
+    Icon: ImagePlus,
   },
 ] as const;
 
@@ -79,7 +79,7 @@ export function FeaturesSection() {
 
               <div className={styles.drawerCardFooter}>
                 <span className={styles.drawerCount}>38 / 50 ảnh</span>
-                <span className={styles.drawerReadyTag}>Sẵn sàng in Photobooth</span>
+                <span className={styles.drawerReadyTag}>Sẵn sàng chọn in</span>
               </div>
             </div>
 
@@ -104,15 +104,10 @@ export function FeaturesSection() {
           </div>
 
           <div className={styles.featuresContent}>
-            <span className={styles.eyebrow}>NGĂN KÉO KỶ NIỆM</span>
+            <span className={styles.eyebrow}>GIỚI THIỆU</span>
             <h2 id="drawers-heading" className={styles.sectionHeading}>
-              Không chỉ là thư viện ảnh, mà là Ngăn kéo Kỷ niệm
+              Gọn gàng hơn thư viện ảnh: Ngăn kéo Kỷ niệm
             </h2>
-            <p className={styles.sectionLead}>
-              Mỗi ngăn kéo là một hộp lưu giữ riêng tư nơi những bức ảnh cùng
-              câu chuyện được sắp xếp gọn gàng và sẵn sàng để in thành kỷ vật
-              trên tay.
-            </p>
 
             <ul className={styles.featureList}>
               {FEATURE_ITEMS.map(({ title, description, Icon }, idx) => (

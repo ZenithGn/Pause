@@ -142,7 +142,7 @@ describe("Home Hero and Final CTA layout without sticky overlay", () => {
     );
 
     expect(screen.getByTestId("hero-photobooth-stage")).toBeInTheDocument();
-    expect(screen.getByText(/Giấy mỹ thuật satin 200gsm/i)).toBeInTheDocument();
+    expect(screen.getByText(/Rê chuột soi sáng/i)).toBeInTheDocument();
     expect(screen.getByText("Classic White (2 ảnh)")).toBeInTheDocument();
 
     const previewLink = screen.getByRole("link", { name: /Thử ảnh của bạn/i });
@@ -165,18 +165,14 @@ describe("Home Hero and Final CTA layout without sticky overlay", () => {
     expect(screen.getByRole("button", { name: /Xem mặt trước/i })).toBeInTheDocument();
   });
 
-  it("switches interactive visual proof across the 3 Photobooth workflow steps", () => {
+  it("renders the compact 3-step Photobooth workflow strip cleanly", () => {
     render(React.createElement(ProcessInteractiveSteps));
 
-    expect(screen.getByText("BƯỚC 01")).toBeInTheDocument();
-    expect(screen.getByText("Family 1:1")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: /02.*Fill ảnh từ Ngăn kéo/i }));
-    expect(screen.getByText("BƯỚC 02")).toBeInTheDocument();
-    expect(screen.getByText(/Crop-fill 100%/i)).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: /03.*Đặt in & Nhận tận tay/i }));
-    expect(screen.getByText("BƯỚC 03")).toBeInTheDocument();
-    expect(screen.getByText(/Giấy mỹ thuật satin 200gsm/i)).toBeInTheDocument();
+    expect(screen.getByText("01")).toBeInTheDocument();
+    expect(screen.getByText("Chọn mẫu Photobooth")).toBeInTheDocument();
+    expect(screen.getByText("02")).toBeInTheDocument();
+    expect(screen.getByText("Ghép ảnh & chỉnh màu")).toBeInTheDocument();
+    expect(screen.getByText("03")).toBeInTheDocument();
+    expect(screen.getByText(/Giấy satin 200gsm/i)).toBeInTheDocument();
   });
 });

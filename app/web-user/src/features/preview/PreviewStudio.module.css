@@ -110,9 +110,10 @@
 
 .panelTitle {
   font-family: var(--font-display-family);
-  font-size: 1.6rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 800;
   line-height: var(--leading-tight);
+  letter-spacing: -0.025em;
   color: var(--color-ink);
 }
 
@@ -198,8 +199,9 @@
 
 .sectionHeading {
   font-family: var(--font-display-family);
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--color-ink);
 }
 
@@ -656,11 +658,6 @@
   box-shadow: 0 0 0 3px rgba(99, 13, 17, 0.14);
 }
 
-.fieldHelper {
-  font-size: 0.78rem;
-  color: var(--color-ink-muted);
-}
-
 .optionGroup {
   display: flex;
   flex-direction: column;
@@ -788,7 +785,10 @@
 
 .priceTotalValue {
   font-family: var(--font-display-family);
+  font-variant-numeric: tabular-nums;
   font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   color: var(--color-wine);
 }
 

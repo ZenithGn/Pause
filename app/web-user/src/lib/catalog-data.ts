@@ -206,12 +206,10 @@ export const OFFICIAL_MEMBERSHIP_TIERS: PublicMembershipTier[] = [
     price_vnd: 0,
     duration_type: "yearly",
     drawer_limit_label: "3 ngăn kéo",
-    storage_label: "Tối đa 50 ảnh / ngăn kéo",
+    storage_label: "Tối đa 50 ảnh / ngăn",
     features: [
-      "3 ngăn kéo kỷ niệm cá nhân",
-      "Tối đa 50 ảnh mỗi ngăn kéo",
       "Chia sẻ ngăn kéo với bạn bè",
-      "Sử dụng kho mẫu Photobooth cơ bản",
+      "Kho mẫu Photobooth cơ bản",
     ],
     access_premium_templates: false,
     is_free: true,
@@ -225,10 +223,8 @@ export const OFFICIAL_MEMBERSHIP_TIERS: PublicMembershipTier[] = [
     drawer_limit_label: "10 ngăn kéo",
     storage_label: "5 GB / năm",
     features: [
-      "10 ngăn kéo kỷ niệm riêng biệt",
-      "5 GB dung lượng lưu trữ / năm",
-      "Mở khóa 100% kho mẫu VIP Templates",
-      "Lưu ảnh chất lượng cao, không nén mất nét",
+      "Mở khóa 100% mẫu VIP",
+      "Lưu ảnh gốc không nén",
     ],
     access_premium_templates: true,
   },
@@ -241,10 +237,9 @@ export const OFFICIAL_MEMBERSHIP_TIERS: PublicMembershipTier[] = [
     drawer_limit_label: "25 ngăn kéo",
     storage_label: "10 GB / năm",
     features: [
-      "25 ngăn kéo theo chủ đề & sự kiện",
-      "10 GB dung lượng lưu trữ / năm",
-      "Mở khóa 100% kho mẫu VIP Templates",
-      "Chia sẻ không giới hạn thành viên cùng góp ảnh",
+      "Mở khóa 100% mẫu VIP",
+      "Chia sẻ không giới hạn thành viên",
+      "Lưu ảnh gốc không nén",
     ],
     access_premium_templates: true,
     is_popular: true,
@@ -258,10 +253,9 @@ export const OFFICIAL_MEMBERSHIP_TIERS: PublicMembershipTier[] = [
     drawer_limit_label: "50 ngăn kéo",
     storage_label: "20 GB / năm",
     features: [
-      "50 ngăn kéo lưu trữ kỷ niệm dài lâu",
-      "20 GB dung lượng lưu trữ / năm",
-      "Mở khóa 100% kho mẫu VIP Templates",
-      "Ưu đãi in ấn tối đa & hỗ trợ ưu tiên",
+      "Mở khóa 100% mẫu VIP",
+      "Chia sẻ không giới hạn thành viên",
+      "Ưu đãi in ấn & hỗ trợ ưu tiên",
     ],
     access_premium_templates: true,
   },
@@ -363,11 +357,10 @@ export function buildPublicMembershipTiers(
         drawer_limit_label: `${totalDrawers} ngăn kéo`,
         storage_label: storageLabel,
         features: [
-          `${totalDrawers} ngăn kéo lưu trữ kỷ niệm`,
-          storageLabel,
           row.access_premium_templates
-            ? "Mở khóa 100% kho mẫu VIP Templates"
-            : "Kho mẫu Photobooth tiêu chuẩn",
+            ? "Mở khóa 100% mẫu VIP"
+            : "Kho mẫu Photobooth cơ bản",
+          "Lưu ảnh gốc không nén",
         ],
         access_premium_templates: row.access_premium_templates,
       };

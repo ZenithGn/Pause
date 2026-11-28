@@ -224,7 +224,7 @@ describe("PreviewStudio component", () => {
     expect(screen.getByText("54.000đ")).toBeInTheDocument();
 
     const downloadCta = screen.getByRole("link", {
-      name: /Tải App Pause để lưu Ngăn kéo & đặt in/i,
+      name: /Tải App để đặt in mẫu này/i,
     });
     expect(downloadCta).toHaveAttribute(
       "href",
@@ -272,5 +272,20 @@ describe("PreviewStudio component", () => {
     fireEvent.click(screen.getByRole("button", { name: /2\. Ảnh & Tone/i }));
     expect(panelScrollTo).toHaveBeenCalledTimes(1);
     expect(windowScrollIntoView).not.toHaveBeenCalled();
+
+    // Scroll-spy sync when manually scrolling the panel down to materials
+    const materialsSection = document.getElementById("studio-section-materials");
+    const templatesSection = document.getElementById("studio-section-templates");
+    if (templatesSection && photoSection && materialsSection) {
+      vi.spyOn(panel, "getBoundingClientRect").mockReturnValue({ top: 72 } as DOMRect);
+      vi.spyOn(templatesSection, "getBoundingClientRect").mockReturnValue({ top: -900 } as DOMRect);
+      vi.spyOn(photoSection, "getBoundingClientRect").mockReturnValue({ top: -400 } as DOMRect);
+      vi.spyOn(materialsSection, "getBoundingClientRect").mockReturnValue({ top: 90 } as DOMRect);
+
+      fireEvent.scroll(panel);
+      expect(screen.getByRole("button", { name: /3\. Chất liệu/i }).className).toContain(
+        "jumpButtonActive"
+      );
+    }
   });
 });

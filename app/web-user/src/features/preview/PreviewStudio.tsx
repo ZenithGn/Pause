@@ -115,6 +115,57 @@ export function PreviewStudio({
     resetDocumentScrollTop();
   }, [initialTemplateId]);
 
+  // Synchronize active jump-bar tab with panel scroll (desktop) or window scroll (mobile)
+  useEffect(() => {
+    const sectionOrder: StudioSectionKey[] = ["templates", "photos", "materials"];
+    const panel = panelRef.current;
+
+    const updateActiveFromScroll = () => {
+      const isDesktopPanelScrollable =
+        panel &&
+        panel.scrollHeight > panel.clientHeight &&
+        window.getComputedStyle(panel).overflowY !== "visible";
+
+      if (
+        isDesktopPanelScrollable &&
+        panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 16
+      ) {
+        setActiveJumpKey((prev) => (prev === "materials" ? prev : "materials"));
+        return;
+      }
+
+      if (
+        !isDesktopPanelScrollable &&
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 24
+      ) {
+        setActiveJumpKey((prev) => (prev === "materials" ? prev : "materials"));
+        return;
+      }
+
+      const jumpBar = panel?.querySelector<HTMLElement>(`.${styles.jumpBar}`);
+      const referenceTop = isDesktopPanelScrollable
+        ? panel.getBoundingClientRect().top + (jumpBar?.offsetHeight ?? 48) + 28
+        : (jumpBar?.getBoundingClientRect().bottom ?? 180) + 28;
+
+      let nextActive: StudioSectionKey = "templates";
+      for (const key of sectionOrder) {
+        const el = document.getElementById(`studio-section-${key}`);
+        if (!el) continue;
+        if (el.getBoundingClientRect().top <= referenceTop) {
+          nextActive = key;
+        }
+      }
+      setActiveJumpKey((prev) => (prev === nextActive ? prev : nextActive));
+    };
+
+    panel?.addEventListener("scroll", updateActiveFromScroll, { passive: true });
+    window.addEventListener("scroll", updateActiveFromScroll, { passive: true });
+    return () => {
+      panel?.removeEventListener("scroll", updateActiveFromScroll);
+      window.removeEventListener("scroll", updateActiveFromScroll);
+    };
+  }, []);
+
   useEffect(() => {
     if (prevInitialTemplateIdRef.current !== initialTemplateId) {
       prevInitialTemplateIdRef.current = initialTemplateId;

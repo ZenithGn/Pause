@@ -16,18 +16,17 @@ export function HeroSection({ templates }: HeroSectionProps) {
       <div className={styles.heroInner}>
         <div className={styles.heroContent}>
           <span className={styles.heroEyebrow}>
-            LƯU TRỮ KỶ NIỆM &amp; IN PHOTOBOOTH
+            LƯU TRỮ &amp; IN PHOTOBOOTH
           </span>
 
           <h1 id="hero-heading" className={styles.heroTitle}>
             Dừng lại, lưu giữ,{" "}
-            <em className={styles.heroAccent}>hiện thực hóa</em> kỷ niệm.
+            <span className={styles.heroAccent}>hiện thực hóa</span> kỷ niệm.
           </h1>
 
           <p className={styles.heroDescription}>
-            Tổ chức ảnh theo từng Ngăn kéo kỷ niệm, chia sẻ cùng người thương và
-            biến khoảnh khắc số thành dải ảnh Photobooth cầm tay chỉ trong 3
-            bước.
+            Cất ảnh theo từng ngăn kéo riêng tư, chia sẻ cùng bạn bè và đặt in
+            photobooth giao tận tay.
           </p>
 
           <div className={styles.heroActions}>
@@ -39,18 +38,6 @@ export function HeroSection({ templates }: HeroSectionProps) {
               <Download size={17} aria-hidden="true" />
               <span>Tải ứng dụng Android</span>
             </Link>
-          </div>
-
-          <div className={styles.heroMetrics} aria-label="Thông số nổi bật">
-            <span>Miễn phí 3 ngăn kéo</span>
-            <span className={styles.metricDot} aria-hidden="true">
-              ·
-            </span>
-            <span>50 ảnh / ngăn kéo</span>
-            <span className={styles.metricDot} aria-hidden="true">
-              ·
-            </span>
-            <span>In ấn giao tận nơi</span>
           </div>
         </div>
 

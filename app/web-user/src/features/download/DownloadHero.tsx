@@ -60,9 +60,8 @@ export function DownloadHero({ apkMeta, selectedPreview }: DownloadHeroProps) {
             </h1>
 
             <p className={styles.description}>
-              Lưu giữ trọn vẹn kỷ niệm theo từng Ngăn kéo riêng tư, chia sẻ cùng
-              người thương và biến ảnh số thành dải ảnh Photobooth cầm tay với
-              chất lượng in 200gsm giao tận nhà.
+              Tải ứng dụng Pause cho Android để lưu giữ kỷ niệm theo ngăn kéo
+              và đặt in ảnh photobooth trực tiếp.
             </p>
 
             <DownloadActions

@@ -16,13 +16,12 @@ export function PricingSection({ tiers }: PricingSectionProps) {
     >
       <div className={styles.sectionContainer}>
         <div className={styles.pricingHeader}>
-          <span className={styles.eyebrow}>GÓI HỘI VIÊN PAUSE</span>
+          <span className={styles.eyebrow}>GÓI HỘI VIÊN</span>
           <h2 id="pricing-heading" className={styles.sectionHeading}>
-            Lưu giữ nhiều hơn với Gói Hội viên Pause
+            Nâng cấp không gian lưu giữ
           </h2>
           <p className={styles.sectionLead}>
-            Thanh toán 1 lần mỗi năm — mở khóa 100% kho mẫu Photobooth VIP và
-            mở rộng không gian lưu giữ kỷ niệm.
+            Thanh toán 1 lần mỗi năm để mở rộng ngăn kéo và toàn bộ kho mẫu VIP.
           </p>
         </div>
 
@@ -33,7 +32,7 @@ export function PricingSection({ tiers }: PricingSectionProps) {
               tier.price_vnd <= 0 ? "0đ" : formatVnd(tier.price_vnd);
             const durationLabel =
               tier.price_vnd <= 0
-                ? "Miễn phí trọn đời"
+                ? "Miễn phí"
                 : tier.duration_type === "monthly"
                   ? "/ tháng"
                   : "/ năm";
@@ -51,7 +50,6 @@ export function PricingSection({ tiers }: PricingSectionProps) {
                   ) : null}
 
                   <h3 className={styles.tierName}>{tier.name}</h3>
-                  <p className={styles.tierDesc}>{tier.description}</p>
 
                   <div className={styles.tierPriceRow}>
                     <span className={styles.tierPrice}>{priceLabel}</span>
@@ -83,8 +81,8 @@ export function PricingSection({ tiers }: PricingSectionProps) {
                   }`}
                 >
                   {tier.price_vnd <= 0
-                    ? "Bắt đầu miễn phí trên App"
-                    : `Chọn ${tier.name} trên App`}
+                    ? "Bắt đầu miễn phí"
+                    : `Chọn ${tier.name}`}
                 </Link>
               </article>
             );

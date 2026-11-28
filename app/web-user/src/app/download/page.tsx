@@ -67,26 +67,28 @@ export default async function DownloadPage({ searchParams }: DownloadPageProps) 
       <InstallSteps />
       <DownloadFaq />
 
-      <section className={styles.ctaSection} aria-labelledby="download-preview-cta">
-        <div className={styles.container}>
-          <div className={styles.banner}>
-            <div className={styles.textBlock}>
-              <p className={styles.eyebrow}>TRẢI NGHIỆM TRƯỚC KHI CÀI ĐẶT</p>
-              <h2 id="download-preview-cta" className={styles.title}>
-                Thử ghép ảnh vào mẫu Photobooth 3D ngay trên trình duyệt
-              </h2>
-              <p className={styles.description}>
-                Xoay 360° vật thể in, thử chất liệu bìa cứng và giấy mỹ thuật
-                200gsm mà không cần tải ảnh lên máy chủ.
-              </p>
+      {!selectedPreview ? (
+        <section className={styles.ctaSection} aria-labelledby="download-preview-cta">
+          <div className={styles.container}>
+            <div className={styles.banner}>
+              <div className={styles.textBlock}>
+                <p className={styles.eyebrow}>TRẢI NGHIỆM TRƯỚC KHI CÀI</p>
+                <h2 id="download-preview-cta" className={styles.title}>
+                  Thử ghép ảnh lên mẫu Photobooth 3D
+                </h2>
+                <p className={styles.description}>
+                  Xoay 360° và thử chất liệu giấy ngay trên trình duyệt mà không
+                  tải ảnh lên máy chủ.
+                </p>
+              </div>
+              <Link href="/preview" className={styles.ctaButton}>
+                <span>Mở Studio Preview 3D</span>
+                <ArrowRight size={17} aria-hidden="true" />
+              </Link>
             </div>
-            <Link href="/preview" className={styles.ctaButton}>
-              <span>Mở Studio Preview 3D</span>
-              <ArrowRight size={17} aria-hidden="true" />
-            </Link>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
     </>
   );
 }

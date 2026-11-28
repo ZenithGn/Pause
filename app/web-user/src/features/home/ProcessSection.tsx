@@ -116,13 +116,13 @@ export function ProcessSection({ templates }: ProcessSectionProps) {
     >
       <div className={styles.sectionContainer}>
         <div className={styles.processIntro}>
-          <span className={styles.eyebrow}>IN PHOTOBOOTH THEO YÊU CẦU</span>
+          <span className={styles.eyebrow}>TRẢI NGHIỆM</span>
           <h2 id="process-heading" className={styles.sectionHeading}>
-            Từ khoảnh khắc số đến dải ảnh cầm tay trong 3 bước
+            Từ ảnh trong ngăn kéo đến dải ảnh trên tay
           </h2>
           <p className={styles.sectionLead}>
-            Xem trước trực quan từng đường nét ép kim và độ dày giấy in trên
-            sân khấu 3D trước khi mở app đặt in.
+            Thử ghép ảnh từ máy lên mẫu in 3D ngay trên trình duyệt — xử lý 100%
+            tại thiết bị, không tải lên máy chủ.
           </p>
         </div>
 
@@ -130,16 +130,11 @@ export function ProcessSection({ templates }: ProcessSectionProps) {
 
         <div className={styles.templatesShowcase}>
           <div className={styles.templatesHeader}>
-            <div>
-              <h3 className={styles.templatesTitle}>
-                Kho mẫu in Photobooth nổi bật
-              </h3>
-              <p className={styles.templatesSub}>
-                Chọn một mẫu bên dưới để mở trực tiếp trong Studio Preview 3D.
-              </p>
-            </div>
+            <h3 className={styles.templatesTitle}>
+              Chọn một mẫu để thử ghép ảnh 3D
+            </h3>
             <Link href="/preview" className={styles.templatesLink}>
-              <span>Xem toàn bộ mẫu trong Studio 3D</span>
+              <span>Mở Studio 3D</span>
               <ArrowRight size={16} aria-hidden="true" />
             </Link>
           </div>

@@ -453,12 +453,8 @@ export function HeroPhotoboothStage({ templates }: HeroPhotoboothStageProps) {
         style={{ cursor: hoveredCardIndex !== null ? "pointer" : "default" }}
       >
         <div className={styles.stageTopBar}>
-          <span className={styles.paperPill}>
-            <span className={styles.paperDot} aria-hidden="true" />
-            <span>Giấy mỹ thuật satin 200gsm</span>
-          </span>
           <span className={styles.interactionHint}>
-            Rê chuột soi ánh sáng · Bấm thẻ để xem mẫu
+            Rê chuột soi sáng · Bấm thẻ đổi mẫu
           </span>
         </div>
 

@@ -1,11 +1,10 @@
-import { Cpu, Download, FolderHeart, HardDrive, ShieldCheck, Wifi } from "lucide-react";
+import { Download, FolderHeart, HardDrive, ShieldCheck, Wifi } from "lucide-react";
 import styles from "./InstallSteps.module.css";
 
 interface InstallStepItem {
   number: string;
   title: string;
   description: string;
-  hint: string;
 }
 
 const INSTALL_STEPS: InstallStepItem[] = [
@@ -13,29 +12,25 @@ const INSTALL_STEPS: InstallStepItem[] = [
     number: "01",
     title: "Tải file APK",
     description:
-      "Nhấn nút Tải file APK Android ở trên hoặc quét mã QR bằng camera điện thoại để tải bộ cài đặt chính thức từ GitHub Releases.",
-    hint: "Tệp cài đặt nhẹ, không chứa quảng cáo hay phần mềm đi kèm.",
+      "Nhấn Tải file APK hoặc quét mã QR để tải bộ cài đặt chính thức từ GitHub Releases.",
   },
   {
     number: "02",
-    title: "Cho phép cài đặt ứng dụng",
+    title: "Cho phép cài đặt",
     description:
-      "Mở tệp .apk vừa tải về trên điện thoại. Nếu Android hiển thị thông báo bảo mật, hãy chọn Cài đặt và bật Cho phép từ nguồn này.",
-    hint: "Chỉ cần cấp quyền một lần cho trình duyệt hoặc trình quản lý tệp.",
+      "Mở tệp .apk vừa tải; nếu có thông báo bảo mật, bật Cho phép từ nguồn này (chỉ 1 lần).",
   },
   {
     number: "03",
-    title: "Đăng nhập & mở Ngăn kéo đầu tiên",
+    title: "Đăng nhập & mở Ngăn kéo",
     description:
-      "Đăng nhập nhanh bằng Google hoặc Email để nhận ngay 3 Ngăn kéo miễn phí, tải ảnh kỷ niệm và bắt đầu thiết kế dải ảnh Photobooth.",
-    hint: "Ảnh của bạn được đồng bộ an toàn và riêng tư theo từng ngăn kéo.",
+      "Đăng nhập bằng Google hoặc Email để bắt đầu lưu ảnh và đặt in Photobooth.",
   },
 ];
 
 const DEVICE_SPECS = [
-  { icon: Cpu, label: "Hệ điều hành: Android 8.0 trở lên (API 26+)" },
   { icon: HardDrive, label: "Dung lượng trống khuyến nghị: ~45 MB" },
-  { icon: Wifi, label: "Kết nối mạng khi đồng bộ ảnh & đặt in" },
+  { icon: Wifi, label: "Cần kết nối mạng khi đồng bộ ảnh & đặt in" },
 ];
 
 function StepIllustration({ stepNumber }: { stepNumber: string }) {
@@ -98,11 +93,8 @@ export function InstallSteps() {
         <div className={styles.header}>
           <p className={styles.eyebrow}>HƯỚNG DẪN CÀI ĐẶT</p>
           <h2 id="install-steps-title" className={styles.title}>
-            Bắt đầu trên Android chỉ với 3 bước
+            Cài đặt trên Android trong 3 bước
           </h2>
-          <p className={styles.subtitle}>
-            Quy trình cài đặt file APK an toàn, hoàn tất trong chưa đầy 2 phút.
-          </p>
         </div>
 
         <ol className={styles.stepsGrid}>
@@ -117,7 +109,6 @@ export function InstallSteps() {
               <h3 className={styles.stepTitle}>{step.title}</h3>
               <p className={styles.stepDescription}>{step.description}</p>
               <StepIllustration stepNumber={step.number} />
-              <p className={styles.stepHint}>{step.hint}</p>
             </li>
           ))}
         </ol>

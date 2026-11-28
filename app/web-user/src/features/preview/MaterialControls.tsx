@@ -50,9 +50,6 @@ export function MaterialControls({
       <div className={styles.sectionIntro}>
         <span className={styles.stepIndexTag}>BƯỚC 03</span>
         <h2 className={styles.sectionHeading}>Chất liệu &amp; Ước tính đặt in</h2>
-        <p className={styles.sectionDescription}>
-          Thay đổi loại bìa và giấy để quan sát độ dày cạnh và độ bắt sáng ngay trên mô hình 3D.
-        </p>
       </div>
 
       {/* Cover thickness selection */}
@@ -134,8 +131,7 @@ export function MaterialControls({
           <div>
             <p className={styles.vipNoticeTitle}>Mẫu thiết kế VIP</p>
             <p className={styles.vipNoticeBody}>
-              Mẫu VIP được mở khóa miễn phí khi đăng ký gói <strong>PAUSE Go</strong>{" "}
-              trở lên trên ứng dụng Pause.
+              Mở khóa miễn phí từ gói <strong>PAUSE Go</strong> trở lên trên app Pause.
             </p>
           </div>
         </div>
@@ -166,7 +162,7 @@ export function MaterialControls({
 
       {/* Primary conversion CTA -> /download (carries template & material configuration) */}
       <Link href={downloadHref} className={styles.downloadCtaButton}>
-        <span>Tải App Pause để lưu Ngăn kéo &amp; đặt in</span>
+        <span>Tải App để đặt in mẫu này</span>
         <ArrowRight size={17} aria-hidden="true" />
       </Link>
     </section>

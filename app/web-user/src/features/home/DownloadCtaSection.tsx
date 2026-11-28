@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Download, Sparkles } from "lucide-react";
+import { CheckCircle2, Download, Sparkles } from "lucide-react";
 import { SAMPLE_PHOTO_URLS } from "@/lib/catalog-data";
 import styles from "./Home.module.css";
 
 const CTA_HIGHLIGHTS = [
-  "Miễn phí 3 ngăn kéo đầu tiên (tối đa 50 ảnh / ngăn)",
-  "Thanh toán VietQR / PayOS tự động hoặc COD khi nhận ảnh",
-  "Giấy mỹ thuật satin 200gsm chống ẩm, giao hàng toàn quốc",
+  "Android 8.0+ · Cài đặt nhanh qua file APK",
+  "Đồng bộ tức thì ngăn kéo bạn bè chia sẻ",
+  "Theo dõi tiến trình in trực tiếp trên app",
 ] as const;
 
 export function DownloadCtaSection() {
@@ -18,22 +18,18 @@ export function DownloadCtaSection() {
       <div className={styles.sectionContainer}>
         <div className={styles.ctaGrid}>
           <div className={styles.ctaEditorialBlock}>
-            <span className={styles.ctaEyebrow}>BẮT ĐẦU CÙNG PAUSE</span>
+            <span className={styles.ctaEyebrow}>ỨNG DỤNG ANDROID</span>
             <h2 id="final-cta-heading" className={styles.ctaHeading}>
-              Sẵn sàng mở ngăn kéo kỷ niệm đầu tiên?
+              Mở ngăn kéo đầu tiên trên điện thoại
             </h2>
             <p className={styles.ctaCopy}>
-              Tải ứng dụng Pause cho Android để lưu giữ miễn phí 3 ngăn kéo đầu
-              tiên, chia sẻ cùng bạn bè và đặt in photobooth giao tận tay.
+              Tạo ngăn kéo miễn phí, mời bạn bè góp ảnh và đặt in trực tiếp trên
+              Pause Android.
             </p>
             <div className={styles.ctaActions}>
               <Link href="/download" className={styles.primaryLightBtn}>
                 <Download size={17} aria-hidden="true" />
-                <span>Tải ứng dụng</span>
-              </Link>
-              <Link href="/preview" className={styles.secondaryGoldBtn}>
-                <span>Preview mẫu in 3D</span>
-                <ArrowRight size={17} aria-hidden="true" />
+                <span>Tải ứng dụng Android</span>
               </Link>
             </div>
           </div>

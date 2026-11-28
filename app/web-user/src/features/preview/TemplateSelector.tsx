@@ -42,9 +42,6 @@ export function TemplateSelector({
       <div className={styles.sectionIntro}>
         <span className={styles.stepIndexTag}>BƯỚC 01</span>
         <h2 className={styles.sectionHeading}>Chọn mẫu in Photobooth</h2>
-        <p className={styles.sectionDescription}>
-          Đổi mẫu bất kỳ lúc nào — ảnh bạn đã chọn ở các khung đầu vẫn được giữ nguyên.
-        </p>
       </div>
 
       <div className={styles.chipRow} role="group" aria-label="Lọc mẫu in theo chủ đề">
